@@ -1,0 +1,36 @@
+name: CI
+
+on:
+    push:
+        branches: [ 'main' ]
+    pull_request:
+        branches: [ 'main' ]
+
+jobs:
+    build-and-test:
+        runs-on: ubuntu-latest
+        steps:
+            -   name: Check out Repository
+                uses: actions/checkout@v2
+
+            -   name: Use Node.js
+                uses: actions/setup-node@v2
+                with:
+                    node-version: 20
+
+            -   name: Install dependencies
+                run: npm install
+
+            -   name: Build Docker image
+                run: |
+                    docker build -t regreen .
+
+            -   name: Login to Docker Hub
+                run: echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+
+            -   name: Push to Docker Hub
+                run: |
+                    docker tag regreen ${{ secrets.DOCKERHUB_USERNAME }}/regreen:latest
+                    docker push $${{ secrets.DOCKERHUB_USERNAME }}/regreen:latest
+
+
