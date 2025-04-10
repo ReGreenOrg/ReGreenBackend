@@ -49,6 +49,7 @@ jobs:
                     key: ${{ secrets.EC2_SSH_KEY }}
                     script: |
                         cd /home/ubuntu/app
+                        docker compose down --volumes --remove-orphans
                         docker-compose pull
                         docker-compose up -d
 
