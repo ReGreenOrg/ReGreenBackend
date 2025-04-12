@@ -49,6 +49,7 @@ jobs:
                     key: ${{ secrets.EC2_SSH_KEY }}
                     script: |
                         cd /home/ubuntu/app
+                        sudo su
                         whoami
                         docker compose pull
                         docker compose down
