@@ -51,5 +51,6 @@ jobs:
                         cd /home/ubuntu/app
                         whoami
                         docker compose pull
+                        docker compose down
                         docker compose up -d
 
