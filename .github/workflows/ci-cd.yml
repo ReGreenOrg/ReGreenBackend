@@ -50,9 +50,11 @@ jobs:
                     username: ubuntu
                     key: ${{ secrets.EC2_SSH_KEY }}
                     script: |
+                        sudo mkdir -p /home/ubuntu/app
+                        sudo chown ubuntu:ubuntu /home/ubuntu/app
                         cd /home/ubuntu/app
 
-                        echo "${{ secrets.ENV_FILE }}" | base64 --decode > .env
+                        echo "$ENV_B64" | base64 -d > .env
                         chmod 600 .env
                         
                         docker compose pull
