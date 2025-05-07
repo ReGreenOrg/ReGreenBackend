@@ -43,12 +43,17 @@ jobs:
         steps:
             -   name: Deploy to EC2 via SSH
                 uses: appleboy/ssh-action@master
+                env:
+                    ENV_B64: ${{ secrets.ENV_FILE }}
                 with:
                     host: ${{ secrets.EC2_HOST }}
                     username: ubuntu
                     key: ${{ secrets.EC2_SSH_KEY }}
                     script: |
                         cd /home/ubuntu/app
+
+                        echo "$ENV_B64" | base64 -d > .env
+                        
                         docker compose pull
                         docker compose down
                         docker compose up -d
