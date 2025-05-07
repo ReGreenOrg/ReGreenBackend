@@ -52,10 +52,11 @@ jobs:
                     script: |
                         cd /home/ubuntu/app
 
-                        echo "$ENV_B64" | base64 -d > .env
+                        echo "${{ secrets.ENV_FILE }}" | base64 --decode > .env
                         chmod 600 .env
                         
                         docker compose pull
                         docker compose down
                         docker compose up -d
+                        docker system prune -a --volumes
 
