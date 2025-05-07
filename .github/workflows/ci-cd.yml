@@ -53,6 +53,7 @@ jobs:
                         cd /home/ubuntu/app
 
                         echo "$ENV_B64" | base64 -d > .env
+                        chmod 600 .env
                         
                         docker compose pull
                         docker compose down
