@@ -20,6 +20,9 @@ jobs:
 
             -   name: Install dependencies
                 run: npm install
+                
+            -   name: Echo Env File
+                run: echo ${{ secrets.ENV_FILE }} | base64 --decode > ./.env
 
             -   name: Build Docker image
                 run: |
@@ -43,20 +46,12 @@ jobs:
         steps:
             -   name: Deploy to EC2 via SSH
                 uses: appleboy/ssh-action@master
-                env:
-                    ENV_B64: ${{ secrets.ENV_FILE }}
                 with:
                     host: ${{ secrets.EC2_HOST }}
                     username: ubuntu
                     key: ${{ secrets.EC2_SSH_KEY }}
                     script: |
-                        sudo mkdir -p /home/ubuntu/app
-                        sudo chown ubuntu:ubuntu /home/ubuntu/app
                         cd /home/ubuntu/app
-
-                        echo "$ENV_B64" | base64 -d > /home/ubuntu/app/.env
-                        chmod 600 .env
-                        
                         docker compose pull
                         docker compose down
                         docker compose up -d
