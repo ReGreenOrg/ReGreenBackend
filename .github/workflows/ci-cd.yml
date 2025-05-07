@@ -54,7 +54,7 @@ jobs:
                         sudo chown ubuntu:ubuntu /home/ubuntu/app
                         cd /home/ubuntu/app
 
-                        echo "$ENV_B64" | base64 -d > .env
+                        echo "$ENV_B64" | base64 -d > /home/ubuntu/app/.env
                         chmod 600 .env
                         
                         docker compose pull
