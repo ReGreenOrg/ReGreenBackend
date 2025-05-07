@@ -18,7 +18,6 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
   catch(exception: unknown, host: ArgumentsHost) {
     // ① handler / class 는 switchToHttp 전에 빼내야 합니다
-    const handler = (host as any).getHandler?.();
     const clazz = (host as any).getClass?.();
 
     const ctx = host.switchToHttp();
@@ -32,8 +31,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
     /* ---------- 도메인 ---------- */
     const domain: DomainCode =
-      this.reflector.get<DomainCode>(API_DOMAIN_KEY, handler) ??
-      this.reflector.get<DomainCode>(API_DOMAIN_KEY, clazz) ??
+      (clazz   && this.reflector.get<DomainCode>(API_DOMAIN_KEY, clazz))   ??
       DomainCode.NONE;
 
     const body: CommonResponseDto = {

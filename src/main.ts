@@ -12,8 +12,8 @@ async function bootstrap() {
 
   const reflector = app.get(Reflector);
 
-  app.useGlobalInterceptors(new SuccessInterceptor(reflector));
   app.useGlobalFilters(new HttpExceptionFilter(reflector));
+  app.useGlobalInterceptors(new SuccessInterceptor(reflector));
 
   // CORS 설정 (필요 시 추가)
   app.enableCors({

@@ -5,6 +5,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { firstValueFrom } from 'rxjs';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
@@ -15,6 +16,7 @@ export class AuthService {
     @InjectRepository(Member) private readonly memberRepo: Repository<Member>,
     private readonly http: HttpService,
     private readonly cs: ConfigService,
+    private readonly jwt: JwtService,
   ) {}
 
   async getToken(code: string): Promise<string> {
@@ -50,7 +52,7 @@ export class AuthService {
           headers: { Authorization: `Bearer ${accessToken}` },
         }),
       );
-      console.log(data)
+      console.log(data);
       return data;
     } catch (e: any) {
       throw new HttpException(
@@ -75,10 +77,20 @@ export class AuthService {
       member = this.memberRepo.create({
         nickname,
         email,
-        profileImageUrl
+        profileImageUrl,
       });
       await this.memberRepo.save(member);
     }
     return member;
+  }
+
+  async issueAccessToken(memberId: number) {
+    return await this.jwt.signAsync(
+      { sub: memberId },
+      {
+        secret: this.cs.get('JWT_SECRET'),
+        expiresIn: this.cs.get('JWT_EXPIRES'),
+      },
+    );
   }
 }

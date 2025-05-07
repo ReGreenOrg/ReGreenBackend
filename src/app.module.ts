@@ -26,7 +26,7 @@ import * as Joi from '@hapi/joi';
         KAKAO_REDIRECT_URI: Joi.string().required(),
 
         JWT_SECRET: Joi.string().required(),
-        JWT_EXPIRATION_TIME: Joi.string().required(),
+        JWT_EXPIRES: Joi.string().required(),
       }),
     }),
     DatabaseModule,
