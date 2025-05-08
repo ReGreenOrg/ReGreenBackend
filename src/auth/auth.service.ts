@@ -53,7 +53,6 @@ export class AuthService {
           headers: { Authorization: `Bearer ${accessToken}` },
         }),
       );
-      console.log(data);
       return data;
     } catch (e: any) {
       throw new HttpException(
