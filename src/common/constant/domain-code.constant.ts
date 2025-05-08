@@ -4,6 +4,6 @@ export enum DomainCode {
   MEMBER = 22,
   COUPLE = 23,
   ECO_VERIFICATION = 24,
-  ITEM = 25,
-  INVENTORY = 26,
+  FURNITURE = 25,
+  COUPLE_FURNITURE = 26,
 }

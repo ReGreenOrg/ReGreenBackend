@@ -13,7 +13,8 @@ export class AuthService {
   private readonly profileUrl = 'https://kapi.kakao.com/v2/user/me';
 
   constructor(
-    @InjectRepository(Member) private readonly memberRepo: Repository<Member>,
+    @InjectRepository(Member)
+    private readonly memberRepo: Repository<Member>,
     private readonly http: HttpService,
     private readonly cs: ConfigService,
     private readonly jwt: JwtService,

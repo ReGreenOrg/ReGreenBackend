@@ -1,30 +1,26 @@
-import { BeforeInsert, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, Index, ManyToOne, OneToMany } from 'typeorm';
+import { BaseEntity } from '../../common/entities/base.entity';
+import { Couple } from '../../couple/entities/couple.entity';
+import { EcoVerification } from '../../eco-verification/entities/eco-verification.entity';
 
 @Entity('member')
-export class Member {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
+export class Member extends BaseEntity {
   @Column()
   nickname: string;
 
-  @Column({ unique: true })
+  @Index({ unique: true })
+  @Column({ length: 255 })
   email: string;
 
   @Column()
   profileImageUrl: string;
 
-  @BeforeInsert()
-  async beforeSaveFunction(): Promise<void> {
-    // TODO: 기본 프로필 이미지
-  }
+  @ManyToOne(() => Couple, (couple) => couple.members, {
+    onDelete: 'SET NULL',
+    nullable: true,
+  })
+  couple?: Couple | null;
 
-  /* Relations --------------------------------------------------- */
-  // @ManyToOne(() => Couple, (couple) => couple.members, {
-  //   onDelete: 'CASCADE',
-  // })
-  // couple: Couple;
-  //
-  // @OneToMany(() => EcoVerification, (ev) => ev.member)
-  // ecoVerifications: EcoVerification[];
+  @OneToMany(() => EcoVerification, (ecoVerification) => ecoVerification.member)
+  ecoVerifications: EcoVerification[];
 }

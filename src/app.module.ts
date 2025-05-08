@@ -5,6 +5,10 @@ import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from './database/database.module';
 import { MemberModule } from './member/member.module';
 import { AuthModule } from './auth/auth.module';
+import { CoupleModule } from './couple/couple.module';
+import { FurnitureModule } from './furniture/furniture.module';
+import { CoupleFurnitureModule } from './couple-furniture/couple-furniture.module';
+import { EcoVerificationModule } from './eco-verification/eco-verification.module';
 import * as Joi from '@hapi/joi';
 
 @Module({
@@ -32,6 +36,10 @@ import * as Joi from '@hapi/joi';
     DatabaseModule,
     MemberModule,
     AuthModule,
+    CoupleModule,
+    FurnitureModule,
+    CoupleFurnitureModule,
+    EcoVerificationModule,
   ],
   controllers: [AppController],
   providers: [AppService],

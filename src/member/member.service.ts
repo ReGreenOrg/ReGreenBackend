@@ -8,17 +8,17 @@ import { Repository } from 'typeorm';
 export class MemberService {
   constructor(
     @InjectRepository(Member)
-    private readonly memberRepository: Repository<Member>,
+    private readonly memberRepo: Repository<Member>,
   ) {}
 
   async createMember(createMemberDto: MemberDto): Promise<Member> {
-    const newMember = this.memberRepository.create(createMemberDto);
-    await this.memberRepository.save(newMember);
+    const newMember = this.memberRepo.create(createMemberDto);
+    await this.memberRepo.save(newMember);
     return newMember;
   }
 
   async getMemberById(id: string): Promise<MemberDto> {
-    const member = await this.memberRepository.findOneBy({ id });
+    const member = await this.memberRepo.findOneBy({ id });
     if (!member) {
       throw new NotFoundException('Member not found');
     }
@@ -26,12 +26,12 @@ export class MemberService {
       email: member.email,
       memberId: member.id,
       nickname: member.nickname,
-      profileImageUrl: member.profileImageUrl
+      profileImageUrl: member.profileImageUrl,
     };
   }
 
   async getMemberByEmail(email: string): Promise<Member> {
-    const member = await this.memberRepository.findOneBy({ email });
+    const member = await this.memberRepo.findOneBy({ email });
     if (!member) {
       throw new NotFoundException('Member not found');
     }
