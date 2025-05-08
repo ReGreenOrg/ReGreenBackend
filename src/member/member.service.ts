@@ -18,7 +18,10 @@ export class MemberService {
   }
 
   async getMemberById(id: string): Promise<MemberDto> {
-    const member = await this.memberRepo.findOneBy({ id });
+    const member = await this.memberRepo.findOne({
+      where: { id },
+      relations: { couple: true },
+    });
     if (!member) {
       throw new NotFoundException('Member not found');
     }
@@ -27,6 +30,7 @@ export class MemberService {
       memberId: member.id,
       nickname: member.nickname,
       profileImageUrl: member.profileImageUrl,
+      coupleId: member.couple ? member.couple.id : null,
     };
   }
 

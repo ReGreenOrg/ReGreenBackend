@@ -1,4 +1,11 @@
-import { Column, Entity, Index, ManyToOne, OneToMany } from 'typeorm';
+import {
+  Column,
+  Entity,
+  Index,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+} from 'typeorm';
 import { BaseEntity } from '../../common/entities/base.entity';
 import { Couple } from '../../couple/entities/couple.entity';
 import { EcoVerification } from '../../eco-verification/entities/eco-verification.entity';
@@ -19,6 +26,7 @@ export class Member extends BaseEntity {
     onDelete: 'SET NULL',
     nullable: true,
   })
+  @JoinColumn({ name: 'couple_id' })
   couple?: Couple | null;
 
   @OneToMany(() => EcoVerification, (ecoVerification) => ecoVerification.member)

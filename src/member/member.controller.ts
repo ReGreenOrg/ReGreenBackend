@@ -11,7 +11,7 @@ import { MemberDto } from './dto/member.dto';
 export class MemberController {
   constructor(private readonly memberService: MemberService) {}
 
-  @Get('me')
+  @Get('my')
   async getMe(@Req() req): Promise<MemberDto> {
     return await this.memberService.getMemberById(req.user.memberId);
   }
