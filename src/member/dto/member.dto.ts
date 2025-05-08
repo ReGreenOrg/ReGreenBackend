@@ -1,5 +1,5 @@
 export class MemberDto {
-  memberId: number;
+  memberId: string;
   nickname: string;
   email: string;
   profileImageUrl: string;

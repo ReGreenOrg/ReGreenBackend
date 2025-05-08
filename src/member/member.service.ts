@@ -17,7 +17,7 @@ export class MemberService {
     return newMember;
   }
 
-  async getMemberById(id: number): Promise<MemberDto> {
+  async getMemberById(id: string): Promise<MemberDto> {
     const member = await this.memberRepository.findOneBy({ id });
     if (!member) {
       throw new NotFoundException('Member not found');

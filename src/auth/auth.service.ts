@@ -84,7 +84,7 @@ export class AuthService {
     return member;
   }
 
-  async issueAccessToken(memberId: number) {
+  async issueAccessToken(memberId: string) {
     return await this.jwt.signAsync(
       { sub: memberId },
       {
