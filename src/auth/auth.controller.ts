@@ -41,11 +41,11 @@ export class AuthController {
 
   @Get('kakao')
   async kakaoCallback(@Query('code') code: string): Promise<JwtResponseDto> {
-    const accessToken = await this.authService.getToken(code);
-    const profile = await this.authService.getProfile(accessToken);
+    const kakaoToken = await this.authService.getToken(code);
+    const profile = await this.authService.getProfile(kakaoToken);
     const member = await this.authService.upsertMember(profile);
-    const jwtToken = await this.authService.issueAccessToken(member.id);
-    return { jwtToken };
+    const accessToken = await this.authService.issueAccessToken(member.id);
+    return { accessToken };
   }
 
   @Post('logout')
