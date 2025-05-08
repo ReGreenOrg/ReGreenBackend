@@ -9,6 +9,7 @@ import { CoupleModule } from './couple/couple.module';
 import { FurnitureModule } from './furniture/furniture.module';
 import { CoupleFurnitureModule } from './couple-furniture/couple-furniture.module';
 import { EcoVerificationModule } from './eco-verification/eco-verification.module';
+import { RedisModule } from './redis/redis.module';
 import * as Joi from '@hapi/joi';
 
 @Module({
@@ -31,6 +32,9 @@ import * as Joi from '@hapi/joi';
 
         JWT_SECRET: Joi.string().required(),
         JWT_EXPIRES: Joi.string().required(),
+
+        REDIS_URL: Joi.string().required(),
+        REDIS_TTL: Joi.number().required(),
       }),
     }),
     DatabaseModule,
@@ -40,6 +44,7 @@ import * as Joi from '@hapi/joi';
     FurnitureModule,
     CoupleFurnitureModule,
     EcoVerificationModule,
+    RedisModule,
   ],
   controllers: [AppController],
   providers: [AppService],

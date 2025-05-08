@@ -5,13 +5,17 @@ import { CoupleFurniture } from '../../couple-furniture/entities/couple-furnitur
 
 @Entity('couple')
 export class Couple extends BaseEntity {
-  @Column({ type: 'int', unsigned: true, default: 0 })
+  @Column({ type: 'int', unsigned: true, default: 10 })
   point: number;
 
-  @Column({ type: 'datetime', nullable: true })
+  @Column({
+    type: 'datetime',
+    nullable: true,
+    default: () => 'DATE_ADD(CURRENT_TIMESTAMP, 10)',
+  })
   breakupAt?: Date | null;
 
-  @OneToMany(() => Member, (member) => member.couple)
+  @OneToMany(() => Member, (member) => member.couple, { eager: false })
   members: Member[];
 
   @OneToMany(() => CoupleFurniture, (cf) => cf.couple)

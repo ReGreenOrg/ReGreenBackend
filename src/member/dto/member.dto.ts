@@ -3,4 +3,5 @@ export class MemberDto {
   nickname: string;
   email: string;
   profileImageUrl: string;
+  coupleId?: string | null;
 }
