@@ -55,4 +55,4 @@ jobs:
                         docker compose pull
                         docker compose down
                         docker compose up -d
-                        ocker image prune -af
+                        docker image prune -af
