@@ -80,7 +80,9 @@ export class AuthController {
     });
 
     console.log(`${this.stateService.parse(state).returnUrl}`);
-    return res.redirect(`${this.stateService.parse(state).returnUrl}`);
+    return res.redirect(
+      `${this.stateService.parse(state).returnUrl}/api/auth/kakao`,
+    );
   }
 
   @Post('refresh')
@@ -93,13 +95,13 @@ export class AuthController {
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
       secure,
-      sameSite: 'lax',
+      sameSite: secure ? 'none' : 'lax',
       maxAge: 15 * 60 * 1e3,
     });
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure,
-      sameSite: 'lax',
+      sameSite: secure ? 'none' : 'lax',
       maxAge: 14 * 24 * 60 * 60 * 1e3,
     });
 
