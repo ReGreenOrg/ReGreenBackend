@@ -18,7 +18,10 @@ import * as Joi from '@hapi/joi';
       isGlobal: true,
       envFilePath: '.env',
       validationSchema: Joi.object({
+        NODE_ENV: Joi.string().required(),
         PORT: Joi.number().required(),
+
+        FRONT_URL: Joi.string().required(),
 
         MYSQL_HOST: Joi.string().required(),
         MYSQL_PORT: Joi.number().required(),
@@ -30,11 +33,15 @@ import * as Joi from '@hapi/joi';
         KAKAO_CLIENT_SECRET: Joi.string().required(),
         KAKAO_REDIRECT_URI: Joi.string().required(),
 
-        JWT_SECRET: Joi.string().required(),
-        JWT_EXPIRES: Joi.string().required(),
+        JWT_ACCESS_SECRET: Joi.string().required(),
+        JWT_ACCESS_EXPIRES: Joi.number().required(),
+        JWT_REFRESH_SECRET: Joi.string().required(),
+        JWT_REFRESH_EXPIRES: Joi.number().required(),
 
         REDIS_URL: Joi.string().required(),
         REDIS_TTL: Joi.number().required(),
+
+        STATE_SECRET: Joi.string().required(),
       }),
     }),
     DatabaseModule,
