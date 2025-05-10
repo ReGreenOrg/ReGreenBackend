@@ -4,17 +4,29 @@ import { CACHE_MANAGER } from '@nestjs/common/cache';
 
 @Injectable()
 export class RedisService {
-  constructor(@Inject(CACHE_MANAGER) private readonly redis: Cache) {}
+  constructor(@Inject(CACHE_MANAGER) private readonly cache: Cache) {}
 
-  async get(key: string): Promise<any> {
-    return await this.redis.get(key);
+  get<T = any>(key: string): Promise<T | undefined> {
+    return this.cache.get<T>(key);
   }
 
-  async set(key: string, value: any, option?: any) {
-    await this.redis.set(key, value, option);
+  set(key: string, value: any, options?: { ttl?: number }) {
+    return this.cache.set(key, value, options?.ttl);
   }
 
-  async del(key: string) {
-    await this.redis.del(key);
+  del(key: string) {
+    return this.cache.del(key);
+  }
+
+  async pushToSet(setKey: string, memberKey: string, ttl?: number) {
+    const arr: string[] = (await this.get(setKey)) ?? [];
+    arr.push(memberKey);
+    await this.set(setKey, arr, { ttl });
+  }
+
+  async popAll(setKey: string): Promise<string[]> {
+    const arr: string[] = (await this.get(setKey)) ?? [];
+    await this.del(setKey);
+    return arr;
   }
 }

@@ -80,9 +80,7 @@ export class AuthController {
     });
 
     console.log(`${this.stateService.parse(state).returnUrl}`);
-    return res.redirect(
-      `${this.stateService.parse(state).returnUrl}/api/auth/kakao`,
-    );
+    return res.redirect(`${this.stateService.parse(state).returnUrl}/login`);
   }
 
   @Post('refresh')
@@ -91,7 +89,7 @@ export class AuthController {
     const { memberId, jti } = req.user;
     const { accessToken, refreshToken } = await this.auth.rotate(memberId, jti);
 
-    const secure = process.env.NODE_ENV === 'production';
+    const secure = this.cs.get('NODE_ENV') === 'production';
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
       secure,
@@ -105,15 +103,23 @@ export class AuthController {
       maxAge: 14 * 24 * 60 * 60 * 1e3,
     });
 
-    return { message: 'refreshed' };
+    return res.json({
+      code: 2100,
+      message: 'OK',
+      data: { message: 'refreshed' },
+    });
   }
 
   @Post('logout')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt-access'))
   async logout(@Req() req: any, @Res() res: Response) {
     await this.auth.revokeAll(req.user.memberId);
     res.clearCookie('accessToken', { path: '/' });
     res.clearCookie('refreshToken', { path: '/' });
-    return { message: 'Logged out' };
+    return res.json({
+      code: 2100,
+      message: 'OK',
+      data: { message: 'Logged out' },
+    });
   }
 }

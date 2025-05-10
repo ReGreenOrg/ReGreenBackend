@@ -10,6 +10,7 @@ import { JwtAccessStrategy } from './strategies/jwt-access.strategy';
 import { RefreshToken } from './entities/refresh-token.entity';
 import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy';
 import { StateService } from './state.service';
+import { RedisModule } from '../redis/redis.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { StateService } from './state.service';
     HttpModule,
     TypeOrmModule.forFeature([Member, RefreshToken]),
     JwtModule.register({}),
+    RedisModule,
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtAccessStrategy, JwtRefreshStrategy, StateService],

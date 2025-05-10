@@ -14,7 +14,7 @@ import { JwtService } from '@nestjs/jwt';
 import * as uuid from 'uuid';
 import { createHash } from 'crypto';
 import { RefreshToken } from './entities/refresh-token.entity';
-import { StateService } from './state.service';
+import { RedisService } from '../redis/redis.service';
 
 @Injectable()
 export class AuthService {
@@ -29,6 +29,7 @@ export class AuthService {
     private readonly http: HttpService,
     private readonly cs: ConfigService,
     private readonly jwt: JwtService,
+    private readonly redis: RedisService,
   ) {}
 
   async getToken(code: string): Promise<string> {
@@ -95,18 +96,17 @@ export class AuthService {
     return member;
   }
 
-  async signToken(payload: string) {
-    return await this.jwt.signAsync(
-      { sub: payload },
-      {
-        secret: this.cs.get('JWT_SECRET'),
-        expiresIn: this.cs.get('JWT_EXPIRES'),
-      },
-    );
-  }
-
   private async sign(payload, secret, exp) {
     return this.jwt.signAsync(payload, { secret, expiresIn: exp });
+  }
+
+  private rtKey(jti: string) {
+    const hash = createHash('sha256').update(jti).digest('hex');
+    return `rt:${hash}`;
+  }
+
+  private rtTtlSec() {
+    return <number>this.cs.get('JWT_REFRESH_EXPIRES') / 1000;
   }
 
   async issueTokens(member: Member) {
@@ -123,32 +123,30 @@ export class AuthService {
       this.cs.get('JWT_REFRESH_EXPIRES'),
     );
 
-    // DB 저장: hash(jti)
-    const hash = createHash('sha256').update(jti).digest('hex');
-    const expires = new Date(Date.now() + this.cs.get('JWT_REFRESH_EXPIRES')!);
-    await this.refreshRepo.save({
-      token: hash,
-      member,
-      expiresAt: expires,
-    });
+    // Redis: rt:<hash(jti)> = memberId  (TTL = 14d)
+    const key = this.rtKey(jti);
+    const ttl = this.rtTtlSec();
+
+    await this.redis.set(key, member.id, { ttl });
+    await this.redis.pushToSet(`memberRTs:${member.id}`, key, ttl);
 
     return { accessToken, refreshToken };
   }
 
   async rotate(memberId: string, oldJti: string) {
-    const hash = createHash('sha256').update(oldJti).digest('hex');
-    const stored = await this.refreshRepo.findOne({
-      where: { token: hash, member: { id: memberId } },
-    });
+    const key = this.rtKey(oldJti);
+    const owner = await this.redis.get<string>(key);
 
-    if (!stored || stored.expiresAt < new Date())
-      throw new UnauthorizedException('RT invalid');
+    if (owner !== memberId)
+      throw new UnauthorizedException('RefreshToken invalid');
 
-    await this.refreshRepo.delete(stored.id);
-    return this.issueTokens(stored.member);
+    await this.redis.del(key);
+    return this.issueTokens({ id: memberId } as Member);
   }
 
   async revokeAll(memberId: string) {
-    await this.refreshRepo.delete({ member: { id: memberId } });
+    const listKey = `memberRTs:${memberId}`;
+    const keys = await this.redis.popAll(listKey);
+    if (keys.length) await Promise.all(keys.map((k) => this.redis.del(k)));
   }
 }
