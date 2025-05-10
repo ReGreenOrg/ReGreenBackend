@@ -1,11 +1,20 @@
 import { Member } from '../member/entities/member.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { firstValueFrom } from 'rxjs';
 import { JwtService } from '@nestjs/jwt';
+import * as uuid from 'uuid';
+import { createHash } from 'crypto';
+import { RefreshToken } from './entities/refresh-token.entity';
+import { StateService } from './state.service';
 
 @Injectable()
 export class AuthService {
@@ -15,6 +24,8 @@ export class AuthService {
   constructor(
     @InjectRepository(Member)
     private readonly memberRepo: Repository<Member>,
+    @InjectRepository(RefreshToken)
+    private readonly refreshRepo: Repository<RefreshToken>,
     private readonly http: HttpService,
     private readonly cs: ConfigService,
     private readonly jwt: JwtService,
@@ -84,13 +95,60 @@ export class AuthService {
     return member;
   }
 
-  async issueAccessToken(memberId: string) {
+  async signToken(payload: string) {
     return await this.jwt.signAsync(
-      { sub: memberId },
+      { sub: payload },
       {
         secret: this.cs.get('JWT_SECRET'),
         expiresIn: this.cs.get('JWT_EXPIRES'),
       },
     );
+  }
+
+  private async sign(payload, secret, exp) {
+    return this.jwt.signAsync(payload, { secret, expiresIn: exp });
+  }
+
+  async issueTokens(member: Member) {
+    const accessToken = await this.sign(
+      { sub: member.id },
+      this.cs.get<string>('JWT_ACCESS_SECRET'),
+      this.cs.get<string>('JWT_ACCESS_EXPIRES'),
+    );
+
+    const jti = uuid.v1(); // 토큰 ID
+    const refreshToken = await this.sign(
+      { sub: member.id, jti },
+      this.cs.get('JWT_REFRESH_SECRET'),
+      this.cs.get('JWT_REFRESH_EXPIRES'),
+    );
+
+    // DB 저장: hash(jti)
+    const hash = createHash('sha256').update(jti).digest('hex');
+    const expires = new Date(Date.now() + this.cs.get('JWT_REFRESH_EXPIRES')!);
+    await this.refreshRepo.save({
+      token: hash,
+      member,
+      expiresAt: expires,
+    });
+
+    return { accessToken, refreshToken };
+  }
+
+  async rotate(memberId: string, oldJti: string) {
+    const hash = createHash('sha256').update(oldJti).digest('hex');
+    const stored = await this.refreshRepo.findOne({
+      where: { token: hash, member: { id: memberId } },
+    });
+
+    if (!stored || stored.expiresAt < new Date())
+      throw new UnauthorizedException('RT invalid');
+
+    await this.refreshRepo.delete(stored.id);
+    return this.issueTokens(stored.member);
+  }
+
+  async revokeAll(memberId: string) {
+    await this.refreshRepo.delete({ member: { id: memberId } });
   }
 }

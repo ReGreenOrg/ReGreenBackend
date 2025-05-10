@@ -5,7 +5,7 @@ import { ApiDomain } from '../common/decorators/api-domain-decorator';
 import { DomainCode } from '../common/constant/domain-code.constant';
 
 @Controller('couples')
-@UseGuards(AuthGuard('jwt'))
+@UseGuards(AuthGuard('jwt-access'))
 @ApiDomain(DomainCode.COUPLE)
 export class CoupleController {
   constructor(private readonly coupleService: CoupleService) {}

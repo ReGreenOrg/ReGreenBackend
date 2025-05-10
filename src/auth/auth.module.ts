@@ -6,16 +6,20 @@ import { ConfigModule } from '@nestjs/config';
 import { Member } from '../member/entities/member.entity';
 import { HttpModule } from '@nestjs/axios';
 import { JwtModule } from '@nestjs/jwt';
-import { JwtAuthStrategy } from './strategies/jwt-auth.strategy';
+import { JwtAccessStrategy } from './strategies/jwt-access.strategy';
+import { RefreshToken } from './entities/refresh-token.entity';
+import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy';
+import { StateService } from './state.service';
 
 @Module({
   imports: [
     ConfigModule,
     HttpModule,
-    TypeOrmModule.forFeature([Member]),
+    TypeOrmModule.forFeature([Member, RefreshToken]),
     JwtModule.register({}),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtAuthStrategy],
+  providers: [AuthService, JwtAccessStrategy, JwtRefreshStrategy, StateService],
+  exports: [StateService],
 })
 export class AuthModule {}

@@ -6,7 +6,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { MemberDto } from './dto/member.dto';
 
 @Controller('members')
-@UseGuards(AuthGuard('jwt'))
+@UseGuards(AuthGuard('jwt-access'))
 @ApiDomain(DomainCode.MEMBER)
 export class MemberController {
   constructor(private readonly memberService: MemberService) {}

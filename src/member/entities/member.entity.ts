@@ -9,6 +9,7 @@ import {
 import { BaseEntity } from '../../common/entities/base.entity';
 import { Couple } from '../../couple/entities/couple.entity';
 import { EcoVerification } from '../../eco-verification/entities/eco-verification.entity';
+import { RefreshToken } from '../../auth/entities/refresh-token.entity';
 
 @Entity('member')
 export class Member extends BaseEntity {
@@ -31,4 +32,7 @@ export class Member extends BaseEntity {
 
   @OneToMany(() => EcoVerification, (ecoVerification) => ecoVerification.member)
   ecoVerifications: EcoVerification[];
+
+  @OneToMany(() => RefreshToken, (refreshToken) => refreshToken.member)
+  refreshTokens: RefreshToken[];
 }
