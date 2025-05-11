@@ -33,10 +33,16 @@ export class AuthService {
   ) {}
 
   async getToken(code: string, local: boolean): Promise<string> {
+    const redirectUri = local
+      ? 'http://localhost:3000/login'
+      : this.cs.getOrThrow<string>('KAKAO_REDIRECT_URI');
+
+    console.log(redirectUri);
+
     const body = new URLSearchParams({
       grant_type: 'authorization_code',
       client_id: this.cs.getOrThrow<string>('KAKAO_CLIENT_ID'),
-      redirect_uri: local ? 'http://localhost:3000/login' : this.cs.getOrThrow<string>('KAKAO_REDIRECT_URI'),
+      redirect_uri: redirectUri,
       code,
     });
 
