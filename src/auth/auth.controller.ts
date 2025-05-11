@@ -65,17 +65,19 @@ export class AuthController {
     const member = await this.auth.upsertMember(profile);
 
     const { accessToken, refreshToken } = await this.auth.issueTokens(member);
-    const secure = this.cs.get<string>('NODE_ENV') === 'production';
+
+    const domain = this.stateService.parse(state).returnUrl;
+    const local = domain === 'http://localhost:3000';
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
-      secure,
-      sameSite: secure ? 'none' : 'lax',
+      secure: !local,
+      sameSite: 'none',
       maxAge: 15 * 60 * 1e3,
     });
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
-      secure,
-      sameSite: secure ? 'none' : 'lax',
+      secure: local,
+      sameSite: 'none',
       maxAge: 14 * 24 * 60 * 60 * 1e3,
     });
 
@@ -89,17 +91,24 @@ export class AuthController {
     const { memberId, jti } = req.user;
     const { accessToken, refreshToken } = await this.auth.rotate(memberId, jti);
 
-    const secure = this.cs.get('NODE_ENV') === 'production';
+    const origin =
+      (req.headers['origin'] as string | undefined) ??
+      (req.headers['referer']
+        ? new URL(req.headers['referer'] as string).origin
+        : undefined) ??
+      this.cs.get('FRONT_URL')!;
+
+    const local = origin === 'http://localhost:3000';
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
-      secure,
-      sameSite: secure ? 'none' : 'lax',
+      secure: !local,
+      sameSite: 'none',
       maxAge: 15 * 60 * 1e3,
     });
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
-      secure,
-      sameSite: secure ? 'none' : 'lax',
+      secure: !local,
+      sameSite: 'none',
       maxAge: 14 * 24 * 60 * 60 * 1e3,
     });
 

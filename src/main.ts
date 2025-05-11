@@ -4,6 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { SuccessInterceptor } from './common/interceptors/success.interceptor';
 import { HttpExceptionFilter } from './common/filter/http-exception.filter';
 import * as cookieParser from 'cookie-parser';
+import { RequestLoggerInterceptor } from './common/interceptors/request-logger.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -16,9 +17,10 @@ async function bootstrap() {
 
   app.useGlobalFilters(new HttpExceptionFilter(reflector));
   app.useGlobalInterceptors(new SuccessInterceptor(reflector));
+  app.useGlobalInterceptors(new RequestLoggerInterceptor());
 
   app.enableCors({
-    origin: [configService.get<string>('FRONT_URL'), 'http://localhost:3000'],
+    origin: ['https://wooimi.kro.kr', 'http://localhost:3000'],
     credentials: true,
   });
 
