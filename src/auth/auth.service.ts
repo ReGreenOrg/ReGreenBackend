@@ -32,11 +32,11 @@ export class AuthService {
     private readonly redis: RedisService,
   ) {}
 
-  async getToken(code: string): Promise<string> {
+  async getToken(code: string, local: boolean): Promise<string> {
     const body = new URLSearchParams({
       grant_type: 'authorization_code',
       client_id: this.cs.getOrThrow<string>('KAKAO_CLIENT_ID'),
-      redirect_uri: this.cs.getOrThrow<string>('KAKAO_REDIRECT_URI'),
+      redirect_uri: local ? 'http://localhost:3000/login' : this.cs.getOrThrow<string>('KAKAO_REDIRECT_URI'),
       code,
     });
 

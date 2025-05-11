@@ -15,8 +15,11 @@ export class AuthController {
   ) {}
 
   @Post('kakao/login')
-  async kakaoCallback(@Query('code') code: string): Promise<JwtResponseDto> {
-    const kakaoToken = await this.auth.getToken(code);
+  async kakaoCallback(
+    @Query('code') code: string,
+    @Query('local') local: boolean,
+  ): Promise<JwtResponseDto> {
+    const kakaoToken = await this.auth.getToken(code, local);
     const profile = await this.auth.getProfile(kakaoToken);
     const member = await this.auth.upsertMember(profile);
 
