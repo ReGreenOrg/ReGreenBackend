@@ -37,6 +37,7 @@ export class AuthService {
       ? 'http://localhost:3000/login'
       : this.cs.getOrThrow<string>('KAKAO_REDIRECT_URI');
 
+    console.log(local);
     console.log(redirectUri);
 
     const body = new URLSearchParams({

@@ -1,4 +1,11 @@
-import { Controller, Post, Query, Req, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  ParseBoolPipe,
+  Post,
+  Query,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { DomainCode } from '../common/constant/domain-code.constant';
 import { ApiDomain } from '../common/decorators/api-domain-decorator';
@@ -17,7 +24,7 @@ export class AuthController {
   @Post('kakao/login')
   async kakaoCallback(
     @Query('code') code: string,
-    @Query('local') local: boolean,
+    @Query('local', ParseBoolPipe) local = false,
   ): Promise<JwtResponseDto> {
     const kakaoToken = await this.auth.getToken(code, local);
     const profile = await this.auth.getProfile(kakaoToken);
