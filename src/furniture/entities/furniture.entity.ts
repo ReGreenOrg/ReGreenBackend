@@ -5,20 +5,26 @@ import { CoupleFurniture } from '../../couple-furniture/entities/couple-furnitur
 
 @Entity('furniture')
 export class Furniture extends BaseEntity {
-  @Column()
+  @Column({ unique: true })
+  code: string;
+
+  @Column({ unique: true })
   name: string;
 
   @Column()
   description: string;
 
   @Column()
-  s3ImageUrl: string;
-
-  @Column()
   price: number;
 
   @Column({ type: 'enum', enum: FurnitureCategory })
   category: FurnitureCategory;
+
+  @Column()
+  zIndex: number;
+
+  @Column()
+  s3ImageUrl: string;
 
   /* relations */
   @OneToMany(() => CoupleFurniture, (cf) => cf.furniture)

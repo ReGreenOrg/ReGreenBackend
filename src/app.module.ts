@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, OnApplicationBootstrap } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
@@ -11,6 +11,7 @@ import { CoupleFurnitureModule } from './couple-furniture/couple-furniture.modul
 import { EcoVerificationModule } from './eco-verification/eco-verification.module';
 import { RedisModule } from './redis/redis.module';
 import * as Joi from '@hapi/joi';
+import { FurnitureSeedService } from './furniture/constant/furniture-seed-service';
 
 @Module({
   imports: [
@@ -56,4 +57,10 @@ import * as Joi from '@hapi/joi';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule implements OnApplicationBootstrap {
+  constructor(private readonly seed: FurnitureSeedService) {}
+
+  async onApplicationBootstrap() {
+    await this.seed.sync();
+  }
+}

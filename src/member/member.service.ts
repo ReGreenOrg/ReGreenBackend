@@ -41,4 +41,20 @@ export class MemberService {
     }
     return member;
   }
+
+  async findCoupleIdByMember(memberId: string): Promise<string | null> {
+    const member = await this.memberRepo.findOne({
+      where: { id: memberId },
+      select: {
+        id: true,
+      },
+      relations: { couple: true },
+    });
+
+    if (!member) {
+      throw new NotFoundException('Member not found');
+    }
+
+    return member.couple ? member.couple.id : null;
+  }
 }
