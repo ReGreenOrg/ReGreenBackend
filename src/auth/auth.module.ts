@@ -11,6 +11,8 @@ import { RefreshToken } from './entities/refresh-token.entity';
 import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy';
 import { StateService } from './state.service';
 import { RedisModule } from '../redis/redis.module';
+import { JwtAccessGuard } from './guards/jwt-access.guard';
+import { JwtRefreshGuard } from './guards/jwt-refresh.guard';
 
 @Module({
   imports: [
@@ -21,7 +23,14 @@ import { RedisModule } from '../redis/redis.module';
     RedisModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtAccessStrategy, JwtRefreshStrategy, StateService],
-  exports: [StateService],
+  providers: [
+    AuthService,
+    JwtAccessStrategy,
+    JwtRefreshStrategy,
+    StateService,
+    JwtAccessGuard,
+    JwtRefreshGuard,
+  ],
+  exports: [StateService, JwtAccessGuard],
 })
 export class AuthModule {}

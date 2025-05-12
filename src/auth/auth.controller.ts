@@ -1,5 +1,6 @@
 import {
   Controller,
+  Get,
   ParseBoolPipe,
   Post,
   Query,
@@ -9,9 +10,11 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { DomainCode } from '../common/constant/domain-code.constant';
 import { ApiDomain } from '../common/decorators/api-domain-decorator';
-import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
 import { JwtResponseDto } from './dto/jwt-response.dto';
+import { JwtAccessGuard } from './guards/jwt-access.guard';
+import { JwtRefreshGuard } from './guards/jwt-refresh.guard';
+import { Member } from '../member/entities/member.entity';
 
 @Controller('auth')
 @ApiDomain(DomainCode.AUTH)
@@ -34,14 +37,14 @@ export class AuthController {
   }
 
   @Post('refresh')
-  @UseGuards(AuthGuard('jwt-refresh'))
+  @UseGuards(JwtRefreshGuard)
   async refresh(@Req() req: any) {
     const { memberId, jti } = req.user;
     return await this.auth.rotate(memberId, jti);
   }
 
   @Post('logout')
-  @UseGuards(AuthGuard('jwt-access'))
+  @UseGuards(JwtAccessGuard)
   async logout(@Req() req: any) {
     await this.auth.revokeAll(req.user.memberId);
   }
