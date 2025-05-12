@@ -48,7 +48,7 @@ export class FurnitureService {
         'cf.isPlaced         AS "isPlaced"',
       ])
       .orderBy('f.zIndex', 'ASC')
-      .getRawMany<FurnitureDto>();
+      .getRawMany();
 
     return rows.map((row) => ({
       furnitureId: row.furnitureId,
@@ -72,29 +72,28 @@ export class FurnitureService {
     const couple = await this.membersService.findCoupleByMember(memberId);
     if (!couple) throw new BadRequestException('Couple not found');
 
-    const row = <FurnitureDto>(
-      await this.furnitureRepo
-        .createQueryBuilder('f')
-        .leftJoin(
-          CoupleFurniture,
-          'cf',
-          'cf.furnitureId = f.id AND f.id = :furnitureId AND cf.coupleId = :coupleId',
-          { furnitureId, coupleId: couple.id },
-        )
-        .select([
-          'f.id                AS "furnitureId"',
-          'f.name              AS "name"',
-          'f.description       AS "description"',
-          'f.price             AS "price"',
-          'f.s3ImageUrl        AS "s3ImageUrl"',
-          'f.category          AS "category"',
-          'f.zIndex            AS "zIndex"',
-          'cf.id               AS "coupleFurnitureId"',
-          'cf.isPlaced         AS "isPlaced"',
-        ])
-        .orderBy('f.zIndex', 'ASC')
-        .getRawOne<FurnitureDto>()
-    );
+    const row = await this.furnitureRepo
+      .createQueryBuilder('f')
+      .leftJoin(
+        CoupleFurniture,
+        'cf',
+        'cf.furnitureId = f.id AND cf.coupleId = :coupleId',
+        { coupleId: couple.id },
+      )
+      .where('f.id = :furnitureId', { furnitureId })
+      .select([
+        'f.id                AS "furnitureId"',
+        'f.name              AS "name"',
+        'f.description       AS "description"',
+        'f.price             AS "price"',
+        'f.s3ImageUrl        AS "s3ImageUrl"',
+        'f.category          AS "category"',
+        'f.zIndex            AS "zIndex"',
+        'cf.id               AS "coupleFurnitureId"',
+        'cf.isPlaced         AS "isPlaced"',
+      ])
+      .orderBy('f.zIndex', 'ASC')
+      .getRawOne();
 
     return {
       furnitureId: row.furnitureId,
