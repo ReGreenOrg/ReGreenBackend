@@ -1,10 +1,15 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Furniture } from './entities/furniture.entity';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { CoupleFurniture } from '../couple-furniture/entities/couple-furniture.entity';
 import { MemberService } from '../member/member.service';
 import { FurnitureDto } from './dto/furniture.dto';
+import { Couple } from '../couple/entities/couple.entity';
 
 @Injectable()
 export class FurnitureService {
@@ -12,13 +17,16 @@ export class FurnitureService {
     @InjectRepository(Furniture)
     private readonly furnitureRepo: Repository<Furniture>,
     @InjectRepository(CoupleFurniture)
-    private readonly cfRepo: Repository<CoupleFurniture>,
+    private readonly coupleFurnitureRepo: Repository<CoupleFurniture>,
+    @InjectRepository(Couple)
+    private readonly coupleRepo: Repository<Couple>,
     private readonly membersService: MemberService,
+    private readonly dataSource: DataSource,
   ) {}
 
   async getAll(memberId: string): Promise<FurnitureDto[]> {
-    const coupleId = await this.membersService.findCoupleIdByMember(memberId);
-    if (!coupleId) throw new BadRequestException('Couple not found');
+    const couple = await this.membersService.findCoupleByMember(memberId);
+    if (!couple) throw new BadRequestException('Couple not found');
 
     const rows = await this.furnitureRepo
       .createQueryBuilder('f')
@@ -26,7 +34,7 @@ export class FurnitureService {
         CoupleFurniture,
         'cf',
         'cf.furnitureId = f.id AND cf.coupleId = :coupleId',
-        { coupleId },
+        { coupleId: couple.id },
       )
       .select([
         'f.id                AS "furnitureId"',
@@ -61,8 +69,8 @@ export class FurnitureService {
   }
 
   async getOne(memberId: string, furnitureId: string): Promise<FurnitureDto> {
-    const coupleId = await this.membersService.findCoupleIdByMember(memberId);
-    if (!coupleId) throw new BadRequestException('Couple not found');
+    const couple = await this.membersService.findCoupleByMember(memberId);
+    if (!couple) throw new BadRequestException('Couple not found');
 
     const row = <FurnitureDto>(
       await this.furnitureRepo
@@ -71,7 +79,7 @@ export class FurnitureService {
           CoupleFurniture,
           'cf',
           'cf.furnitureId = f.id AND f.id = :furnitureId AND cf.coupleId = :coupleId',
-          { furnitureId, coupleId },
+          { furnitureId, coupleId: couple.id },
         )
         .select([
           'f.id                AS "furnitureId"',
@@ -104,5 +112,50 @@ export class FurnitureService {
           : null
         : null,
     };
+  }
+
+  async purchase(
+    memberId: string,
+    furnitureId: string,
+  ): Promise<{
+    coupleFurnitureId: string;
+  }> {
+    const couple = await this.membersService.findCoupleByMember(memberId);
+    if (!couple) {
+      throw new BadRequestException('Notfound couple');
+    }
+
+    return this.dataSource.transaction(async (manager) => {
+      const furniture = await manager
+        .getRepository(Furniture)
+        .findOneBy({ id: furnitureId });
+      if (!furniture) {
+        throw new BadRequestException('Invalid furniture id');
+      }
+
+      const coupleFurnitureRepo = manager.getRepository(CoupleFurniture);
+      const existing = await coupleFurnitureRepo.findOne({
+        where: { couple: { id: couple.id }, furniture: { id: furniture.id } },
+      });
+      if (existing) {
+        throw new ConflictException('Already owned');
+      }
+
+      if (couple.point < furniture.price) {
+        throw new BadRequestException('Not enough points');
+      }
+      couple.point -= furniture.price;
+      await manager.getRepository(Couple).save(couple);
+
+      const coupleFurniture = coupleFurnitureRepo.create({
+        couple: { id: couple.id } as Couple,
+        furniture: { id: furniture.id } as Furniture,
+      });
+      await coupleFurnitureRepo.save(coupleFurniture);
+
+      return {
+        coupleFurnitureId: coupleFurniture.id,
+      };
+    });
   }
 }

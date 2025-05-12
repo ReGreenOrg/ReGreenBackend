@@ -3,6 +3,7 @@ import { MemberDto } from './dto/member.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Member } from './entities/member.entity';
 import { Repository } from 'typeorm';
+import { Couple } from '../couple/entities/couple.entity';
 
 @Injectable()
 export class MemberService {
@@ -42,7 +43,7 @@ export class MemberService {
     return member;
   }
 
-  async findCoupleIdByMember(memberId: string): Promise<string | null> {
+  async findCoupleByMember(memberId: string): Promise<Couple | null> {
     const member = await this.memberRepo.findOne({
       where: { id: memberId },
       select: {
@@ -55,6 +56,6 @@ export class MemberService {
       throw new NotFoundException('Member not found');
     }
 
-    return member.couple ? member.couple.id : null;
+    return member.couple ? member.couple : null;
   }
 }

@@ -16,6 +16,6 @@ export class CoupleFurniture extends BaseEntity {
   })
   furniture: Furniture;
 
-  @Column({ type: 'boolean', default: false })
+  @Column({ type: 'boolean', default: true })
   isPlaced: boolean;
 }

@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Post, Req, UseGuards } from '@nestjs/common';
 import { FurnitureService } from './furniture.service';
 import { ApiDomain } from '../common/decorators/api-domain-decorator';
 import { DomainCode } from '../common/constant/domain-code.constant';
@@ -22,5 +22,15 @@ export class FurnitureController {
     @Param('furnitureId') furnitureId: string,
   ): Promise<FurnitureDto> {
     return await this.furnitureService.getOne(req.user.memberId, furnitureId);
+  }
+
+  @Post(':furnitureId')
+  async purchase(
+    @Req() req,
+    @Param('furnitureId') furnitureId: string,
+  ): Promise<{
+    coupleFurnitureId: string;
+  }> {
+    return await this.furnitureService.purchase(req.user.memberId, furnitureId);
   }
 }
