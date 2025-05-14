@@ -18,7 +18,15 @@ export class FurnitureSeedService {
       .into(Furniture)
       .values(FURNITURE_SEEDS)
       .orUpdate(
-        ['name', 'description', 'price', 'category', 'zIndex', 's3ImageUrl'],
+        [
+          'name',
+          'description',
+          'price',
+          'category',
+          'zIndex',
+          's3ImageUrl',
+          's3PreviewImageUrl',
+        ],
         ['code'],
       )
       .execute();

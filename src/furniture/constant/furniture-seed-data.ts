@@ -11,6 +11,7 @@ export const FURNITURE_SEEDS: DeepPartial<Furniture>[] = [
     category: FurnitureCategory.INTERIOR,
     zIndex: 1,
     s3ImageUrl: 'https://example.com/furniture/green01.png',
+    s3PreviewImageUrl: "'https://example.com/furniture/green01.png",
   },
   {
     code: 'green02',
@@ -20,6 +21,7 @@ export const FURNITURE_SEEDS: DeepPartial<Furniture>[] = [
     category: FurnitureCategory.STORAGE,
     zIndex: 2,
     s3ImageUrl: 'https://example.com/furniture/green02.png',
+    s3PreviewImageUrl: "'https://example.com/furniture/green02.png",
   },
   {
     code: 'green03',
@@ -29,6 +31,7 @@ export const FURNITURE_SEEDS: DeepPartial<Furniture>[] = [
     category: FurnitureCategory.DECOR,
     zIndex: 3,
     s3ImageUrl: 'https://example.com/furniture/green03.png',
+    s3PreviewImageUrl: "'https://example.com/furniture/green03.png",
   },
   {
     code: 'green04',
@@ -38,6 +41,7 @@ export const FURNITURE_SEEDS: DeepPartial<Furniture>[] = [
     category: FurnitureCategory.DECOR,
     zIndex: 4,
     s3ImageUrl: 'https://example.com/furniture/green04.png',
+    s3PreviewImageUrl: "'https://example.com/furniture/green04.png",
   },
   {
     code: 'green05',
@@ -47,6 +51,7 @@ export const FURNITURE_SEEDS: DeepPartial<Furniture>[] = [
     category: FurnitureCategory.WINDOW,
     zIndex: 5,
     s3ImageUrl: 'https://example.com/furniture/green05.png',
+    s3PreviewImageUrl: "'https://example.com/furniture/green05.png",
   },
   {
     code: 'green06',
@@ -56,6 +61,7 @@ export const FURNITURE_SEEDS: DeepPartial<Furniture>[] = [
     category: FurnitureCategory.FABRIC,
     zIndex: 6,
     s3ImageUrl: 'https://example.com/furniture/green06.png',
+    s3PreviewImageUrl: "'https://example.com/furniture/green06.png",
   },
   {
     code: 'green07',
@@ -65,6 +71,7 @@ export const FURNITURE_SEEDS: DeepPartial<Furniture>[] = [
     category: FurnitureCategory.FABRIC,
     zIndex: 7,
     s3ImageUrl: 'https://example.com/furniture/green07.png',
+    s3PreviewImageUrl: "'https://example.com/furniture/green07.png",
   },
   {
     code: 'green08',
@@ -74,6 +81,7 @@ export const FURNITURE_SEEDS: DeepPartial<Furniture>[] = [
     category: FurnitureCategory.DECOR,
     zIndex: 8,
     s3ImageUrl: 'https://example.com/furniture/green08.png',
+    s3PreviewImageUrl: "'https://example.com/furniture/green08.png",
   },
   {
     code: 'green09',
@@ -83,6 +91,7 @@ export const FURNITURE_SEEDS: DeepPartial<Furniture>[] = [
     category: FurnitureCategory.BED,
     zIndex: 9,
     s3ImageUrl: 'https://example.com/furniture/green09.png',
+    s3PreviewImageUrl: "'https://example.com/furniture/green09.png",
   },
   {
     code: 'green10',
@@ -92,6 +101,7 @@ export const FURNITURE_SEEDS: DeepPartial<Furniture>[] = [
     category: FurnitureCategory.LIGHTING,
     zIndex: 10,
     s3ImageUrl: 'https://example.com/furniture/green10.png',
+    s3PreviewImageUrl: "'https://example.com/furniture/green10.png",
   },
   {
     code: 'green11',
@@ -101,6 +111,7 @@ export const FURNITURE_SEEDS: DeepPartial<Furniture>[] = [
     category: FurnitureCategory.BED,
     zIndex: 11,
     s3ImageUrl: 'https://example.com/furniture/green11.png',
+    s3PreviewImageUrl: "'https://example.com/furniture/green11.png",
   },
   {
     code: 'green12',
@@ -110,6 +121,7 @@ export const FURNITURE_SEEDS: DeepPartial<Furniture>[] = [
     category: FurnitureCategory.DESK,
     zIndex: 12,
     s3ImageUrl: 'https://example.com/furniture/green12.png',
+    s3PreviewImageUrl: "'https://example.com/furniture/green12.png",
   },
   {
     code: 'green13',
@@ -119,6 +131,7 @@ export const FURNITURE_SEEDS: DeepPartial<Furniture>[] = [
     category: FurnitureCategory.CHAIR,
     zIndex: 13,
     s3ImageUrl: 'https://example.com/furniture/green13.png',
+    s3PreviewImageUrl: "'https://example.com/furniture/green13.png",
   },
   {
     code: 'green14',
@@ -128,6 +141,7 @@ export const FURNITURE_SEEDS: DeepPartial<Furniture>[] = [
     category: FurnitureCategory.DECOR,
     zIndex: 14,
     s3ImageUrl: 'https://example.com/furniture/green14.png',
+    s3PreviewImageUrl: "'https://example.com/furniture/green14.png",
   },
   {
     code: 'green15',
@@ -137,5 +151,6 @@ export const FURNITURE_SEEDS: DeepPartial<Furniture>[] = [
     category: FurnitureCategory.LIGHTING,
     zIndex: 15,
     s3ImageUrl: 'https://example.com/furniture/green15.png',
+    s3PreviewImageUrl: "'https://example.com/furniture/green15.png",
   },
 ];

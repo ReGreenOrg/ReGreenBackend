@@ -26,6 +26,9 @@ export class Furniture extends BaseEntity {
   @Column()
   s3ImageUrl: string;
 
+  @Column()
+  s3PreviewImageUrl: string;
+
   /* relations */
   @OneToMany(() => CoupleFurniture, (cf) => cf.furniture)
   ownedBy: CoupleFurniture[];

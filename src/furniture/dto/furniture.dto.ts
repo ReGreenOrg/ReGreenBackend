@@ -6,6 +6,7 @@ export interface FurnitureDto {
   description: string;
   price: number;
   s3ImageUrl: string;
+  s3PreviewImageUrl: string;
   category: FurnitureCategory;
   isOwned: boolean;
   coupleFurnitureId?: string | null;
