@@ -1,9 +1,19 @@
-import { Controller, Get, Param, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { FurnitureService } from './furniture.service';
 import { ApiDomain } from '../common/decorators/api-domain-decorator';
 import { DomainCode } from '../common/constant/domain-code.constant';
 import { JwtAccessGuard } from '../auth/guards/jwt-access.guard';
 import { FurnitureDto } from './dto/furniture.dto';
+import { FurniturePlacementDto } from './dto/update-furniture-placement.dto';
 
 @Controller('furniture')
 @UseGuards(JwtAccessGuard)
@@ -32,5 +42,16 @@ export class FurnitureController {
     coupleFurnitureId: string;
   }> {
     return await this.furnitureService.purchase(req.user.memberId, furnitureId);
+  }
+
+  @Patch()
+  async updatePlacement(
+    @Req() req,
+    @Body() furniturePlacementDtos: FurniturePlacementDto[],
+  ) {
+    await this.furnitureService.updatePlacement(
+      req.user.memberId,
+      furniturePlacementDtos,
+    );
   }
 }

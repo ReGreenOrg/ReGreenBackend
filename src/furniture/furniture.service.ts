@@ -10,6 +10,7 @@ import { CoupleFurniture } from '../couple-furniture/entities/couple-furniture.e
 import { MemberService } from '../member/member.service';
 import { FurnitureDto } from './dto/furniture.dto';
 import { Couple } from '../couple/entities/couple.entity';
+import { FurniturePlacementDto } from './dto/update-furniture-placement.dto';
 
 @Injectable()
 export class FurnitureService {
@@ -155,6 +156,39 @@ export class FurnitureService {
       return {
         coupleFurnitureId: coupleFurniture.id,
       };
+    });
+  }
+
+  async updatePlacement(
+    memberId: string,
+    furniturePlacementDtos: FurniturePlacementDto[],
+  ) {
+    const couple = await this.membersService.findCoupleByMember(memberId);
+    if (!couple) {
+      throw new BadRequestException('Notfound couple');
+    }
+
+    return this.dataSource.transaction(async (manager) => {
+      const coupleFurnitureRepo = manager.getRepository(CoupleFurniture);
+      const updated: FurniturePlacementDto[] = [];
+
+      for (const dto of furniturePlacementDtos) {
+        const coupleFurniture = await coupleFurnitureRepo.findOne({
+          where: { id: dto.coupleFurnitureId, couple: { id: couple.id } },
+          relations: ['couple'],
+        });
+        if (!coupleFurniture) {
+          throw new BadRequestException(
+            `Invalid or unauthorized coupleFurnitureId ${dto.coupleFurnitureId}`,
+          );
+        }
+
+        coupleFurniture.isPlaced = dto.isPlaced;
+        await coupleFurnitureRepo.save(coupleFurniture);
+        updated.push(dto);
+      }
+
+      return updated;
     });
   }
 }
