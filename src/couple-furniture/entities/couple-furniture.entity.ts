@@ -6,7 +6,7 @@ import { Furniture } from '../../furniture/entities/furniture.entity';
 @Entity()
 @Unique(['couple', 'furniture'])
 export class CoupleFurniture extends BaseEntity {
-  @ManyToOne(() => Couple, (couple) => couple.items, {
+  @ManyToOne(() => Couple, (couple) => couple.furniture, {
     onDelete: 'CASCADE',
   })
   couple: Couple;

@@ -15,5 +15,5 @@ export class Couple extends BaseEntity {
   members: Member[];
 
   @OneToMany(() => CoupleFurniture, (cf) => cf.couple)
-  items: CoupleFurniture[];
+  furniture: CoupleFurniture[];
 }
