@@ -9,7 +9,6 @@ import {
 import { BaseEntity } from '../../common/entities/base.entity';
 import { Couple } from '../../couple/entities/couple.entity';
 import { EcoVerification } from '../../eco-verification/entities/eco-verification.entity';
-import { RefreshToken } from '../../auth/entities/refresh-token.entity';
 
 @Entity('member')
 export class Member extends BaseEntity {
@@ -25,14 +24,18 @@ export class Member extends BaseEntity {
 
   @ManyToOne(() => Couple, (couple) => couple.members, {
     onDelete: 'SET NULL',
+    cascade: false,
     nullable: true,
   })
   @JoinColumn({ name: 'couple_id' })
   couple?: Couple | null;
 
-  @OneToMany(() => EcoVerification, (ecoVerification) => ecoVerification.member)
+  @OneToMany(
+    () => EcoVerification,
+    (ecoVerification) => ecoVerification.member,
+    {
+      cascade: false,
+    },
+  )
   ecoVerifications: EcoVerification[];
-
-  @OneToMany(() => RefreshToken, (refreshToken) => refreshToken.member)
-  refreshTokens: RefreshToken[];
 }

@@ -3,11 +3,11 @@ import { EcoVerificationService } from './eco-verification.service';
 import { EcoVerificationController } from './eco-verification.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { EcoVerification } from './entities/eco-verification.entity';
-import { MemberModule } from '../member/member.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([EcoVerification]), MemberModule],
+  imports: [TypeOrmModule.forFeature([EcoVerification])],
   controllers: [EcoVerificationController],
   providers: [EcoVerificationService],
+  exports: [EcoVerificationService],
 })
 export class EcoVerificationModule {}

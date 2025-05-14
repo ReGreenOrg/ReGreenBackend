@@ -1,4 +1,4 @@
-import { Controller, Get, Req, UseGuards } from '@nestjs/common';
+import { Controller, Delete, Get, Req, UseGuards } from '@nestjs/common';
 import { MemberService } from './member.service';
 import { ApiDomain } from '../common/decorators/api-domain-decorator';
 import { DomainCode } from '../common/constant/domain-code.constant';
@@ -13,6 +13,12 @@ export class MemberController {
 
   @Get('my')
   async getMe(@Req() req): Promise<MemberDto> {
-    return await this.memberService.getMemberById(req.user.memberId);
+    return await this.memberService.findMemberById(req.user.memberId);
+  }
+
+  @Delete()
+  @UseGuards(JwtAccessGuard)
+  async deleteUser(@Req() req: any) {
+    await this.memberService.remove(req.user.memberId);
   }
 }

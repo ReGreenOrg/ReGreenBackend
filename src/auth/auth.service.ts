@@ -1,6 +1,4 @@
 import { Member } from '../member/entities/member.entity';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import {
   HttpException,
   HttpStatus,
@@ -13,8 +11,8 @@ import { firstValueFrom } from 'rxjs';
 import { JwtService } from '@nestjs/jwt';
 import * as uuid from 'uuid';
 import { createHash } from 'crypto';
-import { RefreshToken } from './entities/refresh-token.entity';
 import { RedisService } from '../redis/redis.service';
+import { MemberService } from '../member/member.service';
 
 @Injectable()
 export class AuthService {
@@ -22,14 +20,11 @@ export class AuthService {
   private readonly profileUrl = 'https://kapi.kakao.com/v2/user/me';
 
   constructor(
-    @InjectRepository(Member)
-    private readonly memberRepo: Repository<Member>,
-    @InjectRepository(RefreshToken)
-    private readonly refreshRepo: Repository<RefreshToken>,
     private readonly http: HttpService,
     private readonly cs: ConfigService,
     private readonly jwt: JwtService,
     private readonly redis: RedisService,
+    private readonly memberService: MemberService,
   ) {}
 
   async getToken(code: string, local: boolean): Promise<string> {
@@ -88,17 +83,14 @@ export class AuthService {
     const nickname = kakaoAccount.profile?.nickname;
     const profileImageUrl = kakaoAccount.profile?.profile_image_url;
 
-    let member = await this.memberRepo.findOne({
-      where: { email },
-    });
+    let member = await this.memberService.getMemberByEmail(email);
 
     if (!member) {
-      member = this.memberRepo.create({
+      member = await this.memberService.createMember({
         nickname,
         email,
         profileImageUrl,
       });
-      await this.memberRepo.save(member);
     }
     return member;
   }
