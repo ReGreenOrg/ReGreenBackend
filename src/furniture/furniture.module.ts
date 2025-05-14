@@ -4,14 +4,16 @@ import { FurnitureController } from './furniture.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Furniture } from './entities/furniture.entity';
 import { FurnitureSeedService } from './constant/furniture-seed-service';
-import { CoupleFurniture } from '../couple-furniture/entities/couple-furniture.entity';
 import { MemberModule } from '../member/member.module';
-import { Couple } from '../couple/entities/couple.entity';
+import { CoupleFurnitureModule } from '../couple-furniture/couple-furniture.module';
+import { CoupleModule } from '../couple/couple.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Furniture, CoupleFurniture, Couple]),
+    TypeOrmModule.forFeature([Furniture]),
     MemberModule,
+    CoupleFurnitureModule,
+    CoupleModule,
   ],
   controllers: [FurnitureController],
   providers: [FurnitureService, FurnitureSeedService],

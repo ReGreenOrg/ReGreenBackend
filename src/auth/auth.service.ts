@@ -140,6 +140,7 @@ export class AuthService {
       throw new UnauthorizedException('RefreshToken invalid');
 
     await this.redis.del(key);
+    await this.revokeAll(memberId);
     return this.issueTokens({ id: memberId } as Member);
   }
 

@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
+  NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
@@ -117,5 +118,31 @@ export class CoupleService {
         profileImageUrl: m.profileImageUrl ?? null,
       })),
     };
+  }
+
+  async breakup(memberId: string) {
+    const member = await this.memberRepo.findOne({
+      where: { id: memberId },
+      relations: ['couple'],
+    });
+    if (!member) {
+      throw new NotFoundException('Member not found');
+    }
+    const coupleId = member.couple?.id;
+    if (!coupleId) {
+      throw new BadRequestException('Member is not in a couple');
+    }
+
+    await this.dataSource.transaction(async (manager) => {
+      // Nullify couple reference for both members
+      await manager.delete(Couple, { id: coupleId });
+
+      await manager
+        .createQueryBuilder()
+        .update(Member)
+        .set({ couple: null })
+        .where('id = :coupleId', { coupleId: coupleId })
+        .execute();
+    });
   }
 }

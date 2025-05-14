@@ -17,10 +17,6 @@ export class FurnitureService {
   constructor(
     @InjectRepository(Furniture)
     private readonly furnitureRepo: Repository<Furniture>,
-    @InjectRepository(CoupleFurniture)
-    private readonly coupleFurnitureRepo: Repository<CoupleFurniture>,
-    @InjectRepository(Couple)
-    private readonly coupleRepo: Repository<Couple>,
     private readonly membersService: MemberService,
     private readonly dataSource: DataSource,
   ) {}

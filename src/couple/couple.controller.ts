@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { CoupleService } from './couple.service';
 import { ApiDomain } from '../common/decorators/api-domain-decorator';
 import { DomainCode } from '../common/constant/domain-code.constant';
@@ -29,5 +37,10 @@ export class CoupleController {
   async getMyCouple(@Req() req) {
     const couple = await this.coupleService.findByMember(req.user.memberId);
     return { couple };
+  }
+
+  @Delete()
+  async breakup(@Req() req: any) {
+    await this.coupleService.breakup(req.user.memberId);
   }
 }
