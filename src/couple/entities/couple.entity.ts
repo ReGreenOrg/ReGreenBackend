@@ -8,12 +8,8 @@ export class Couple extends BaseEntity {
   @Column({ type: 'int', unsigned: true, default: 10 })
   point: number;
 
-  @Column({
-    type: 'datetime',
-    nullable: true,
-    default: () => 'DATE_ADD(CURRENT_TIMESTAMP, 10)',
-  })
-  breakupAt?: Date | null;
+  @Column({ type: 'int', default: 10 })
+  breakupAt: number;
 
   @OneToMany(() => Member, (member) => member.couple, { eager: false })
   members: Member[];

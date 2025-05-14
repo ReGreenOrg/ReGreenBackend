@@ -128,7 +128,7 @@ export class CoupleService {
     return {
       coupleId: couple.id,
       point: couple.point,
-      breakupAt: couple.breakupAt!,
+      breakupAt: couple.breakupAt,
       members: couple.members.map((m) => ({
         memberId: m.id,
         nickname: m.nickname,
