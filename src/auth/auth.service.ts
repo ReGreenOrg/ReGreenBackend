@@ -134,9 +134,9 @@ export class AuthService {
 
   async rotate(memberId: string, oldJti: string) {
     const key = this.rtKey(oldJti);
-    const owner = await this.redis.get<string>(key);
+    const ownerId = await this.redis.get<string>(key);
 
-    if (owner !== memberId)
+    if (ownerId !== memberId)
       throw new UnauthorizedException('RefreshToken invalid');
 
     await this.redis.del(key);

@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  Param,
   Post,
   Req,
   UseGuards,
@@ -35,12 +36,16 @@ export class CoupleController {
 
   @Get('my')
   async getMyCouple(@Req() req) {
-    const couple = await this.coupleService.findByMember(req.user.memberId);
-    return { couple };
+    return await this.coupleService.findByMember(req.user.memberId);
   }
 
   @Delete()
   async breakup(@Req() req: any) {
     await this.coupleService.breakup(req.user.memberId);
+  }
+
+  @Get('code/:code/nickname')
+  async getIssuerNicknameByCoupleCode(@Param('code') code: string) {
+    return await this.coupleService.getIssuerNickname(code);
   }
 }

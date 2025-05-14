@@ -39,8 +39,25 @@ export class CoupleService {
       .slice(0, 6)
       .toUpperCase();
 
-    await this.redis.set(this.CODE_PREFIX + code, issuerId); // 1시간 TTL
+    await this.redis.set(this.CODE_PREFIX + code, issuerId, { ttl: 3600 }); // 1시간 TTL
     return code;
+  }
+
+  async getIssuerNickname(code: string) {
+    const key = this.CODE_PREFIX + code;
+    const issuerId = await this.redis.get<string>(key);
+    if (!issuerId) {
+      throw new NotFoundException('유효하지 않거나 만료된 코드입니다.');
+    }
+
+    const member = await this.memberRepo.findOne({ where: { id: issuerId } });
+    if (!member) {
+      await this.redis.del(key);
+      throw new NotFoundException('발급자를 찾을 수 없습니다.');
+    }
+    return {
+      nickname: member.nickname,
+    };
   }
 
   async joinWithCode(joinerId: string, code: string): Promise<Couple> {

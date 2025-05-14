@@ -17,7 +17,6 @@ export class MemberController {
   }
 
   @Delete()
-  @UseGuards(JwtAccessGuard)
   async deleteUser(@Req() req: any) {
     await this.memberService.remove(req.user.memberId);
   }
