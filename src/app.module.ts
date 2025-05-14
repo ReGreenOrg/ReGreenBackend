@@ -12,6 +12,7 @@ import { EcoVerificationModule } from './eco-verification/eco-verification.modul
 import { RedisModule } from './redis/redis.module';
 import * as Joi from '@hapi/joi';
 import { FurnitureSeedService } from './furniture/constant/furniture-seed-service';
+import { MemberEcoVerificationModule } from './member-eco-verification/member-eco-verification.module';
 
 @Module({
   imports: [
@@ -53,6 +54,7 @@ import { FurnitureSeedService } from './furniture/constant/furniture-seed-servic
     CoupleFurnitureModule,
     EcoVerificationModule,
     RedisModule,
+    MemberEcoVerificationModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -8,7 +8,7 @@ import {
 } from 'typeorm';
 import { BaseEntity } from '../../common/entities/base.entity';
 import { Couple } from '../../couple/entities/couple.entity';
-import { EcoVerification } from '../../eco-verification/entities/eco-verification.entity';
+import { MemberEcoVerification } from '../../member-eco-verification/entities/member-eco-verification.entity';
 
 @Entity('member')
 export class Member extends BaseEntity {
@@ -30,12 +30,6 @@ export class Member extends BaseEntity {
   @JoinColumn({ name: 'couple_id' })
   couple?: Couple | null;
 
-  @OneToMany(
-    () => EcoVerification,
-    (ecoVerification) => ecoVerification.member,
-    {
-      cascade: false,
-    },
-  )
-  ecoVerifications: EcoVerification[];
+  @OneToMany(() => MemberEcoVerification, (mev) => mev.member)
+  ecoVerificationLinks: MemberEcoVerification[];
 }

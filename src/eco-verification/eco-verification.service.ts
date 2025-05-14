@@ -9,8 +9,4 @@ export class EcoVerificationService {
     @InjectRepository(EcoVerification)
     private readonly ecoVerificationRepo: Repository<EcoVerification>,
   ) {}
-
-  async deleteByMemberId(memberId: string) {
-    await this.ecoVerificationRepo.delete({ member: { id: memberId } });
-  }
 }

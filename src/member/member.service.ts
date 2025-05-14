@@ -24,7 +24,7 @@ export class MemberService {
   async getMemberById(memberId: string): Promise<Member> {
     const member = await this.memberRepo.findOne({
       where: { id: memberId },
-      relations: { couple: true, ecoVerifications: true },
+      relations: { couple: true, ecoVerificationLinks: true },
     });
     if (!member) {
       throw new NotFoundException('Member not found');
@@ -93,7 +93,7 @@ export class MemberService {
           .execute();
       }
 
-      if (member.ecoVerifications?.length) {
+      if (member.ecoVerificationLinks?.length) {
         await manager.delete(EcoVerification, { member: { id: memberId } });
       }
 
