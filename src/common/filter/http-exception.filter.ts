@@ -1,4 +1,3 @@
-// src/common/filters/http-exception.filter.ts
 import {
   ArgumentsHost,
   Catch,
@@ -6,37 +5,54 @@ import {
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
-import { Reflector } from '@nestjs/core';
-import { Response } from 'express';
+import { Request, Response } from 'express';
+import { DiscordWebhookService } from '../discord/discord-webhook.service';
 
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
-  constructor(private readonly reflector: Reflector) {}
+  constructor(private readonly discord: DiscordWebhookService) {}
 
-  catch(exception: unknown, host: ArgumentsHost) {
+  async catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
 
-    const isHttp = exception instanceof HttpException;
-    const status = isHttp
+    const isHttpException = exception instanceof HttpException;
+    const status = isHttpException
       ? exception.getStatus()
       : HttpStatus.INTERNAL_SERVER_ERROR;
 
-    // Nest SystemException → stack 포함, 나머진 감춤
-    const errorMsg = isHttp
-      ? (exception as HttpException).message
-      : 'Internal server error';
+    // exception.getResponse() 는 string | object
+    const exceptionResponse = isHttpException
+      ? exception.getResponse()
+      : { message: 'Internal server error' };
 
-    // 로깅 (winston / pino 써도 됨)
+    // 에러 메시지/페이로드 직렬화
+    const message =
+      typeof exceptionResponse === 'string'
+        ? exceptionResponse
+        : JSON.stringify(exceptionResponse, null, 2);
+
+    // 콘솔로도 로깅
     console.error(`[${request.method}] ${request.url} →`, exception);
 
+    // Discord 웹훅 전송
+    await this.discord.sendError({
+      title: `[${status}] ${request.method} ${request.url}`,
+      message,
+      stack: exception instanceof Error ? exception.stack : undefined,
+    });
+
+    // 클라이언트 응답
     response.status(status).json({
       statusCode: status,
-      message: errorMsg,
-      error: isHttp ? (exception as HttpException).name : 'InternalServerError',
       timestamp: new Date().toISOString(),
       path: request.url,
+      // exceptionResponse 가 string 이면 그걸, object 면 object 그대로
+      error:
+        typeof exceptionResponse === 'string'
+          ? exceptionResponse
+          : (exceptionResponse as any).message || exceptionResponse,
     });
   }
 }

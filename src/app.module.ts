@@ -21,6 +21,8 @@ import { MemberEcoVerificationModule } from './member-eco-verification/member-ec
 import { S3Module } from './s3/s3.module';
 import { EcoVerificationSeedService } from './eco-verification/constant/eco-verification-seed-service';
 import { PathBlockMiddleware } from './common/middleware/path-block-middleware';
+import { DiscordWebhookService } from './common/discord/discord-webhook.service';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
   imports: [
@@ -69,9 +71,10 @@ import { PathBlockMiddleware } from './common/middleware/path-block-middleware';
     RedisModule,
     MemberEcoVerificationModule,
     S3Module,
+    HttpModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, DiscordWebhookService],
 })
 export class AppModule implements NestModule, OnApplicationBootstrap {
   constructor(

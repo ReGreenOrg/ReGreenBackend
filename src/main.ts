@@ -6,6 +6,7 @@ import { HttpExceptionFilter } from './common/filter/http-exception.filter';
 import * as cookieParser from 'cookie-parser';
 import { RequestLoggerInterceptor } from './common/interceptors/request-logger.interceptor';
 import helmet from 'helmet';
+import { DiscordWebhookService } from './common/discord/discord-webhook.service';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -16,8 +17,9 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
 
   const reflector = app.get(Reflector);
+  const discordService = app.get(DiscordWebhookService);
 
-  app.useGlobalFilters(new HttpExceptionFilter(reflector));
+  app.useGlobalFilters(new HttpExceptionFilter(discordService));
   app.useGlobalInterceptors(new SuccessInterceptor(reflector));
   app.useGlobalInterceptors(new RequestLoggerInterceptor());
 
