@@ -4,15 +4,28 @@ import { Furniture } from '../entities/furniture.entity';
 
 export const FURNITURE_SEEDS: DeepPartial<Furniture>[] = [
   {
-    code: 'green01',
-    name: '자연빛 룸쉘',
+    code: 'green00',
+    name: '기본 룸쉘',
     description: '기본 제공 방 구조 (기본 테마)',
     price: 0,
+    category: FurnitureCategory.INTERIOR,
+    zIndex: 0,
+    s3ImageUrl:
+      'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/green00.png',
+    s3PreviewImageUrl:
+      'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/preview/green00.png',
+  },
+  {
+    code: 'green01',
+    name: '자연빛 룸쉘',
+    description: '기본 제공 방 구조 (그린 테마)',
+    price: 5,
     category: FurnitureCategory.INTERIOR,
     zIndex: 1,
     s3ImageUrl:
       'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/green01.png',
-    s3PreviewImageUrl: "'https://example.com/furniture/green01.png",
+    s3PreviewImageUrl:
+      'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/preview/green01.png',
   },
   {
     code: 'green02',
@@ -23,7 +36,8 @@ export const FURNITURE_SEEDS: DeepPartial<Furniture>[] = [
     zIndex: 2,
     s3ImageUrl:
       'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/green02.png',
-    s3PreviewImageUrl: "'https://example.com/furniture/green02.png",
+    s3PreviewImageUrl:
+      'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/preview/green02.png',
   },
   {
     code: 'green03',
@@ -34,7 +48,8 @@ export const FURNITURE_SEEDS: DeepPartial<Furniture>[] = [
     zIndex: 3,
     s3ImageUrl:
       'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/green03.png',
-    s3PreviewImageUrl: "'https://example.com/furniture/green03.png",
+    s3PreviewImageUrl:
+      'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/preview/green03.png',
   },
   {
     code: 'green04',
@@ -45,7 +60,8 @@ export const FURNITURE_SEEDS: DeepPartial<Furniture>[] = [
     zIndex: 4,
     s3ImageUrl:
       'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/green04.png',
-    s3PreviewImageUrl: "'https://example.com/furniture/green04.png",
+    s3PreviewImageUrl:
+      'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/preview/green04.png',
   },
   {
     code: 'green05',
@@ -56,7 +72,8 @@ export const FURNITURE_SEEDS: DeepPartial<Furniture>[] = [
     zIndex: 5,
     s3ImageUrl:
       'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/green05.png',
-    s3PreviewImageUrl: "'https://example.com/furniture/green05.png",
+    s3PreviewImageUrl:
+      'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/preview/green05.png',
   },
   {
     code: 'green06',
@@ -67,7 +84,8 @@ export const FURNITURE_SEEDS: DeepPartial<Furniture>[] = [
     zIndex: 6,
     s3ImageUrl:
       'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/green06.png',
-    s3PreviewImageUrl: "'https://example.com/furniture/green06.png",
+    s3PreviewImageUrl:
+      'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/preview/green06.png',
   },
   {
     code: 'green07',
@@ -78,7 +96,8 @@ export const FURNITURE_SEEDS: DeepPartial<Furniture>[] = [
     zIndex: 7,
     s3ImageUrl:
       'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/green07.png',
-    s3PreviewImageUrl: "'https://example.com/furniture/green07.png",
+    s3PreviewImageUrl:
+      'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/preview/green07.png',
   },
   {
     code: 'green08',
@@ -89,7 +108,8 @@ export const FURNITURE_SEEDS: DeepPartial<Furniture>[] = [
     zIndex: 8,
     s3ImageUrl:
       'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/green08.png',
-    s3PreviewImageUrl: "'https://example.com/furniture/green08.png",
+    s3PreviewImageUrl:
+      'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/preview/green08.png',
   },
   {
     code: 'green09',
@@ -100,7 +120,8 @@ export const FURNITURE_SEEDS: DeepPartial<Furniture>[] = [
     zIndex: 9,
     s3ImageUrl:
       'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/green09.png',
-    s3PreviewImageUrl: "'https://example.com/furniture/green09.png",
+    s3PreviewImageUrl:
+      'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/preview/green09.png',
   },
   {
     code: 'green10',
@@ -111,7 +132,8 @@ export const FURNITURE_SEEDS: DeepPartial<Furniture>[] = [
     zIndex: 10,
     s3ImageUrl:
       'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/green10.png',
-    s3PreviewImageUrl: "'https://example.com/furniture/green10.png",
+    s3PreviewImageUrl:
+      'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/preview/green10.png',
   },
   {
     code: 'green11',
@@ -122,7 +144,8 @@ export const FURNITURE_SEEDS: DeepPartial<Furniture>[] = [
     zIndex: 11,
     s3ImageUrl:
       'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/green11.png',
-    s3PreviewImageUrl: "'https://example.com/furniture/green11.png",
+    s3PreviewImageUrl:
+      'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/preview/green11.png',
   },
   {
     code: 'green12',
@@ -133,7 +156,8 @@ export const FURNITURE_SEEDS: DeepPartial<Furniture>[] = [
     zIndex: 12,
     s3ImageUrl:
       'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/green12.png',
-    s3PreviewImageUrl: "'https://example.com/furniture/green12.png",
+    s3PreviewImageUrl:
+      'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/preview/green102.png',
   },
   {
     code: 'green13',
@@ -144,7 +168,8 @@ export const FURNITURE_SEEDS: DeepPartial<Furniture>[] = [
     zIndex: 13,
     s3ImageUrl:
       'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/green13.png',
-    s3PreviewImageUrl: "'https://example.com/furniture/green13.png",
+    s3PreviewImageUrl:
+      'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/preview/green13.png',
   },
   {
     code: 'green14',
@@ -155,7 +180,8 @@ export const FURNITURE_SEEDS: DeepPartial<Furniture>[] = [
     zIndex: 14,
     s3ImageUrl:
       'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/green14.png',
-    s3PreviewImageUrl: "'https://example.com/furniture/green14.png",
+    s3PreviewImageUrl:
+      'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/preview/green14.png',
   },
   {
     code: 'green15',
@@ -166,6 +192,7 @@ export const FURNITURE_SEEDS: DeepPartial<Furniture>[] = [
     zIndex: 15,
     s3ImageUrl:
       'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/green15.png',
-    s3PreviewImageUrl: "'https://example.com/furniture/green15.png",
+    s3PreviewImageUrl:
+      'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/preview/green15.png',
   },
 ];
