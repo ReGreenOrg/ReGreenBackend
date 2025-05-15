@@ -5,11 +5,12 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, In, Repository } from 'typeorm';
 import { Couple } from './entities/couple.entity';
 import { Member } from '../member/entities/member.entity';
 import { RedisService } from '../redis/redis.service';
 import { CoupleDto } from './dto/couple.dto';
+import { MemberEcoVerification } from '../member-eco-verification/entities/member-eco-verification.entity';
 
 @Injectable()
 export class CoupleService {
@@ -145,21 +146,30 @@ export class CoupleService {
     if (!member) {
       throw new NotFoundException('Member not found');
     }
+
     const coupleId = member.couple?.id;
     if (!coupleId) {
       throw new BadRequestException('Member is not in a couple');
     }
 
+    const coupleWithMembers = await this.coupleRepo.findOne({
+      where: { id: coupleId },
+      relations: ['members'],
+    });
+
+    if (!coupleWithMembers || coupleWithMembers.members.length === 0) {
+      throw new BadRequestException('Couple membership is invalid');
+    }
+    const memberIds = coupleWithMembers.members.map((m) => m.id);
+
     await this.dataSource.transaction(async (manager) => {
-      // Nullify couple reference for both members
+      await manager.delete(MemberEcoVerification, {
+        member: { id: In(memberIds) },
+      });
+
       await manager.delete(Couple, { id: coupleId });
 
-      await manager
-        .createQueryBuilder()
-        .update(Member)
-        .set({ couple: null })
-        .where('id = :coupleId', { coupleId: coupleId })
-        .execute();
+      await manager.delete(Member, { id: In(memberIds) });
     });
   }
 }

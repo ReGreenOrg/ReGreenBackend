@@ -1,18 +1,15 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { MemberDto } from './dto/member.dto';
-import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 import { Member } from './entities/member.entity';
-import { DataSource, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Couple } from '../couple/entities/couple.entity';
-import { EcoVerification } from '../eco-verification/entities/eco-verification.entity';
 
 @Injectable()
 export class MemberService {
   constructor(
     @InjectRepository(Member)
     private readonly memberRepo: Repository<Member>,
-    @InjectDataSource()
-    private readonly dataSource: DataSource,
   ) {}
 
   async createMember(createMemberDto: MemberDto): Promise<Member> {
@@ -67,37 +64,5 @@ export class MemberService {
     }
 
     return member.couple ? member.couple : null;
-  }
-
-  async remove(memberId: string): Promise<void> {
-    await this.dataSource.transaction(async (manager) => {
-      const member = await manager.findOne(Member, {
-        where: { id: memberId },
-        relations: ['couple', 'ecoVerifications'],
-      });
-
-      if (!member) {
-        throw new NotFoundException('Member not found');
-      }
-
-      const coupleId = member.couple?.id;
-      // If part of a couple, delete the couple entity first
-      if (coupleId) {
-        await manager.delete(Couple, { id: coupleId });
-
-        await manager
-          .createQueryBuilder()
-          .update(Member)
-          .set({ couple: null })
-          .where('id = :coupleId', { coupleId: coupleId })
-          .execute();
-      }
-
-      if (member.ecoVerificationLinks?.length) {
-        await manager.delete(EcoVerification, { member: { id: memberId } });
-      }
-
-      await manager.delete(Member, { id: memberId });
-    });
   }
 }
