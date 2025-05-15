@@ -15,6 +15,28 @@ export class EcoVerificationService {
     private readonly memberEcoVerificationRepo: Repository<MemberEcoVerification>,
   ) {}
 
+  async getEcoVerifications() {
+    const rows = await this.ecoVerificationRepo
+      .createQueryBuilder('e')
+      .select([
+        'e.id              AS "id"',
+        'e.title           AS "title"',
+        'e.point           AS "point"',
+        'e.breakupAtPoint  AS "breakupAtPoint"',
+      ])
+      .orderBy('e.code', 'ASC')
+      .getRawMany();
+
+    console.log(rows);
+
+    return rows.map((row) => ({
+      ecoVerificationId: row.id,
+      title: row.title,
+      point: Number(row.point),
+      breakupAtPoint: Number(row.breakupAtPoint),
+    }));
+  }
+
   async submitWithPhoto(
     memberId: string,
     ecoVerificationId: string,

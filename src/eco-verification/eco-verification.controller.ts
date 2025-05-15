@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Controller,
+  Get,
   Param,
   Post,
   Req,
@@ -21,6 +22,11 @@ export class EcoVerificationController {
   constructor(
     private readonly ecoVerificationService: EcoVerificationService,
   ) {}
+
+  @Get()
+  async getEcoVerifications() {
+    return this.ecoVerificationService.getEcoVerifications();
+  }
 
   @Post(':ecoVerificationId')
   @UseInterceptors(FileInterceptor('file'))
