@@ -18,4 +18,7 @@ export class EcoVerification extends BaseEntity {
 
   @Column()
   breakupAtPoint: number;
+
+  @Column()
+  iconS3ImageUrl: string;
 }

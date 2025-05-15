@@ -17,7 +17,7 @@ export class EcoVerificationSeedService {
       .insert()
       .into(EcoVerification)
       .values(ECO_VERIFICATION_SEEDS)
-      .orUpdate(['title', 'point', 'breakupAtPoint'], ['code'])
+      .orUpdate(['title', 'point', 'breakupAtPoint', 'iconS3ImageUrl'], ['code'])
       .execute();
 
     await this.ecoVerificationRepo

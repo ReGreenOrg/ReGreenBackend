@@ -23,6 +23,7 @@ export class EcoVerificationService {
         'e.title           AS "title"',
         'e.point           AS "point"',
         'e.breakupAtPoint  AS "breakupAtPoint"',
+        'e.iconS3ImageUrl  AS "iconS3ImageUrl"',
       ])
       .orderBy('e.code', 'ASC')
       .getRawMany();
@@ -32,6 +33,7 @@ export class EcoVerificationService {
       title: row.title,
       point: Number(row.point),
       breakupAtPoint: Number(row.breakupAtPoint),
+      iconS3ImageUrl: row.iconS3ImageUrl,
     }));
   }
 
@@ -52,12 +54,7 @@ export class EcoVerificationService {
       ecoVerification: eco,
       s3ImageUrl: imageUrl,
     });
-    const saved = await this.memberEcoVerificationRepo.save(link);
-    return {
-      memberEcoVerificationId: saved.id,
-      status: saved.status,
-      s3ImageUrl: saved.s3ImageUrl,
-    };
+    await this.memberEcoVerificationRepo.save(link);
   }
 
   // async reviewAndReward(

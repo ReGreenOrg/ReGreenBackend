@@ -30,7 +30,7 @@ export class EcoVerificationController {
 
   @Post(':ecoVerificationId')
   @UseInterceptors(FileInterceptor('file'))
-  uploadFile(
+  async uploadFile(
     @Req() req: any,
     @UploadedFile() file: Express.MulterS3.File,
     @Param('ecoVerificationId') ecoVerificationId: string,
@@ -39,7 +39,7 @@ export class EcoVerificationController {
       throw new BadRequestException('파일이 전송되지 않았습니다.');
     }
 
-    return this.ecoVerificationService.submitWithPhoto(
+    await this.ecoVerificationService.submitWithPhoto(
       req.user.memberId,
       ecoVerificationId,
       file.location,
