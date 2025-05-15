@@ -8,5 +8,14 @@ export class EcoVerification extends BaseEntity {
   memberLinks: MemberEcoVerification[];
 
   @Column({ unique: true })
+  code: string;
+
+  @Column()
   title: string;
+
+  @Column()
+  point: number;
+
+  @Column()
+  breakupAtPoint: number;
 }
