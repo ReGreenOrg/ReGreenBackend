@@ -129,7 +129,7 @@ export class EcoVerificationService {
   //     return savedLink;
   //   });
   // }
-  async getVerifications(memberId: string, page: number, limit: number) {
+  async getMyVerifications(memberId: string, page: number, limit: number) {
     const [items, total] = await this.memberEcoVerificationRepo.findAndCount({
       where: { member: { id: memberId } },
       relations: ['ecoVerification'],
@@ -141,18 +141,53 @@ export class EcoVerificationService {
     return {
       ecoVerifications: items.map((link) => ({
         ecoVerificationId: link.ecoVerification.id,
+        title: link.ecoVerification.title,
+        iconS3ImageUrl: link.ecoVerification.iconS3ImageUrl,
+        point: link.ecoVerification.point,
+        breakupAtPoint: link.ecoVerification.breakupAtPoint,
+        memberEcoVerificationId: link.id,
+        createdAt: link.createdAt.toISOString(),
         s3ImageUrl: link.s3ImageUrl,
-        result: link.status,
+        status: link.status,
         location: link.location,
         geoLat: link.geoLat,
         geoLng: link.geoLng,
-        createdAt: link.createdAt.toISOString(),
       })),
       meta: {
         page,
         limit,
         total,
       },
+    };
+  }
+
+  async getMyVerificationDetail(
+    memberId: string,
+    memberEcoVerificationId: string,
+  ) {
+    const link = await this.memberEcoVerificationRepo.findOne({
+      where: { id: memberEcoVerificationId },
+      relations: ['member', 'ecoVerification'],
+    });
+    if (!link) {
+      throw new NotFoundException('인증 내역이 존재하지 않습니다.');
+    }
+    if (link.member.id !== memberId) {
+      throw new ForbiddenException('해당 인증 내역에 접근할 권한이 없습니다.');
+    }
+    return {
+      ecoVerificationId: link.ecoVerification.id,
+      title: link.ecoVerification.title,
+      iconS3ImageUrl: link.ecoVerification.iconS3ImageUrl,
+      point: link.ecoVerification.point,
+      breakupAtPoint: link.ecoVerification.breakupAtPoint,
+      memberEcoVerificationId: link.id,
+      createdAt: link.createdAt.toISOString(),
+      s3ImageUrl: link.s3ImageUrl,
+      status: link.status,
+      location: link.location,
+      geoLat: link.geoLat,
+      geoLng: link.geoLng,
     };
   }
 }

@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
   Query,
   Req,
@@ -49,7 +50,7 @@ export class EcoVerificationController {
     );
   }
 
-  @Post(':memberEcoVerificationId/link')
+  @Patch('my/:memberEcoVerificationId/link')
   async uploadLink(
     @Req() req: any,
     @Param('memberEcoVerificationId') memberEcoVerificationId: string,
@@ -77,10 +78,21 @@ export class EcoVerificationController {
     @Query('page', new ParseIntPipe({ optional: true })) page = 1,
     @Query('limit', new ParseIntPipe({ optional: true })) limit = 10,
   ) {
-    return await this.ecoVerificationService.getVerifications(
+    return await this.ecoVerificationService.getMyVerifications(
       req.user.memberId,
       page,
       limit,
+    );
+  }
+
+  @Get('my/:memberEcoVerificationId')
+  async getMyVerification(
+    @Req() req: any,
+    @Param('memberEcoVerificationId') memberEcoVerificationId: string,
+  ) {
+    return await this.ecoVerificationService.getMyVerificationDetail(
+      req.user.memberId,
+      memberEcoVerificationId,
     );
   }
 }
