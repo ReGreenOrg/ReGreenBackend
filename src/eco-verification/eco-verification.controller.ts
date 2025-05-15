@@ -35,7 +35,6 @@ export class EcoVerificationController {
     @UploadedFile() file: Express.MulterS3.File,
     @Param('ecoVerificationId') ecoVerificationId: string,
   ) {
-    console.log(file);
     if (!file) {
       throw new BadRequestException('파일이 전송되지 않았습니다.');
     }

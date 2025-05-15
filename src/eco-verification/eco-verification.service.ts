@@ -27,8 +27,6 @@ export class EcoVerificationService {
       .orderBy('e.code', 'ASC')
       .getRawMany();
 
-    console.log(rows);
-
     return rows.map((row) => ({
       ecoVerificationId: row.id,
       title: row.title,
