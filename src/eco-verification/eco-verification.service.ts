@@ -54,7 +54,13 @@ export class EcoVerificationService {
       ecoVerification: eco,
       s3ImageUrl: imageUrl,
     });
-    await this.memberEcoVerificationRepo.save(link);
+    const saved = await this.memberEcoVerificationRepo.save(link);
+
+    return {
+      memberEcoVerificationId: saved.id,
+      status: saved.status,
+      s3ImageUrl: imageUrl,
+    };
   }
 
   // async reviewAndReward(
