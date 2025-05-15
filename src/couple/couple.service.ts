@@ -48,7 +48,9 @@ export class CoupleService {
     const key = this.CODE_PREFIX + code;
     const issuerId = await this.redis.get<string>(key);
     if (!issuerId) {
-      throw new NotFoundException('유효하지 않거나 만료된 코드입니다.');
+      throw new NotFoundException(
+        `유효하지 않거나 만료된 코드입니다.: ${code}`,
+      );
     }
 
     const member = await this.memberRepo.findOne({ where: { id: issuerId } });
@@ -62,10 +64,11 @@ export class CoupleService {
   }
 
   async joinWithCode(joinerId: string, code: string): Promise<Couple> {
-    const issuerId: string | undefined = await this.redis.get(
-      this.CODE_PREFIX + code,
-    );
-    if (!issuerId) throw new BadRequestException('유효하지 않거나 만료된 코드');
+    const key = this.CODE_PREFIX + code;
+    const issuerId = await this.redis.get<string>(key);
+
+    if (!issuerId)
+      throw new BadRequestException(`유효하지 않거나 만료된 코드: ${code}`);
 
     if (issuerId === joinerId)
       throw new BadRequestException('본인 코드를 사용할 수 없습니다.');
