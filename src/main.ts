@@ -5,11 +5,13 @@ import { SuccessInterceptor } from './common/interceptors/success.interceptor';
 import { HttpExceptionFilter } from './common/filter/http-exception.filter';
 import * as cookieParser from 'cookie-parser';
 import { RequestLoggerInterceptor } from './common/interceptors/request-logger.interceptor';
+import helmet from 'helmet';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
   app.use(cookieParser());
+  app.use(helmet());
 
   app.setGlobalPrefix('api');
 
