@@ -1,4 +1,9 @@
-import { Module, OnApplicationBootstrap } from '@nestjs/common';
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  OnApplicationBootstrap,
+} from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
@@ -15,6 +20,7 @@ import { FurnitureSeedService } from './furniture/constant/furniture-seed-servic
 import { MemberEcoVerificationModule } from './member-eco-verification/member-eco-verification.module';
 import { S3Module } from './s3/s3.module';
 import { EcoVerificationSeedService } from './eco-verification/constant/eco-verification-seed-service';
+import { PathBlockMiddleware } from './common/middleware/path-block-middleware';
 
 @Module({
   imports: [
@@ -67,7 +73,7 @@ import { EcoVerificationSeedService } from './eco-verification/constant/eco-veri
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule implements OnApplicationBootstrap {
+export class AppModule implements NestModule, OnApplicationBootstrap {
   constructor(
     private readonly furnitureSeedService: FurnitureSeedService,
     private readonly ecoVerificationSeedService: EcoVerificationSeedService,
@@ -76,5 +82,9 @@ export class AppModule implements OnApplicationBootstrap {
   async onApplicationBootstrap() {
     await this.furnitureSeedService.sync();
     await this.ecoVerificationSeedService.sync();
+  }
+
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(PathBlockMiddleware).forRoutes('*');
   }
 }
