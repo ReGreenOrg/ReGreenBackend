@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Member } from './entities/member.entity';
 import { Repository } from 'typeorm';
 import { Couple } from '../couple/entities/couple.entity';
+import { UpdateMemberDto } from './dto/update-member.dto';
 
 @Injectable()
 export class MemberService {
@@ -64,5 +65,15 @@ export class MemberService {
     }
 
     return member.couple ? member.couple : null;
+  }
+
+  async editMe(memberId: string, dto: UpdateMemberDto) {
+    const member = await this.memberRepo.findOne({ where: { id: memberId } });
+    if (!member) {
+      throw new NotFoundException('Member not found');
+    }
+
+    Object.assign(member, dto);
+    await this.memberRepo.save(member);
   }
 }
