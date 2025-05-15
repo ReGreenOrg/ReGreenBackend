@@ -13,6 +13,8 @@ import { RedisModule } from './redis/redis.module';
 import * as Joi from '@hapi/joi';
 import { FurnitureSeedService } from './furniture/constant/furniture-seed-service';
 import { MemberEcoVerificationModule } from './member-eco-verification/member-eco-verification.module';
+import { S3Module } from './s3/s3.module';
+import { EcoVerificationSeedService } from './eco-verification/constant/eco-verification-seed-service';
 
 @Module({
   imports: [
@@ -43,6 +45,11 @@ import { MemberEcoVerificationModule } from './member-eco-verification/member-ec
         REDIS_URL: Joi.string().required(),
         REDIS_TTL: Joi.number().required(),
 
+        AWS_S3_BUCKET_NAME: Joi.string().required(),
+        AWS_S3_ACCESS: Joi.string().required(),
+        AWS_S3_SECRET: Joi.string().required(),
+        AWS_S3_REGION: Joi.string().required(),
+
         STATE_SECRET: Joi.string().required(),
       }),
     }),
@@ -55,14 +62,19 @@ import { MemberEcoVerificationModule } from './member-eco-verification/member-ec
     EcoVerificationModule,
     RedisModule,
     MemberEcoVerificationModule,
+    S3Module,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule implements OnApplicationBootstrap {
-  constructor(private readonly seed: FurnitureSeedService) {}
+  constructor(
+    private readonly furnitureSeedService: FurnitureSeedService,
+    private readonly ecoVerificationSeedService: EcoVerificationSeedService,
+  ) {}
 
   async onApplicationBootstrap() {
-    await this.seed.sync();
+    await this.furnitureSeedService.sync();
+    await this.ecoVerificationSeedService.sync();
   }
 }
