@@ -21,7 +21,7 @@ export class MemberService {
   async getMemberById(memberId: string): Promise<Member> {
     const member = await this.memberRepo.findOne({
       where: { id: memberId },
-      relations: { couple: true, ecoVerificationLinks: true },
+      relations: { couple: true },
     });
     if (!member) {
       throw new NotFoundException('Member not found');
