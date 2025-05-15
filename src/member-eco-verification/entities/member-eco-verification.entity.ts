@@ -34,4 +34,7 @@ export class MemberEcoVerification extends BaseEntity {
 
   @Column({ length: 100, nullable: true })
   location?: string;
+
+  @Column({ nullable: true })
+  linkUrl?: string;
 }

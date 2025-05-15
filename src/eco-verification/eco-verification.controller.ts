@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  Body,
   Controller,
   Get,
   Param,
@@ -43,6 +44,19 @@ export class EcoVerificationController {
       req.user.memberId,
       ecoVerificationId,
       file.location,
+    );
+  }
+
+  @Post(':memberEcoVerificationId/link')
+  async uploadLink(
+    @Req() req: any,
+    @Param('memberEcoVerificationId') memberEcoVerificationId: string,
+    @Body('url') url: string,
+  ) {
+    await this.ecoVerificationService.submitLink(
+      req.user.memberId,
+      memberEcoVerificationId,
+      url,
     );
   }
 

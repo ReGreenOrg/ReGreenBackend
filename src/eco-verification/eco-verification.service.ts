@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EcoVerification } from './entities/eco-verification.entity';
 import { Repository } from 'typeorm';
@@ -61,6 +65,27 @@ export class EcoVerificationService {
       status: saved.status,
       s3ImageUrl: imageUrl,
     };
+  }
+
+  async submitLink(
+    memberId: string,
+    memberEcoVerificationId: string,
+    url: string,
+  ) {
+    const record = await this.memberEcoVerificationRepo.findOne({
+      where: { id: memberEcoVerificationId },
+      relations: ['member'],
+    });
+    if (!record) {
+      throw new NotFoundException('인증 내역을 찾을 수 없습니다.');
+    }
+
+    if (record.member.id !== memberId) {
+      throw new ForbiddenException('본인 요청이 아닙니다.');
+    }
+
+    record.linkUrl = url;
+    return this.memberEcoVerificationRepo.save(record);
   }
 
   // async reviewAndReward(
