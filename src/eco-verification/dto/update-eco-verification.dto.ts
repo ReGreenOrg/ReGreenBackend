@@ -1,4 +1,4 @@
 import { PartialType } from '@nestjs/mapped-types';
-import { CreateEcoVerificationDto } from './create-eco-verification.dto';
+import { EcoVerificationDto } from './eco-verification.dto';
 
-export class UpdateEcoVerificationDto extends PartialType(CreateEcoVerificationDto) {}
+export class UpdateEcoVerificationDto extends PartialType(EcoVerificationDto) {}
