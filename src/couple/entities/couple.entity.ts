@@ -5,10 +5,10 @@ import { CoupleFurniture } from '../../couple-furniture/entities/couple-furnitur
 
 @Entity('couple')
 export class Couple extends BaseEntity {
-  @Column({ type: 'int', unsigned: true, default: 10 })
+  @Column({ type: 'int', unsigned: true, default: 14 })
   point: number;
 
-  @Column({ type: 'int', default: 10 })
+  @Column({ type: 'int', default: 30 })
   breakupAt: number;
 
   @OneToMany(() => Member, (member) => member.couple, { eager: false })

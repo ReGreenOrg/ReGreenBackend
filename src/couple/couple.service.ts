@@ -40,7 +40,7 @@ export class CoupleService {
       .slice(0, 6)
       .toUpperCase();
 
-    await this.redis.set(this.CODE_PREFIX + code, issuerId, { ttl: 3600 }); // 1시간 TTL
+    await this.redis.set(this.CODE_PREFIX + code, issuerId, { ttl: 3600 * 24 }); // 24시간 TTL
     return code;
   }
 
