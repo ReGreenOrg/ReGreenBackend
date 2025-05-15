@@ -14,9 +14,9 @@ export class EcoVerificationService {
   constructor(
     @InjectRepository(EcoVerification)
     private readonly ecoVerificationRepo: Repository<EcoVerification>,
-    private readonly memberService: MemberService,
     @InjectRepository(MemberEcoVerification)
     private readonly memberEcoVerificationRepo: Repository<MemberEcoVerification>,
+    private readonly memberService: MemberService,
   ) {}
 
   async getEcoVerifications() {
@@ -129,4 +129,30 @@ export class EcoVerificationService {
   //     return savedLink;
   //   });
   // }
+  async getVerifications(memberId: string, page: number, limit: number) {
+    const [items, total] = await this.memberEcoVerificationRepo.findAndCount({
+      where: { member: { id: memberId } },
+      relations: ['ecoVerification'],
+      order: { createdAt: 'DESC' },
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+
+    return {
+      ecoVerifications: items.map((link) => ({
+        ecoVerificationId: link.ecoVerification.id,
+        s3ImageUrl: link.s3ImageUrl,
+        result: link.status,
+        location: link.location,
+        geoLat: link.geoLat,
+        geoLng: link.geoLng,
+        createdAt: link.createdAt.toISOString(),
+      })),
+      meta: {
+        page,
+        limit,
+        total,
+      },
+    };
+  }
 }

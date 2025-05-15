@@ -1,6 +1,5 @@
 import {
   Controller,
-  Get,
   ParseBoolPipe,
   Post,
   Query,
@@ -14,7 +13,6 @@ import { AuthService } from './auth.service';
 import { JwtResponseDto } from './dto/jwt-response.dto';
 import { JwtAccessGuard } from './guards/jwt-access.guard';
 import { JwtRefreshGuard } from './guards/jwt-refresh.guard';
-import { Member } from '../member/entities/member.entity';
 
 @Controller('auth')
 @ApiDomain(DomainCode.AUTH)
@@ -47,11 +45,5 @@ export class AuthController {
   @UseGuards(JwtAccessGuard)
   async logout(@Req() req: any) {
     await this.auth.revokeAll(req.user.memberId);
-  }
-
-  @Get('/mylogin') async myLogin(): Promise<JwtResponseDto> {
-    return await this.auth.issueTokens({
-      id: '5660f0dc-8853-4465-ac13-9c65f2202b68',
-    } as Member);
   }
 }

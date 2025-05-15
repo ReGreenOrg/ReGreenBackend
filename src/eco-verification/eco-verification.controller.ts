@@ -4,7 +4,9 @@ import {
   Controller,
   Get,
   Param,
+  ParseIntPipe,
   Post,
+  Query,
   Req,
   UploadedFile,
   UseGuards,
@@ -68,4 +70,17 @@ export class EcoVerificationController {
   // ) {
   //   return this.ecoService.reviewAndReward(linkId, status);
   // }
+
+  @Get('my')
+  async listMyVerifications(
+    @Req() req: any,
+    @Query('page', new ParseIntPipe({ optional: true })) page = 1,
+    @Query('limit', new ParseIntPipe({ optional: true })) limit = 10,
+  ) {
+    return await this.ecoVerificationService.getVerifications(
+      req.user.memberId,
+      page,
+      limit,
+    );
+  }
 }
