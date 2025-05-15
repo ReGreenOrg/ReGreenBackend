@@ -13,7 +13,7 @@ import { ApiDomain } from '../common/decorators/api-domain-decorator';
 import { DomainCode } from '../common/constant/domain-code.constant';
 import { JwtAccessGuard } from '../auth/guards/jwt-access.guard';
 import { FurnitureDto } from './dto/furniture.dto';
-import { FurniturePlacementDto } from './dto/update-furniture-placement.dto';
+import { UpdatePlacementsDto } from './dto/update-furniture-placement.dto';
 
 @Controller('furniture')
 @UseGuards(JwtAccessGuard)
@@ -45,13 +45,10 @@ export class FurnitureController {
   }
 
   @Patch()
-  async updatePlacement(
-    @Req() req,
-    @Body() furniturePlacementDtos: FurniturePlacementDto[],
-  ) {
+  async updatePlacement(@Req() req: any, @Body() dto: UpdatePlacementsDto) {
     await this.furnitureService.updatePlacement(
       req.user.memberId,
-      furniturePlacementDtos,
+      dto.placements,
     );
   }
 }
