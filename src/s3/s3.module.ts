@@ -35,10 +35,7 @@ import { basename, extname } from 'path';
             callback(null, fileName);
           },
         }),
-        // 파일 크기 제한
-        limits: {
-          fileSize: 20 * 1024 * 1024,
-        },
+        limits: {},
       }),
     }),
   ],
