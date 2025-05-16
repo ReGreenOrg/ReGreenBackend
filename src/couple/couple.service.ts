@@ -11,6 +11,8 @@ import { Member } from '../member/entities/member.entity';
 import { RedisService } from '../redis/redis.service';
 import { CoupleDto } from './dto/couple.dto';
 import { MemberEcoVerification } from '../member-eco-verification/entities/member-eco-verification.entity';
+import { Furniture } from '../furniture/entities/furniture.entity';
+import { CoupleFurniture } from '../couple-furniture/entities/couple-furniture.entity';
 
 @Injectable()
 export class CoupleService {
@@ -76,6 +78,8 @@ export class CoupleService {
     return this.dataSource.transaction(async (manager) => {
       const membersRepo = manager.getRepository(Member);
       const couplesRepo = manager.getRepository(Couple);
+      const furnRepo = manager.getRepository(Furniture);
+      const cfRepo = manager.getRepository(CoupleFurniture);
 
       const issuer = await membersRepo.findOne({
         where: { id: issuerId },
@@ -102,6 +106,20 @@ export class CoupleService {
         await couplesRepo.save(couple);
         issuer.couple = couple;
         await membersRepo.save(issuer);
+
+        const defaultFurniture = await furnRepo.findOne({
+          where: { code: 'green00' },
+        });
+        if (!defaultFurniture) {
+          throw new BadRequestException('기본 가구 데이터가 없습니다.');
+        }
+
+        const defaultCf = cfRepo.create({
+          couple,
+          furniture: defaultFurniture,
+          isPlaced: true, // 초기 상태
+        });
+        await cfRepo.save(defaultCf);
       }
 
       joiner.couple = couple;
