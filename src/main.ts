@@ -28,6 +28,7 @@ async function bootstrap() {
       configService.get<string>('FRONT_URL'),
       'https://wooimi.kro.kr',
       'http://localhost:3000',
+      'https://wooimi:com',
     ],
     credentials: true,
   });
