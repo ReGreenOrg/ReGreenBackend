@@ -86,6 +86,10 @@ export class AuthService {
     const nickname = kakaoAccount.profile?.nickname;
     const profileImageUrl = kakaoAccount.profile?.profile_image_url;
 
+    console.log(email);
+    console.log(nickname);
+    console.log(profileImageUrl);
+
     let member = await this.memberRepo.findOne({
       where: { email },
     });
