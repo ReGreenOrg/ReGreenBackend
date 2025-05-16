@@ -157,7 +157,7 @@ export const FURNITURE_SEEDS: DeepPartial<Furniture>[] = [
     s3ImageUrl:
       'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/green12.png',
     s3PreviewImageUrl:
-      'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/preview/green102.png',
+      'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/preview/green12.png',
   },
   {
     code: 'green13',
