@@ -81,7 +81,6 @@ export class AuthService {
   }
 
   async upsertMember(profile: any): Promise<Member> {
-    const kakaoId = profile.id;
     const kakaoAccount = profile.kakao_account ?? {};
     const email = kakaoAccount.email;
     const nickname = kakaoAccount.profile?.nickname;
@@ -91,16 +90,27 @@ export class AuthService {
       where: { email },
     });
 
-    let saved;
-    if (!member) {
-      member = await this.memberService.createMember({
+    if (member) {
+      let updated = false;
+
+      if (nickname && member.nickname !== nickname) {
+        member.nickname = nickname;
+        updated = true;
+      }
+      if (profileImageUrl && member.profileImageUrl !== profileImageUrl) {
+        member.profileImageUrl = profileImageUrl;
+        updated = true;
+      }
+
+      return updated ? await this.memberRepo.save(member) : member;
+    } else {
+      const newMember = this.memberRepo.create({
         nickname,
         email,
         profileImageUrl,
       });
-      saved = await this.memberRepo.save(member);
+      return await this.memberRepo.save(newMember);
     }
-    return saved;
   }
 
   private async sign(payload, secret, exp) {
