@@ -15,17 +15,6 @@ async function bootstrap() {
   app.use(cookieParser());
   app.use(helmet());
 
-  app.use((req, res, next) => new PathBlockMiddleware().use(req, res, next));
-
-  app.setGlobalPrefix('api');
-
-  const reflector = app.get(Reflector);
-  const discordService = app.get(DiscordWebhookService);
-
-  app.useGlobalFilters(new HttpExceptionFilter(discordService));
-  app.useGlobalInterceptors(new SuccessInterceptor(reflector));
-  app.useGlobalInterceptors(new RequestLoggerInterceptor());
-
   app.enableCors({
     origin: [
       configService.get<string>('FRONT_URL'),
@@ -34,6 +23,17 @@ async function bootstrap() {
     ],
     credentials: true,
   });
+
+  app.use((req, res, next) => new PathBlockMiddleware().use(req, res, next));
+
+  app.setGlobalPrefix('api');
+  const reflector = app.get(Reflector);
+
+  const discordService = app.get(DiscordWebhookService);
+  app.useGlobalFilters(new HttpExceptionFilter(discordService));
+  app.useGlobalInterceptors(new SuccessInterceptor(reflector));
+
+  app.useGlobalInterceptors(new RequestLoggerInterceptor());
 
   const port = configService.get<number>('PORT', { infer: true });
   await app.listen(port);
