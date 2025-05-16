@@ -33,7 +33,7 @@ export const FURNITURE_SEEDS: DeepPartial<Furniture>[] = [
     description: '재활용 원목으로 제작된 벽 선반',
     price: 150,
     category: FurnitureCategory.STORAGE,
-    zIndex: 2,
+    zIndex: 6,
     s3ImageUrl:
       'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/green02.png',
     s3PreviewImageUrl:
@@ -45,7 +45,7 @@ export const FURNITURE_SEEDS: DeepPartial<Furniture>[] = [
     description: '폐섬유로 만든 커플 토끼&곰 인형 세트',
     price: 80,
     category: FurnitureCategory.DECOR,
-    zIndex: 3,
+    zIndex: 11,
     s3ImageUrl:
       'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/green03.png',
     s3PreviewImageUrl:
@@ -57,7 +57,7 @@ export const FURNITURE_SEEDS: DeepPartial<Furniture>[] = [
     description: '종이 절약형 1장짜리 달력',
     price: 60,
     category: FurnitureCategory.DECOR,
-    zIndex: 4,
+    zIndex: 16,
     s3ImageUrl:
       'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/green04.png',
     s3PreviewImageUrl:
@@ -69,7 +69,7 @@ export const FURNITURE_SEEDS: DeepPartial<Furniture>[] = [
     description: '자연광과 허브가 함께하는 창문 구조',
     price: 200,
     category: FurnitureCategory.WINDOW,
-    zIndex: 5,
+    zIndex: 21,
     s3ImageUrl:
       'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/green05.png',
     s3PreviewImageUrl:
@@ -81,7 +81,7 @@ export const FURNITURE_SEEDS: DeepPartial<Furniture>[] = [
     description: '폐플라스틱 섬유로 만든 따뜻한 러그',
     price: 120,
     category: FurnitureCategory.FABRIC,
-    zIndex: 6,
+    zIndex: 26,
     s3ImageUrl:
       'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/green06.png',
     s3PreviewImageUrl:
@@ -93,7 +93,7 @@ export const FURNITURE_SEEDS: DeepPartial<Furniture>[] = [
     description: '옥수수 섬유 충전재로 만든 쿠션',
     price: 90,
     category: FurnitureCategory.FABRIC,
-    zIndex: 7,
+    zIndex: 31,
     s3ImageUrl:
       'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/green07.png',
     s3PreviewImageUrl:
@@ -105,7 +105,7 @@ export const FURNITURE_SEEDS: DeepPartial<Furniture>[] = [
     description: '재사용된 그림책, 감성 업사이클 아이템',
     price: 50,
     category: FurnitureCategory.DECOR,
-    zIndex: 8,
+    zIndex: 36,
     s3ImageUrl:
       'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/green08.png',
     s3PreviewImageUrl:
@@ -117,7 +117,7 @@ export const FURNITURE_SEEDS: DeepPartial<Furniture>[] = [
     description: '폐목재 프레임과 친환경 이불 세트',
     price: 500,
     category: FurnitureCategory.BED,
-    zIndex: 9,
+    zIndex: 41,
     s3ImageUrl:
       'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/green09.png',
     s3PreviewImageUrl:
@@ -129,7 +129,7 @@ export const FURNITURE_SEEDS: DeepPartial<Furniture>[] = [
     description: '태양광 충전으로 작동하는 미니 램프',
     price: 250,
     category: FurnitureCategory.LIGHTING,
-    zIndex: 10,
+    zIndex: 46,
     s3ImageUrl:
       'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/green10.png',
     s3PreviewImageUrl:
@@ -141,7 +141,7 @@ export const FURNITURE_SEEDS: DeepPartial<Furniture>[] = [
     description: '리사이클 섬유로 제작된 그린 침낭',
     price: 120,
     category: FurnitureCategory.BED,
-    zIndex: 11,
+    zIndex: 51,
     s3ImageUrl:
       'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/green11.png',
     s3PreviewImageUrl:
@@ -153,7 +153,7 @@ export const FURNITURE_SEEDS: DeepPartial<Furniture>[] = [
     description: '분리수거된 자재로 제작한 친환경 책상',
     price: 300,
     category: FurnitureCategory.DESK,
-    zIndex: 12,
+    zIndex: 56,
     s3ImageUrl:
       'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/green12.png',
     s3PreviewImageUrl:
@@ -165,7 +165,7 @@ export const FURNITURE_SEEDS: DeepPartial<Furniture>[] = [
     description: '오래된 의자를 수선해 만든 빈티지 의자',
     price: 100,
     category: FurnitureCategory.CHAIR,
-    zIndex: 13,
+    zIndex: 61,
     s3ImageUrl:
       'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/green13.png',
     s3PreviewImageUrl:
@@ -177,7 +177,7 @@ export const FURNITURE_SEEDS: DeepPartial<Furniture>[] = [
     description: '식물성 잉크로 인쇄된 고양이 그림 액자',
     price: 70,
     category: FurnitureCategory.DECOR,
-    zIndex: 14,
+    zIndex: 66,
     s3ImageUrl:
       'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/green14.png',
     s3PreviewImageUrl:
@@ -189,7 +189,7 @@ export const FURNITURE_SEEDS: DeepPartial<Furniture>[] = [
     description: '달과 지구를 본뜬 무드등, 충전식',
     price: 200,
     category: FurnitureCategory.LIGHTING,
-    zIndex: 15,
+    zIndex: 71,
     s3ImageUrl:
       'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/green15.png',
     s3PreviewImageUrl:
