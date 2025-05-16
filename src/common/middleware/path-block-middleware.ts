@@ -49,8 +49,6 @@ export class PathBlockMiddleware implements NestMiddleware {
   use(req: Request, res: Response, next: NextFunction) {
     const method = req.method as RouteDef['method'];
     const url = req.originalUrl.split('?')[0];
-    console.log(method);
-    console.log(url);
 
     if (!url.startsWith('/api')) {
       return res.status(HttpStatus.NOT_FOUND).end();

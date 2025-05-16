@@ -36,9 +36,6 @@ export class AuthService {
       ? 'http://localhost:3000/login'
       : this.cs.getOrThrow<string>('KAKAO_REDIRECT_URI');
 
-    console.log(local);
-    console.log(redirectUri);
-
     const body = new URLSearchParams({
       grant_type: 'authorization_code',
       client_id: this.cs.getOrThrow<string>('KAKAO_CLIENT_ID'),
@@ -85,10 +82,6 @@ export class AuthService {
     const email = kakaoAccount.email;
     const nickname = kakaoAccount.profile?.nickname;
     const profileImageUrl = kakaoAccount.profile?.profile_image_url;
-
-    console.log(email);
-    console.log(nickname);
-    console.log(profileImageUrl);
 
     let member = await this.memberRepo.findOne({
       where: { email },
