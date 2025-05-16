@@ -24,7 +24,7 @@ async function bootstrap() {
   app.useGlobalInterceptors(new RequestLoggerInterceptor());
 
   app.enableCors({
-    origin: ['https://wooimi.kro.kr', 'http://localhost:3000'],
+    origin: ['https://wooimi.kro.kr','https://wooimi.com', 'http://localhost:3000'],
     credentials: true,
   });
 
