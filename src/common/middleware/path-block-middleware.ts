@@ -63,13 +63,6 @@ export class PathBlockMiddleware implements NestMiddleware {
       }
     });
 
-    /*
-    "statusCode": 409,
-    "timestamp": "2025-05-16T13:55:18.035Z",
-    "path": "/api/couples/code",
-    "error": "이미 커플에 속해 있어 코드를 발급할 수 없습니다."
-
-     */
     if (!ok) {
       return res.status(HttpStatus.NOT_FOUND).json({
         statusCode: HttpStatus.NOT_FOUND,

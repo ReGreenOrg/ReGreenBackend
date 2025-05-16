@@ -7,12 +7,15 @@ import * as cookieParser from 'cookie-parser';
 import { RequestLoggerInterceptor } from './common/interceptors/request-logger.interceptor';
 import helmet from 'helmet';
 import { DiscordWebhookService } from './common/discord/discord-webhook.service';
+import { PathBlockMiddleware } from './common/middleware/path-block-middleware';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
   app.use(cookieParser());
   app.use(helmet());
+
+  app.use((req, res, next) => new PathBlockMiddleware().use(req, res, next));
 
   app.setGlobalPrefix('api');
 
