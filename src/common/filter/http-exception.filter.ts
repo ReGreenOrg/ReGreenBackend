@@ -47,7 +47,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
     response.status(status).json({
       statusCode: status,
       timestamp: new Date().toISOString(),
-      path: request.url,
+      path: `${request.method} ${request.url}`,
       // exceptionResponse 가 string 이면 그걸, object 면 object 그대로
       error:
         typeof exceptionResponse === 'string'

@@ -1,32 +1,86 @@
-import { Injectable, NestMiddleware } from '@nestjs/common';
+import { HttpStatus, Injectable, NestMiddleware } from '@nestjs/common';
 import { NextFunction, Request, Response } from 'express';
+
+type RouteDef = {
+  method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+  path: string | RegExp;
+};
 
 @Injectable()
 export class PathBlockMiddleware implements NestMiddleware {
-  private readonly blockedPatterns = [
-    /^\/api\/\.\w+/, // `/api/.env`, `/api/.gitignore` 등
-    /^\/\.(env|git|htaccess|idea|DS_Store)/, // 숨김 파일
-    /^\/config\.(php|json|yaml|yml)/, // config.php, config.yaml 등
-    /^\/phpinfo\.php$/, // PHP info
-    /^\/composer\.(json|lock)$/, // PHP composer 파일
-    /^\/(vendor|node_modules)\//, // 패키지 디렉토리
-    /^\/(wp-admin|wp-login\.php|xmlrpc\.php)/, // 워드프레스 기본 경로
-    /^\/(pma|phpmyadmin|adminer)\//, // DB 관리 툴
-    /^\/(server-status|server-info)/, // Apache 서버 상태
-    /^\/\w+\.bak$/, // 백업파일
-    /^\/\.svn\//, // SVN
+  private readonly allowed: RouteDef[] = [
+    // Auth
+    { method: 'POST', path: '/api/auth/kakao/login' },
+    { method: 'POST', path: '/api/auth/refresh' },
+    { method: 'POST', path: '/api/auth/logout' },
+    { method: 'GET', path: '/api/auth/mylogin' },
+
+    // Couple
+    { method: 'POST', path: '/api/couples/code' },
+    { method: 'POST', path: '/api/couples/join' },
+    { method: 'GET', path: '/api/couples/my' },
+    { method: 'DELETE', path: '/api/couples/my' },
+    { method: 'GET', path: /^\/api\/couples\/code\/[^/]+\/nickname$/ },
+
+    // Eco Verification
+    { method: 'GET', path: '/api/eco-verifications' },
+    {
+      method: 'POST',
+      path: /^\/api\/eco-verifications\/[^/]+$/,
+    },
+    {
+      method: 'PATCH',
+      path: /^\/api\/eco-verifications\/my\/[^/]+\/link$/,
+    },
+    { method: 'GET', path: '/api/eco-verifications/my' },
+    { method: 'GET', path: /^\/api\/eco-verifications\/my\/[^/]+$/ },
+
+    // Furniture
+    { method: 'GET', path: '/api/furniture' },
+    { method: 'GET', path: /^\/api\/furniture\/[^/]+$/ },
+    { method: 'POST', path: /^\/api\/furniture\/[^/]+$/ },
+    { method: 'PATCH', path: '/api/furniture' },
+
+    // Member
+    { method: 'GET', path: '/api/members/my' },
+    { method: 'PATCH', path: '/api/members/my' },
   ];
 
   use(req: Request, res: Response, next: NextFunction) {
-    const path = req.originalUrl;
+    const method = req.method as RouteDef['method'];
+    const url = req.originalUrl.split('?')[0];
+    console.log(method);
+    console.log(url);
 
-    if (!path.startsWith('/api')) {
-      return res.status(404).end();
+    if (!url.startsWith('/api')) {
+      return res.status(HttpStatus.NOT_FOUND).end();
     }
 
-    if (this.blockedPatterns.some((re) => re.test(path))) {
-      return res.status(404).end();
+    const ok = this.allowed.some((route) => {
+      if (route.method !== method) return false;
+      if (typeof route.path === 'string') {
+        return route.path === url;
+      } else {
+        return route.path.test(url);
+      }
+    });
+
+    /*
+    "statusCode": 409,
+    "timestamp": "2025-05-16T13:55:18.035Z",
+    "path": "/api/couples/code",
+    "error": "이미 커플에 속해 있어 코드를 발급할 수 없습니다."
+
+     */
+    if (!ok) {
+      return res.status(HttpStatus.NOT_FOUND).json({
+        statusCode: HttpStatus.NOT_FOUND,
+        timestamp: new Date().toISOString(),
+        path: `${method} ${url}`,
+        message: '존재하지 않는 요청입니다.',
+      });
     }
+
     next();
   }
 }

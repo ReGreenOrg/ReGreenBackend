@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
+  NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Furniture } from './entities/furniture.entity';
@@ -94,6 +95,10 @@ export class FurnitureService {
       ])
       .orderBy('f.zIndex', 'ASC')
       .getRawOne();
+
+    if (!row) {
+      throw new NotFoundException('Invalid FurnitureId');
+    }
 
     return {
       furnitureId: row.furnitureId,
