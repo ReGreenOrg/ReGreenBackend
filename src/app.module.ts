@@ -34,6 +34,7 @@ import { HttpModule } from '@nestjs/axios';
         PORT: Joi.number().required(),
 
         FRONT_URL: Joi.string().required(),
+        FRONT_URL_: Joi.string().required(),
 
         MYSQL_HOST: Joi.string().required(),
         MYSQL_PORT: Joi.number().required(),

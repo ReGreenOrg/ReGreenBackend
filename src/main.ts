@@ -26,9 +26,8 @@ async function bootstrap() {
   app.enableCors({
     origin: [
       configService.get<string>('FRONT_URL'),
-      'https://wooimi.kro.kr',
+      configService.get<string>('FRONT_URL_'),
       'http://localhost:3000',
-      'https://wooimi:com',
     ],
     credentials: true,
   });

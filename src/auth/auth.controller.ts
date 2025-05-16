@@ -48,10 +48,4 @@ export class AuthController {
   async logout(@Req() req: any) {
     await this.auth.revokeAll(req.user.memberId);
   }
-
-  @Get('/mylogin') async myLogin(): Promise<JwtResponseDto> {
-    return await this.auth.issueTokens({
-      id: '1dbb93fe-2509-43e4-9a44-a76542b7610a',
-    } as Member);
-  }
 }

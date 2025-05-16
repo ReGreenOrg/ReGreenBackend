@@ -39,7 +39,7 @@ export class CoupleController {
     return await this.coupleService.findByMember(req.user.memberId);
   }
 
-  @Delete()
+  @Delete('my')
   async breakup(@Req() req: any) {
     await this.coupleService.breakup(req.user.memberId);
   }
