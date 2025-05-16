@@ -13,6 +13,8 @@ import * as uuid from 'uuid';
 import { createHash } from 'crypto';
 import { RedisService } from '../redis/redis.service';
 import { MemberService } from '../member/member.service';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class AuthService {
@@ -25,6 +27,8 @@ export class AuthService {
     private readonly jwt: JwtService,
     private readonly redis: RedisService,
     private readonly memberService: MemberService,
+    @InjectRepository(Member)
+    private readonly memberRepo: Repository<Member>,
   ) {}
 
   async getToken(code: string, local: boolean): Promise<string> {
@@ -83,16 +87,20 @@ export class AuthService {
     const nickname = kakaoAccount.profile?.nickname;
     const profileImageUrl = kakaoAccount.profile?.profile_image_url;
 
-    let member = await this.memberService.getMemberByEmail(email);
+    let member = await this.memberRepo.findOne({
+      where: { email },
+    });
 
+    let saved;
     if (!member) {
       member = await this.memberService.createMember({
         nickname,
         email,
         profileImageUrl,
       });
+      saved = await this.memberRepo.save(member);
     }
-    return member;
+    return saved;
   }
 
   private async sign(payload, secret, exp) {

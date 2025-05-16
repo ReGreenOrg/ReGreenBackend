@@ -11,9 +11,12 @@ import { RedisModule } from '../redis/redis.module';
 import { JwtAccessGuard } from './guards/jwt-access.guard';
 import { JwtRefreshGuard } from './guards/jwt-refresh.guard';
 import { MemberModule } from '../member/member.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Member } from '../member/entities/member.entity';
 
 @Module({
   imports: [
+    TypeOrmModule.forFeature([Member]),
     ConfigModule,
     HttpModule,
     JwtModule.register({}),
@@ -31,4 +34,5 @@ import { MemberModule } from '../member/member.module';
   ],
   exports: [StateService, JwtAccessGuard],
 })
-export class AuthModule {}
+export class AuthModule {
+}

@@ -41,14 +41,10 @@ export class MemberService {
     };
   }
 
-  async getMemberByEmail(email: string): Promise<Member> {
-    const member = await this.memberRepo.findOne({
+  async getMemberByEmail(email: string): Promise<Member | null> {
+    return await this.memberRepo.findOne({
       where: { email },
     });
-    if (!member) {
-      throw new NotFoundException('Member not found');
-    }
-    return member;
   }
 
   async findCoupleByMember(memberId: string): Promise<Couple | null> {
