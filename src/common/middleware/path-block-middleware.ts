@@ -9,6 +9,9 @@ type RouteDef = {
 @Injectable()
 export class PathBlockMiddleware implements NestMiddleware {
   private readonly allowed: RouteDef[] = [
+    // Env
+    { method: 'GET', path: '/api/env' },
+
     // Auth
     { method: 'POST', path: '/api/auth/kakao/login' },
     { method: 'POST', path: '/api/auth/refresh' },

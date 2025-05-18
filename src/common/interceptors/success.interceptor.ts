@@ -21,6 +21,11 @@ export class SuccessInterceptor<T>
     ctx: ExecutionContext,
     next: CallHandler,
   ): Observable<CommonResponseDto<T>> {
+    const req = ctx.switchToHttp().getRequest();
+    if (req.originalUrl === '/api/env' || req.url === '/api/env') {
+      return next.handle();
+    }
+
     const domain =
       this.reflector.get<DomainCode>(API_DOMAIN_KEY, ctx.getHandler()) ??
       this.reflector.get<DomainCode>(API_DOMAIN_KEY, ctx.getClass()) ??
