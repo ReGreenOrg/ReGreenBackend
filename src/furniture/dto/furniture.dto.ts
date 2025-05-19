@@ -3,7 +3,6 @@ import { FurnitureCategory } from '../constant/furniture-category.enum';
 export interface FurnitureDto {
   furnitureId: string;
   name: string;
-  description: string;
   price: number;
   s3ImageUrl: string;
   s3PreviewImageUrl: string;

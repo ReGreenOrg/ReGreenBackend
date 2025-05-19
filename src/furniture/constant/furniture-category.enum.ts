@@ -1,11 +1,7 @@
 export enum FurnitureCategory {
-  INTERIOR = 'interior',
-  STORAGE = 'storage',
-  DECOR = 'decor',
+  FLOOR = 'floor',
+  WALL_PAPER = 'wallPaper',
+  FURNITURE = 'furniture',
   WINDOW = 'window',
-  FABRIC = 'fabric',
-  BED = 'bed',
-  LIGHTING = 'lighting',
-  DESK = 'desk',
-  CHAIR = 'chair',
+  PROP = 'prop',
 }

@@ -12,9 +12,6 @@ export class Furniture extends BaseEntity {
   name: string;
 
   @Column()
-  description: string;
-
-  @Column()
   price: number;
 
   @Column({ type: 'enum', enum: FurnitureCategory })

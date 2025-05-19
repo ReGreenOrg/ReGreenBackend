@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -107,19 +108,25 @@ export class CoupleService {
         issuer.couple = couple;
         await membersRepo.save(issuer);
 
-        const defaultFurniture = await furnRepo.findOne({
-          where: { code: 'green00' },
+        const furnitureCodes = ['20250524-00', '20250524-01'];
+        const defaultFurnitures = await furnRepo.find({
+          where: { code: In(furnitureCodes) },
         });
-        if (!defaultFurniture) {
-          throw new BadRequestException('기본 가구 데이터가 없습니다.');
+        console.log(defaultFurnitures);
+        if (!defaultFurnitures) {
+          throw new InternalServerErrorException(
+            '기본 가구 정보를 확인할 수 없습니다.',
+          );
         }
 
-        const defaultCf = cfRepo.create({
-          couple,
-          furniture: defaultFurniture,
-          isPlaced: true, // 초기 상태
-        });
-        await cfRepo.save(defaultCf);
+        const defaultCfList = defaultFurnitures.map((furniture) =>
+          cfRepo.create({
+            couple: couple!,
+            furniture,
+            isPlaced: true,
+          }),
+        );
+        await cfRepo.save(defaultCfList);
       }
 
       joiner.couple = couple;

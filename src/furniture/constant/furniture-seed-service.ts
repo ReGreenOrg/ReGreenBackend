@@ -20,7 +20,6 @@ export class FurnitureSeedService {
       .orUpdate(
         [
           'name',
-          'description',
           'price',
           'category',
           'zIndex',

@@ -37,7 +37,6 @@ export class FurnitureService {
       .select([
         'f.id                AS "furnitureId"',
         'f.name              AS "name"',
-        'f.description       AS "description"',
         'f.price             AS "price"',
         'f.s3ImageUrl        AS "s3ImageUrl"',
         'f.s3PreviewImageUrl AS "s3PreviewImageUrl"',
@@ -52,7 +51,6 @@ export class FurnitureService {
     return rows.map((row) => ({
       furnitureId: row.furnitureId,
       name: row.name,
-      description: row.description,
       price: Number(row.price),
       s3ImageUrl: row.s3ImageUrl,
       s3PreviewImageUrl: row.s3PreviewImageUrl,
@@ -84,7 +82,6 @@ export class FurnitureService {
       .select([
         'f.id                AS "furnitureId"',
         'f.name              AS "name"',
-        'f.description       AS "description"',
         'f.price             AS "price"',
         'f.s3ImageUrl        AS "s3ImageUrl"',
         'f.s3PreviewImageUrl AS "s3PreviewImageUrl"',
@@ -103,7 +100,6 @@ export class FurnitureService {
     return {
       furnitureId: row.furnitureId,
       name: row.name,
-      description: row.description,
       price: Number(row.price),
       s3ImageUrl: row.s3ImageUrl,
       s3PreviewImageUrl: row.s3PreviewImageUrl,
