@@ -123,7 +123,7 @@ export class ItemService {
   }> {
     const couple = await this.membersService.findCoupleByMember(memberId);
     if (!couple) {
-      throw new NotFoundException('Notfound couple');
+      throw new NotFoundException('Couple not found.');
     }
 
     return this.dataSource.transaction(async (manager) => {
@@ -164,7 +164,7 @@ export class ItemService {
   ) {
     const couple = await this.membersService.findCoupleByMember(memberId);
     if (!couple) {
-      throw new NotFoundException('Not found couple.');
+      throw new NotFoundException('Couple not found.');
     }
 
     return this.dataSource.transaction(async (manager) => {

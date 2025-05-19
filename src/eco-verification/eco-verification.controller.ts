@@ -40,7 +40,7 @@ export class EcoVerificationController {
     @Param('ecoVerificationId') ecoVerificationId: string,
   ) {
     if (!file) {
-      throw new BadRequestException('파일이 전송되지 않았습니다.');
+      throw new BadRequestException('The file was not transferred.');
     }
 
     return await this.ecoVerificationService.submitWithPhoto(
@@ -62,15 +62,6 @@ export class EcoVerificationController {
       url,
     );
   }
-
-  // @Patch(':memberEcoVerificationId/status')
-  // @Roles('admin')   // 관리자 권한 예시
-  // async changeStatus(
-  //   @Param('linkId') linkId: string,
-  //   @Body('status', new ParseEnumPipe(VerificationStatus)) status: VerificationStatus,
-  // ) {
-  //   return this.ecoService.reviewAndReward(linkId, status);
-  // }
 
   @Get('my')
   async listMyVerifications(

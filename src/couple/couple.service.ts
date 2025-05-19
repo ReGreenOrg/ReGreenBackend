@@ -134,7 +134,7 @@ export class CoupleService {
     });
   }
 
-  async findByMember(memberId: string): Promise<CoupleDto | null> {
+  async findCoupleByMember(memberId: string): Promise<CoupleDto | null> {
     const member = await this.memberRepo.findOne({
       where: { id: memberId },
       select: { id: true },
@@ -156,8 +156,8 @@ export class CoupleService {
 
     return {
       coupleId: couple.id,
-      point: couple.ecoLovePoint,
-      breakupPoint: couple.breakupBufferPoint,
+      ecoLovePoint: couple.ecoLovePoint,
+      breakupBufferPoint: couple.breakupBufferPoint,
       members: couple.members.map((m) => ({
         memberId: m.id,
         nickname: m.nickname,

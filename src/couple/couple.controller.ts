@@ -19,14 +19,14 @@ import { JwtAccessGuard } from '../auth/guards/jwt-access.guard';
 export class CoupleController {
   constructor(private readonly coupleService: CoupleService) {}
 
-  @Post('code')
-  async createCode(@Req() req) {
+  @Get('code')
+  async createCode(@Req() req: any) {
     const code = await this.coupleService.generateCode(req.user.memberId);
     return { code };
   }
 
   @Post('join')
-  async joinCouple(@Req() req, @Body('code') code: string) {
+  async joinCouple(@Req() req: any, @Body('code') code: string) {
     const couple = await this.coupleService.joinWithCode(
       req.user.memberId,
       code,
@@ -36,7 +36,7 @@ export class CoupleController {
 
   @Get('my')
   async getMyCouple(@Req() req) {
-    return await this.coupleService.findByMember(req.user.memberId);
+    return await this.coupleService.findCoupleByMember(req.user.memberId);
   }
 
   @Delete('my')

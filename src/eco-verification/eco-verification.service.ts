@@ -78,10 +78,12 @@ export class EcoVerificationService {
     });
 
     if (!record) {
-      throw new NotFoundException('인증 내역을 찾을 수 없습니다.');
+      throw new NotFoundException('Not found memberEcoVerificationId.');
     }
     if (record.member.id !== memberId) {
-      throw new ForbiddenException('본인 요청이 아닙니다.');
+      throw new ForbiddenException(
+        'Does not match Member and MemberEcoVerificationId.',
+      );
     }
     record.linkUrl = url;
     return this.memberEcoVerificationRepo.save(record);
@@ -128,10 +130,12 @@ export class EcoVerificationService {
       relations: ['member', 'ecoVerification'],
     });
     if (!link) {
-      throw new NotFoundException('인증 내역이 존재하지 않습니다.');
+      throw new NotFoundException('Not found memberEcoVerificationId.');
     }
     if (link.member.id !== memberId) {
-      throw new ForbiddenException('해당 인증 내역에 접근할 권한이 없습니다.');
+      throw new ForbiddenException(
+        'Does not match Member and MemberEcoVerificationId.',
+      );
     }
     return {
       ecoVerificationId: link.ecoVerification.id,

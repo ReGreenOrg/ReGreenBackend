@@ -22,21 +22,21 @@ export class ItemController {
   constructor(private readonly itemService: ItemService) {}
 
   @Get()
-  async list(@Req() req): Promise<ItemDto[]> {
+  async list(@Req() req: any): Promise<ItemDto[]> {
     return await this.itemService.getAll(req.user.memberId);
   }
 
   @Get(':itemId')
   async one(
-    @Req() req,
+    @Req() req: any,
     @Param('itemId') itemId: string,
   ): Promise<ItemDto> {
     return await this.itemService.getOne(req.user.memberId, itemId);
   }
 
-  @Post(':itemId')
+  @Post(':itemId/purchase')
   async purchase(
-    @Req() req,
+    @Req() req: any,
     @Param('itemId') itemId: string,
   ): Promise<{
     coupleItemId: string;

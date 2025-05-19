@@ -19,7 +19,7 @@ export class PathBlockMiddleware implements NestMiddleware {
     { method: 'GET', path: '/api/auth/mylogin' },
 
     // Couple
-    { method: 'POST', path: '/api/couples/code' },
+    { method: 'GET', path: '/api/couples/code' },
     { method: 'POST', path: '/api/couples/join' },
     { method: 'GET', path: '/api/couples/my' },
     { method: 'DELETE', path: '/api/couples/my' },
@@ -41,7 +41,7 @@ export class PathBlockMiddleware implements NestMiddleware {
     // Item
     { method: 'GET', path: '/api/items' },
     { method: 'GET', path: /^\/api\/items\/[^/]+$/ },
-    { method: 'POST', path: /^\/api\/items\/[^/]+$/ },
+    { method: 'POST', path: /^\/api\/items\/[^/]+\/purchase$/ },
     { method: 'PATCH', path: '/api/items/placements' },
 
     // Member
