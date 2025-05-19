@@ -4,9 +4,6 @@ import { MemberEcoVerification } from '../../member-eco-verification/entities/me
 
 @Entity('eco_verification')
 export class EcoVerification extends BaseEntity {
-  @OneToMany(() => MemberEcoVerification, (mev) => mev.ecoVerification)
-  memberLinks: MemberEcoVerification[];
-
   @Column({ unique: true })
   code: string;
 
@@ -14,11 +11,14 @@ export class EcoVerification extends BaseEntity {
   title: string;
 
   @Column()
-  point: number;
+  ecoLovePoint: number;
 
   @Column()
-  breakupAtPoint: number;
+  breakupBufferPoint: number;
 
   @Column()
-  iconS3ImageUrl: string;
+  iconImageUrl: string;
+
+  @OneToMany(() => MemberEcoVerification, (mev) => mev.ecoVerification)
+  memberLinks: MemberEcoVerification[];
 }

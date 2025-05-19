@@ -1,40 +1,40 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Furniture } from '../entities/furniture.entity';
+import { Item } from '../entities/item.entity';
 import { Repository } from 'typeorm';
-import { FURNITURE_SEEDS } from './furniture-seed-data';
+import { ITEM_SEEDS } from './item-seed-data';
 
 @Injectable()
-export class FurnitureSeedService {
+export class ItemSeedService {
   constructor(
-    @InjectRepository(Furniture)
-    private readonly furnitureRepo: Repository<Furniture>,
+    @InjectRepository(Item)
+    private readonly itemRepo: Repository<Item>,
   ) {}
 
   async sync() {
-    await this.furnitureRepo
+    await this.itemRepo
       .createQueryBuilder()
       .insert()
-      .into(Furniture)
-      .values(FURNITURE_SEEDS)
+      .into(Item)
+      .values(ITEM_SEEDS)
       .orUpdate(
         [
           'name',
           'price',
           'category',
           'zIndex',
-          's3ImageUrl',
-          's3PreviewImageUrl',
+          'imageUrl',
+          'previewImageUrl',
         ],
         ['code'],
       )
       .execute();
 
-    await this.furnitureRepo
+    await this.itemRepo
       .createQueryBuilder()
       .delete()
       .where('code NOT IN (:...codes)', {
-        codes: FURNITURE_SEEDS.map((f) => f.code),
+        codes: ITEM_SEEDS.map((item) => item.code),
       })
       .execute();
   }

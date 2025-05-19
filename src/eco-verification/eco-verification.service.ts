@@ -23,11 +23,11 @@ export class EcoVerificationService {
     const rows = await this.ecoVerificationRepo
       .createQueryBuilder('e')
       .select([
-        'e.id              AS "id"',
-        'e.title           AS "title"',
-        'e.point           AS "point"',
-        'e.breakupAtPoint  AS "breakupAtPoint"',
-        'e.iconS3ImageUrl  AS "iconS3ImageUrl"',
+        'e.id                  AS "id"',
+        'e.title               AS "title"',
+        'e.ecoLovePoint        AS "ecoLovePoint"',
+        'e.breakupBufferPoint  AS "breakupBufferPoint"',
+        'e.iconImageUrl        AS "iconImageUrl"',
       ])
       .orderBy('e.code', 'ASC')
       .getRawMany();
@@ -35,9 +35,9 @@ export class EcoVerificationService {
     return rows.map((row) => ({
       ecoVerificationId: row.id,
       title: row.title,
-      point: Number(row.point),
-      breakupAtPoint: Number(row.breakupAtPoint),
-      iconS3ImageUrl: row.iconS3ImageUrl,
+      ecoLovePoint: Number(row.ecoLovePoint),
+      breakupBufferPoint: Number(row.breakupBufferPoint),
+      iconImageUrl: row.iconImageUrl,
     }));
   }
 
@@ -50,20 +50,20 @@ export class EcoVerificationService {
     const eco = await this.ecoVerificationRepo.findOne({
       where: { id: ecoVerificationId },
     });
-    if (!member) throw new NotFoundException('Not found member');
+    if (!member) throw new NotFoundException('Member not found.');
     if (!eco) throw new NotFoundException('Invalid EcoVerificationId');
 
     const link = this.memberEcoVerificationRepo.create({
       member,
       ecoVerification: eco,
-      s3ImageUrl: imageUrl,
+      imageUrl: imageUrl,
     });
     const saved = await this.memberEcoVerificationRepo.save(link);
 
     return {
       memberEcoVerificationId: saved.id,
       status: saved.status,
-      s3ImageUrl: imageUrl,
+      imageUrl: imageUrl,
     };
   }
 
@@ -76,59 +76,17 @@ export class EcoVerificationService {
       where: { id: memberEcoVerificationId },
       relations: ['member'],
     });
+
     if (!record) {
       throw new NotFoundException('인증 내역을 찾을 수 없습니다.');
     }
-
     if (record.member.id !== memberId) {
       throw new ForbiddenException('본인 요청이 아닙니다.');
     }
-
     record.linkUrl = url;
     return this.memberEcoVerificationRepo.save(record);
   }
 
-  // async reviewAndReward(
-  //   linkId: string,
-  //   newStatus: EcoVerificationStatus,
-  // ): Promise<MemberEcoVerification> {
-  //   if (
-  //     newStatus !== EcoVerificationStatus.SUCCESS &&
-  //     newStatus !== EcoVerificationStatus.PENDING
-  //   ) {
-  //     throw new BadRequestException('올바르지 않은 상태 전환입니다.');
-  //   }
-  //
-  //   return this.dataSource.transaction(async (manager) => {
-  //     const link = await manager.findOne(MemberEcoVerification, {
-  //       where: { id: linkId },
-  //       relations: ['member', 'ecoVerification'],
-  //     });
-  //     if (!link) throw new NotFoundException('인증 내역을 찾을 수 없습니다.');
-  //
-  //     if (link.status === EcoVerificationStatus.SUCCESS) {
-  //       throw new BadRequestException('이미 완료된 인증입니다.');
-  //     }
-  //
-  //     link.status = newStatus;
-  //     const savedLink = await manager.save(link);
-  //
-  //     if (newStatus === EcoVerificationStatus.SUCCESS) {
-  //       const eco = link.ecoVerification;
-  //       await manager
-  //         .createQueryBuilder()
-  //         .update(Member)
-  //         .set({
-  //           point: () => `point + ${eco.point}`,
-  //           breakupAt: () => `breakupAt + ${eco.breakupAtPoint}`,
-  //         })
-  //         .where('id = :id', { id: link.member.id })
-  //         .execute();
-  //     }
-  //
-  //     return savedLink;
-  //   });
-  // }
   async getMyVerifications(memberId: string, page: number, limit: number) {
     const [items, total] = await this.memberEcoVerificationRepo.findAndCount({
       where: { member: { id: memberId } },
@@ -142,12 +100,12 @@ export class EcoVerificationService {
       ecoVerifications: items.map((link) => ({
         ecoVerificationId: link.ecoVerification.id,
         title: link.ecoVerification.title,
-        iconS3ImageUrl: link.ecoVerification.iconS3ImageUrl,
-        point: link.ecoVerification.point,
-        breakupAtPoint: link.ecoVerification.breakupAtPoint,
+        iconImageUrl: link.ecoVerification.iconImageUrl,
+        ecoLovePoint: link.ecoVerification.ecoLovePoint,
+        breakupBufferPoint: link.ecoVerification.breakupBufferPoint,
         memberEcoVerificationId: link.id,
         createdAt: link.createdAt.toISOString(),
-        s3ImageUrl: link.s3ImageUrl,
+        imageUrl: link.imageUrl,
         status: link.status,
         location: link.location,
         geoLat: link.geoLat,
@@ -178,12 +136,12 @@ export class EcoVerificationService {
     return {
       ecoVerificationId: link.ecoVerification.id,
       title: link.ecoVerification.title,
-      iconS3ImageUrl: link.ecoVerification.iconS3ImageUrl,
-      point: link.ecoVerification.point,
-      breakupAtPoint: link.ecoVerification.breakupAtPoint,
+      iconImageUrl: link.ecoVerification.iconImageUrl,
+      ecoLovePoint: link.ecoVerification.ecoLovePoint,
+      breakupBufferPoint: link.ecoVerification.breakupBufferPoint,
       memberEcoVerificationId: link.id,
       createdAt: link.createdAt.toISOString(),
-      s3ImageUrl: link.s3ImageUrl,
+      imageUrl: link.imageUrl,
       status: link.status,
       location: link.location,
       geoLat: link.geoLat,

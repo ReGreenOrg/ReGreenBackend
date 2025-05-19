@@ -1,20 +1,20 @@
 import { Column, Entity, ManyToOne, Unique } from 'typeorm';
 import { BaseEntity } from '../../common/entities/base.entity';
 import { Couple } from '../../couple/entities/couple.entity';
-import { Furniture } from '../../furniture/entities/furniture.entity';
+import { Item } from '../../item/entities/item.entity';
 
-@Entity()
-@Unique(['couple', 'furniture'])
-export class CoupleFurniture extends BaseEntity {
-  @ManyToOne(() => Couple, (couple) => couple.furniture, {
+@Entity('couple_item')
+@Unique(['couple', 'item'])
+export class CoupleItem extends BaseEntity {
+  @ManyToOne(() => Couple, (couple) => couple.items, {
     onDelete: 'CASCADE',
   })
   couple: Couple;
 
-  @ManyToOne(() => Furniture, (furniture) => furniture.ownedBy, {
+  @ManyToOne(() => Item, (item) => item.ownedBy, {
     onDelete: 'CASCADE',
   })
-  furniture: Furniture;
+  item: Item;
 
   @Column({ type: 'boolean', default: true })
   isPlaced: boolean;

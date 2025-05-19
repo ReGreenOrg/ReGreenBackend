@@ -13,19 +13,13 @@ export class MemberService {
     private readonly memberRepo: Repository<Member>,
   ) {}
 
-  async createMember(createMemberDto: MemberDto): Promise<Member> {
-    const newMember = this.memberRepo.create(createMemberDto);
-    await this.memberRepo.save(newMember);
-    return newMember;
-  }
-
   async getMemberById(memberId: string): Promise<Member> {
     const member = await this.memberRepo.findOne({
       where: { id: memberId },
       relations: { couple: true },
     });
     if (!member) {
-      throw new NotFoundException('Member not found');
+      throw new NotFoundException('Member not found.');
     }
     return member;
   }
@@ -39,12 +33,6 @@ export class MemberService {
       profileImageUrl: member.profileImageUrl,
       coupleId: member.couple ? member.couple.id : null,
     };
-  }
-
-  async getMemberByEmail(email: string): Promise<Member | null> {
-    return await this.memberRepo.findOne({
-      where: { email },
-    });
   }
 
   async findCoupleByMember(memberId: string): Promise<Couple | null> {

@@ -1,4 +1,4 @@
-export enum FurnitureCategory {
+export enum ItemCategory {
   FLOOR = 'floor',
   WALL_PAPER = 'wallPaper',
   FURNITURE = 'furniture',

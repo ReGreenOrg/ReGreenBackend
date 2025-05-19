@@ -6,18 +6,8 @@ import { EcoVerificationStatus } from '../constant/eco-verification.status.enum'
 
 @Entity('member_eco_verification')
 export class MemberEcoVerification extends BaseEntity {
-  @ManyToOne(() => Member, (member) => member.ecoVerificationLinks, {
-    onDelete: 'CASCADE',
-  })
-  member: Member;
-
-  @ManyToOne(() => EcoVerification, (ev) => ev.memberLinks, {
-    onDelete: 'CASCADE',
-  })
-  ecoVerification: EcoVerification;
-
   @Column({ length: 500, nullable: true })
-  s3ImageUrl?: string;
+  imageUrl?: string;
 
   @Column({
     type: 'enum',
@@ -37,4 +27,14 @@ export class MemberEcoVerification extends BaseEntity {
 
   @Column({ nullable: true })
   linkUrl?: string;
+
+  @ManyToOne(() => Member, (member) => member.ecoVerificationLinks, {
+    onDelete: 'CASCADE',
+  })
+  member: Member;
+
+  @ManyToOne(() => EcoVerification, (ev) => ev.memberLinks, {
+    onDelete: 'CASCADE',
+  })
+  ecoVerification: EcoVerification;
 }

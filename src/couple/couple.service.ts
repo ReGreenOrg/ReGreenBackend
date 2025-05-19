@@ -12,18 +12,18 @@ import { Member } from '../member/entities/member.entity';
 import { RedisService } from '../redis/redis.service';
 import { CoupleDto } from './dto/couple.dto';
 import { MemberEcoVerification } from '../member-eco-verification/entities/member-eco-verification.entity';
-import { Furniture } from '../furniture/entities/furniture.entity';
-import { CoupleFurniture } from '../couple-furniture/entities/couple-furniture.entity';
+import { Item } from '../item/entities/item.entity';
+import { CoupleItem } from '../couple-item/entities/couple-item.entity';
 
 @Injectable()
 export class CoupleService {
-  private readonly CODE_PREFIX = 'couple-code:'; // Redis key
+  private readonly REDIS_KEY_PREFIX = 'couple-code:';
 
   constructor(
     @InjectRepository(Couple) private coupleRepo: Repository<Couple>,
     @InjectRepository(Member) private memberRepo: Repository<Member>,
     private dataSource: DataSource,
-    private readonly redis: RedisService,
+    private readonly redisService: RedisService,
   ) {}
 
   async generateCode(issuerId: string): Promise<string> {
@@ -31,108 +31,104 @@ export class CoupleService {
       where: { id: issuerId },
       relations: { couple: true },
     });
-
-    if (!issuer) throw new BadRequestException('존재하지 않는 회원');
+    if (!issuer) throw new NotFoundException('Member(Issuer) not found.');
     if (issuer.couple)
-      throw new ConflictException(
-        '이미 커플에 속해 있어 코드를 발급할 수 없습니다.',
-      );
+      throw new ConflictException('Already in a couple; cannot issue a code.');
 
     const code = (Math.random() * 36 ** 6)
       .toString(36)
       .slice(0, 6)
       .toUpperCase();
-
-    await this.redis.set(this.CODE_PREFIX + code, issuerId, { ttl: 3600 * 24 }); // 24시간 TTL
+    await this.redisService.set(this.REDIS_KEY_PREFIX + code, issuerId, {
+      ttl: 3600 * 24,
+    }); // 24시간 TTL
     return code;
   }
 
   async getIssuerNickname(code: string) {
-    const key = this.CODE_PREFIX + code;
-    const issuerId = await this.redis.get<string>(key);
+    const key = this.REDIS_KEY_PREFIX + code;
+    const issuerId = await this.redisService.get<string>(key);
     if (!issuerId) {
-      throw new NotFoundException(
-        `유효하지 않거나 만료된 코드입니다.: ${code}`,
-      );
+      throw new NotFoundException(`Invalid or expired couple code: ${code}`);
     }
 
-    const member = await this.memberRepo.findOne({ where: { id: issuerId } });
-    if (!member) {
-      await this.redis.del(key);
-      throw new NotFoundException('발급자를 찾을 수 없습니다.');
+    const issuer = await this.memberRepo.findOne({ where: { id: issuerId } });
+    if (!issuer) {
+      await this.redisService.del(key);
+      throw new NotFoundException('Member(Issuer) not found.');
     }
     return {
-      nickname: member.nickname,
+      nickname: issuer.nickname,
     };
   }
 
   async joinWithCode(joinerId: string, code: string): Promise<Couple> {
-    const key = this.CODE_PREFIX + code;
-    const issuerId = await this.redis.get<string>(key);
+    const key = this.REDIS_KEY_PREFIX + code;
+    const issuerId = await this.redisService.get<string>(key);
 
-    if (!issuerId)
-      throw new BadRequestException(`유효하지 않거나 만료된 코드: ${code}`);
-
-    if (issuerId === joinerId)
-      throw new BadRequestException('본인 코드를 사용할 수 없습니다.');
+    if (!issuerId) {
+      throw new BadRequestException(`Invalid or expired couple code: ${code}`);
+    }
+    if (issuerId === joinerId) {
+      throw new BadRequestException('You cannot use your own code.');
+    }
 
     return this.dataSource.transaction(async (manager) => {
-      const membersRepo = manager.getRepository(Member);
-      const couplesRepo = manager.getRepository(Couple);
-      const furnRepo = manager.getRepository(Furniture);
-      const cfRepo = manager.getRepository(CoupleFurniture);
+      const memberManager = manager.getRepository(Member);
+      const coupleManager = manager.getRepository(Couple);
+      const itemManager = manager.getRepository(Item);
+      const coupleItemManager = manager.getRepository(CoupleItem);
 
-      const issuer = await membersRepo.findOne({
+      const issuer = await memberManager.findOne({
         where: { id: issuerId },
         relations: { couple: true },
         lock: { mode: 'pessimistic_write' },
       });
-      const joiner = await membersRepo.findOne({
+      const joiner = await memberManager.findOne({
         where: { id: joinerId },
         relations: { couple: true },
         lock: { mode: 'pessimistic_write' },
       });
 
-      if (!issuer || !joiner)
-        throw new BadRequestException('존재하지 않는 회원');
+      if (!issuer || !joiner) {
+        throw new BadRequestException('Member(Issuer or Joiner) not found.');
+      }
 
-      if (joiner.couple)
-        throw new ConflictException(
-          '이미 커플에 속해 있어 가입할 수 없습니다.',
-        );
+      if (joiner.couple) {
+        throw new ConflictException('Already in a couple; cannot join.');
+      }
 
       let couple = issuer.couple;
       if (!couple) {
-        couple = couplesRepo.create();
-        await couplesRepo.save(couple);
+        couple = coupleManager.create();
+        await coupleManager.save(couple);
         issuer.couple = couple;
-        await membersRepo.save(issuer);
+        await memberManager.save(issuer);
 
-        const furnitureCodes = ['20250524-00', '20250524-01'];
-        const defaultFurnitures = await furnRepo.find({
-          where: { code: In(furnitureCodes) },
+        const defaultItemCodes = ['20250524-00', '20250524-01'];
+        const defaultItems = await itemManager.find({
+          where: { code: In(defaultItemCodes) },
         });
-        console.log(defaultFurnitures);
-        if (!defaultFurnitures) {
+        if (!defaultItems.length) {
           throw new InternalServerErrorException(
-            '기본 가구 정보를 확인할 수 없습니다.',
+            'Default item information not found.',
           );
         }
 
-        const defaultCfList = defaultFurnitures.map((furniture) =>
-          cfRepo.create({
+        const defaultCoupleItems = defaultItems.map((item) =>
+          coupleItemManager.create({
             couple: couple!,
-            furniture,
+            item: item,
             isPlaced: true,
           }),
         );
-        await cfRepo.save(defaultCfList);
+        await coupleItemManager.save(defaultCoupleItems);
       }
 
       joiner.couple = couple;
-      await membersRepo.save(joiner);
+      await memberManager.save(joiner);
 
-      await this.redis.del(this.CODE_PREFIX + code);
+      await this.redisService.del(this.REDIS_KEY_PREFIX + code);
 
       return couple;
     });
@@ -145,19 +141,23 @@ export class CoupleService {
       relations: { couple: true },
     });
 
-    if (!member?.couple) return null;
+    if (!member?.couple) {
+      return null;
+    }
 
     const couple = await this.coupleRepo.findOne({
       where: { id: member.couple.id },
       relations: ['members'],
     });
 
-    if (!couple) return null;
+    if (!couple) {
+      return null;
+    }
 
     return {
       coupleId: couple.id,
-      point: couple.point,
-      breakupAt: couple.breakupAt,
+      point: couple.ecoLovePoint,
+      breakupPoint: couple.breakupBufferPoint,
       members: couple.members.map((m) => ({
         memberId: m.id,
         nickname: m.nickname,
@@ -196,7 +196,6 @@ export class CoupleService {
       });
 
       await manager.delete(Couple, { id: coupleId });
-
       await manager.delete(Member, { id: In(memberIds) });
     });
   }

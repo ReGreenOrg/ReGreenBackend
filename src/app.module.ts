@@ -11,12 +11,12 @@ import { DatabaseModule } from './database/database.module';
 import { MemberModule } from './member/member.module';
 import { AuthModule } from './auth/auth.module';
 import { CoupleModule } from './couple/couple.module';
-import { FurnitureModule } from './furniture/furniture.module';
-import { CoupleFurnitureModule } from './couple-furniture/couple-furniture.module';
+import { ItemModule } from './item/item.module';
+import { CoupleItemModule } from './couple-item/couple-item.module';
 import { EcoVerificationModule } from './eco-verification/eco-verification.module';
 import { RedisModule } from './redis/redis.module';
 import * as Joi from '@hapi/joi';
-import { FurnitureSeedService } from './furniture/constant/furniture-seed-service';
+import { ItemSeedService } from './item/constant/item-seed.service';
 import { MemberEcoVerificationModule } from './member-eco-verification/member-eco-verification.module';
 import { S3Module } from './s3/s3.module';
 import { EcoVerificationSeedService } from './eco-verification/constant/eco-verification-seed-service';
@@ -66,8 +66,8 @@ import { HttpModule } from '@nestjs/axios';
     MemberModule,
     AuthModule,
     CoupleModule,
-    FurnitureModule,
-    CoupleFurnitureModule,
+    ItemModule,
+    CoupleItemModule,
     EcoVerificationModule,
     RedisModule,
     MemberEcoVerificationModule,
@@ -79,7 +79,7 @@ import { HttpModule } from '@nestjs/axios';
 })
 export class AppModule implements NestModule, OnApplicationBootstrap {
   constructor(
-    private readonly furnitureSeedService: FurnitureSeedService,
+    private readonly furnitureSeedService: ItemSeedService,
     private readonly ecoVerificationSeedService: EcoVerificationSeedService,
   ) {}
 
