@@ -38,11 +38,11 @@ export class PathBlockMiddleware implements NestMiddleware {
     { method: 'GET', path: '/api/eco-verifications/my' },
     { method: 'GET', path: /^\/api\/eco-verifications\/my\/[^/]+$/ },
 
-    // Furniture
-    { method: 'GET', path: '/api/item' },
-    { method: 'GET', path: /^\/api\/furniture\/[^/]+$/ },
-    { method: 'POST', path: /^\/api\/furniture\/[^/]+$/ },
-    { method: 'PATCH', path: '/api/item' },
+    // Item
+    { method: 'GET', path: '/api/items' },
+    { method: 'GET', path: /^\/api\/items\/[^/]+$/ },
+    { method: 'POST', path: /^\/api\/items\/[^/]+$/ },
+    { method: 'PATCH', path: '/api/items/placements' },
 
     // Member
     { method: 'GET', path: '/api/members/my' },

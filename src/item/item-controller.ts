@@ -15,7 +15,7 @@ import { JwtAccessGuard } from '../auth/guards/jwt-access.guard';
 import { ItemDto } from './dto/item.dto';
 import { UpdateItemPlacementsDto } from './dto/update-item-placement.dto';
 
-@Controller('item')
+@Controller('items')
 @UseGuards(JwtAccessGuard)
 @ApiDomain(DomainCode.ITEM)
 export class ItemController {
@@ -44,7 +44,7 @@ export class ItemController {
     return await this.itemService.purchase(req.user.memberId, itemId);
   }
 
-  @Patch()
+  @Patch('placements')
   async updatePlacement(@Req() req: any, @Body() dto: UpdateItemPlacementsDto) {
     await this.itemService.updatePlacement(req.user.memberId, dto.placements);
   }
