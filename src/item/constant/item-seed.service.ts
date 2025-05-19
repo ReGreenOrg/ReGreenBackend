@@ -18,14 +18,7 @@ export class ItemSeedService {
       .into(Item)
       .values(ITEM_SEEDS)
       .orUpdate(
-        [
-          'name',
-          'price',
-          'category',
-          'zIndex',
-          'imageUrl',
-          'previewImageUrl',
-        ],
+        ['name', 'price', 'category', 'zIndex', 'imageUrl', 'previewImageUrl'],
         ['code'],
       )
       .execute();
