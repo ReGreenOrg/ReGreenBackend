@@ -1,14 +1,11 @@
 import { Body, Controller, Get, Patch, Req, UseGuards } from '@nestjs/common';
 import { MemberService } from './member.service';
-import { ApiDomain } from '../common/decorators/api-domain-decorator';
-import { DomainCode } from '../common/constant/domain-code.constant';
 import { MemberDto } from './dto/member.dto';
 import { JwtAccessGuard } from '../auth/guards/jwt-access.guard';
 import { UpdateMemberDto } from './dto/update-member.dto';
 
 @Controller('members')
 @UseGuards(JwtAccessGuard)
-@ApiDomain(DomainCode.MEMBER)
 export class MemberController {
   constructor(private readonly memberService: MemberService) {}
 

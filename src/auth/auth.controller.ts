@@ -8,8 +8,6 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { DomainCode } from '../common/constant/domain-code.constant';
-import { ApiDomain } from '../common/decorators/api-domain-decorator';
 import { AuthService } from './auth.service';
 import { JwtResponseDto } from './dto/jwt-response.dto';
 import { JwtAccessGuard } from './guards/jwt-access.guard';
@@ -17,7 +15,6 @@ import { JwtRefreshGuard } from './guards/jwt-refresh.guard';
 import { Member } from '../member/entities/member.entity';
 
 @Controller('auth')
-@ApiDomain(DomainCode.AUTH)
 export class AuthController {
   constructor(
     private readonly cs: ConfigService,
@@ -51,7 +48,7 @@ export class AuthController {
 
   @Get('/mylogin') async myLogin(): Promise<JwtResponseDto> {
     return await this.auth.issueTokens({
-      id: '5660f0dc-8853-4465-ac13-9c65f2202b68',
+      id: '5660f0dc-8853-4465-ac13-9c65f2202b67',
     } as Member);
   }
 }

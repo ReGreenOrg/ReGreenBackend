@@ -9,13 +9,10 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { CoupleService } from './couple.service';
-import { ApiDomain } from '../common/decorators/api-domain-decorator';
-import { DomainCode } from '../common/constant/domain-code.constant';
 import { JwtAccessGuard } from '../auth/guards/jwt-access.guard';
 
 @Controller('couples')
 @UseGuards(JwtAccessGuard)
-@ApiDomain(DomainCode.COUPLE)
 export class CoupleController {
   constructor(private readonly coupleService: CoupleService) {}
 

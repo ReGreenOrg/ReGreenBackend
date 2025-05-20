@@ -6,8 +6,6 @@ import {
 } from '@nestjs/common';
 import { map, Observable } from 'rxjs';
 import { CommonResponseDto } from '../dto/common.response.dto';
-import { DomainCode } from '../constant/domain-code.constant';
-import { API_DOMAIN_KEY } from '../decorators/api-domain-decorator';
 import { Reflector } from '@nestjs/core';
 
 @Injectable()
@@ -26,14 +24,9 @@ export class SuccessInterceptor<T>
       return next.handle();
     }
 
-    const domain =
-      this.reflector.get<DomainCode>(API_DOMAIN_KEY, ctx.getHandler()) ??
-      this.reflector.get<DomainCode>(API_DOMAIN_KEY, ctx.getClass()) ??
-      DomainCode.NONE;
-
     return next.handle().pipe(
       map((data) => ({
-        code: domain * 100 + 0,
+        code: 2000,
         message: 'OK',
         data,
       })),

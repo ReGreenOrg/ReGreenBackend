@@ -14,14 +14,11 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { EcoVerificationService } from './eco-verification.service';
-import { ApiDomain } from '../common/decorators/api-domain-decorator';
-import { DomainCode } from '../common/constant/domain-code.constant';
 import { JwtAccessGuard } from '../auth/guards/jwt-access.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('eco-verifications')
 @UseGuards(JwtAccessGuard)
-@ApiDomain(DomainCode.ECO_VERIFICATION)
 export class EcoVerificationController {
   constructor(
     private readonly ecoVerificationService: EcoVerificationService,

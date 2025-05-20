@@ -9,15 +9,12 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ItemService } from './item.service';
-import { ApiDomain } from '../common/decorators/api-domain-decorator';
-import { DomainCode } from '../common/constant/domain-code.constant';
 import { JwtAccessGuard } from '../auth/guards/jwt-access.guard';
 import { ItemDto } from './dto/item.dto';
 import { UpdateItemPlacementsDto } from './dto/update-item-placement.dto';
 
 @Controller('items')
 @UseGuards(JwtAccessGuard)
-@ApiDomain(DomainCode.ITEM)
 export class ItemController {
   constructor(private readonly itemService: ItemService) {}
 
