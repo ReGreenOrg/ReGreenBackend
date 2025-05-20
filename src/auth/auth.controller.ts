@@ -1,6 +1,5 @@
 import {
-  Controller,
-  Get,
+  Controller, Get,
   ParseBoolPipe,
   Post,
   Query,
@@ -10,7 +9,6 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { AuthService } from './auth.service';
 import { JwtResponseDto } from './dto/jwt-response.dto';
-import { JwtAccessGuard } from './guards/jwt-access.guard';
 import { JwtRefreshGuard } from './guards/jwt-refresh.guard';
 import { Member } from '../member/entities/member.entity';
 
@@ -41,7 +39,6 @@ export class AuthController {
   }
 
   @Post('logout')
-  @UseGuards(JwtAccessGuard)
   async logout(@Req() req: any) {
     await this.auth.revokeAll(req.user.memberId);
   }

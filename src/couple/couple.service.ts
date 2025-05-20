@@ -1,10 +1,4 @@
-import {
-  BadRequestException,
-  ConflictException,
-  Injectable,
-  InternalServerErrorException,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, In, Repository } from 'typeorm';
 import { Couple } from './entities/couple.entity';
@@ -14,6 +8,8 @@ import { CoupleDto } from './dto/couple.dto';
 import { MemberEcoVerification } from '../member-eco-verification/entities/member-eco-verification.entity';
 import { Item } from '../item/entities/item.entity';
 import { CoupleItem } from '../couple-item/entities/couple-item.entity';
+import { ErrorCode } from '../common/exception/error-code.enum';
+import { BusinessException } from '../common/exception/business-exception';
 
 @Injectable()
 export class CoupleService {
@@ -31,9 +27,12 @@ export class CoupleService {
       where: { id: issuerId },
       relations: { couple: true },
     });
-    if (!issuer) throw new NotFoundException('Member(Issuer) not found.');
-    if (issuer.couple)
-      throw new ConflictException('Already in a couple; cannot issue a code.');
+    if (!issuer) {
+      throw new BusinessException(ErrorCode.MEMBER_NOT_FOUND);
+    }
+    if (issuer.couple) {
+      throw new BusinessException(ErrorCode.ALREADY_IN_COUPLE);
+    }
 
     const code = (Math.random() * 36 ** 6)
       .toString(36)
@@ -49,13 +48,13 @@ export class CoupleService {
     const key = this.REDIS_KEY_PREFIX + code;
     const issuerId = await this.redisService.get<string>(key);
     if (!issuerId) {
-      throw new NotFoundException(`Invalid or expired couple code: ${code}`);
+      throw new BusinessException(ErrorCode.INVALID_COUPLE_CODE);
     }
 
     const issuer = await this.memberRepo.findOne({ where: { id: issuerId } });
     if (!issuer) {
       await this.redisService.del(key);
-      throw new NotFoundException('Member(Issuer) not found.');
+      throw new BusinessException(ErrorCode.MEMBER_NOT_FOUND);
     }
     return {
       nickname: issuer.nickname,
@@ -67,10 +66,10 @@ export class CoupleService {
     const issuerId = await this.redisService.get<string>(key);
 
     if (!issuerId) {
-      throw new BadRequestException(`Invalid or expired couple code: ${code}`);
+      throw new BusinessException(ErrorCode.INVALID_COUPLE_CODE);
     }
     if (issuerId === joinerId) {
-      throw new BadRequestException('You cannot use your own code.');
+      throw new BusinessException(ErrorCode.CANNOT_USE_OWN_COUPLE_CODE);
     }
 
     return this.dataSource.transaction(async (manager) => {
@@ -91,11 +90,11 @@ export class CoupleService {
       });
 
       if (!issuer || !joiner) {
-        throw new BadRequestException('Member(Issuer or Joiner) not found.');
+        throw new BusinessException(ErrorCode.MEMBER_NOT_FOUND);
       }
 
       if (joiner.couple) {
-        throw new ConflictException('Already in a couple; cannot join.');
+        throw new BusinessException(ErrorCode.ALREADY_IN_COUPLE);
       }
 
       let couple = issuer.couple;
@@ -110,9 +109,7 @@ export class CoupleService {
           where: { code: In(defaultItemCodes) },
         });
         if (!defaultItems.length) {
-          throw new InternalServerErrorException(
-            'Default item information not found.',
-          );
+          throw new BusinessException(ErrorCode.NOT_FOUND_DEFAULT_ITEM);
         }
 
         const defaultCoupleItems = defaultItems.map((item) =>
@@ -172,12 +169,12 @@ export class CoupleService {
       relations: ['couple'],
     });
     if (!member) {
-      throw new NotFoundException('Member not found');
+      throw new BusinessException(ErrorCode.MEMBER_NOT_FOUND);
     }
 
     const coupleId = member.couple?.id;
     if (!coupleId) {
-      throw new BadRequestException('Member is not in a couple');
+      throw new BusinessException(ErrorCode.COUPLE_NOT_FOUND);
     }
 
     const coupleWithMembers = await this.coupleRepo.findOne({
@@ -186,7 +183,7 @@ export class CoupleService {
     });
 
     if (!coupleWithMembers || coupleWithMembers.members.length === 0) {
-      throw new BadRequestException('Couple membership is invalid');
+      throw new BusinessException(ErrorCode.COUPLE_NOT_FOUND);
     }
     const memberIds = coupleWithMembers.members.map((m) => m.id);
 

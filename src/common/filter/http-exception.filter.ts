@@ -7,6 +7,8 @@ import {
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { DiscordWebhookService } from '../discord/discord-webhook.service';
+import { BusinessException } from '../exception/business-exception';
+import { ERROR_META } from '../exception/error-meta';
 
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
@@ -18,41 +20,50 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const request = ctx.getRequest<Request>();
 
     const isHttpException = exception instanceof HttpException;
-    const status = isHttpException
-      ? exception.getStatus()
+    const isBusinessException = exception instanceof BusinessException;
+    const status: number = isHttpException
+      ? (exception as HttpException).getStatus()
       : HttpStatus.INTERNAL_SERVER_ERROR;
 
-    // exception.getResponse() 는 string | object
     const exceptionResponse = isHttpException
-      ? exception.getResponse()
+      ? (exception as HttpException).getResponse()
       : { message: 'Internal server error' };
 
-    // 에러 메시지/페이로드 직렬화
     const message =
       typeof exceptionResponse === 'string'
         ? exceptionResponse
         : JSON.stringify(exceptionResponse, null, 2);
 
-    // 콘솔로도 로깅
     console.error(`[${request.method}] ${request.url} →`, exception);
 
-    // Discord 웹훅 전송
     await this.discord.sendError({
       title: `[${status}] ${request.method} ${request.url}`,
       message,
       stack: exception instanceof Error ? exception.stack : undefined,
     });
 
-    // 클라이언트 응답
-    response.status(status).json({
-      statusCode: status,
+    const payload: Record<string, any> = {
+      method: request.method,
+      path: request.url,
       timestamp: new Date().toISOString(),
-      path: `${request.method} ${request.url}`,
-      // exceptionResponse 가 string 이면 그걸, object 면 object 그대로
-      error:
-        typeof exceptionResponse === 'string'
-          ? exceptionResponse
-          : (exceptionResponse as any).message || exceptionResponse,
-    });
+    };
+
+    if (isBusinessException) {
+      const { message, errorNumber } = exception as BusinessException;
+      response.status(status).json({
+        code: errorNumber,
+        message: message,
+        ...payload,
+      });
+    } else {
+      response.status(status).json({
+        code: ERROR_META.INTERNAL_SERVER_ERROR.code,
+        message:
+          typeof exceptionResponse === 'string'
+            ? exceptionResponse
+            : (exceptionResponse as any).message || exceptionResponse,
+        ...payload,
+      });
+    }
   }
 }

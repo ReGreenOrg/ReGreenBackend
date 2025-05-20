@@ -1,16 +1,17 @@
 import { AuthGuard } from '@nestjs/passport';
-import {
-  HttpException,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+import { BusinessException } from '../../common/exception/business-exception';
+import { ErrorCode } from '../../common/exception/error-code.enum';
 
 @Injectable()
 export class JwtRefreshGuard extends AuthGuard('jwt-refresh') {
   handleRequest(err, user, info) {
-    if (info?.name === 'TokenExpiredError')
-      throw new HttpException('Refresh expired', 419);
-    if (!user) throw new UnauthorizedException();
+    if (info?.name === 'TokenExpiredError') {
+      throw new BusinessException(ErrorCode.REFRESH_TOKEN_EXPIRED);
+    }
+    if (!user) {
+      throw new BusinessException(ErrorCode.INVALID_REFRESH_TOKEN);
+    }
     return user;
   }
 }

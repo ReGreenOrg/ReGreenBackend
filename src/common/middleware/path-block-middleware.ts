@@ -1,5 +1,7 @@
 import { HttpStatus, Injectable, NestMiddleware } from '@nestjs/common';
 import { NextFunction, Request, Response } from 'express';
+import { BusinessException } from '../exception/business-exception';
+import { ErrorCode } from '../exception/error-code.enum';
 
 type RouteDef = {
   method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';

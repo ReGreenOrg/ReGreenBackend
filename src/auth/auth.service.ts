@@ -1,10 +1,5 @@
 import { Member } from '../member/entities/member.entity';
-import {
-  HttpException,
-  HttpStatus,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { firstValueFrom } from 'rxjs';
@@ -15,6 +10,8 @@ import { RedisService } from '../redis/redis.service';
 import { MemberService } from '../member/member.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { BusinessException } from '../common/exception/business-exception';
+import { ErrorCode } from '../common/exception/error-code.enum';
 
 @Injectable()
 export class AuthService {
@@ -54,9 +51,10 @@ export class AuthService {
       );
       return data.access_token as string;
     } catch (e: any) {
-      throw new HttpException(
-        e?.response?.data ?? 'Kakao token error',
-        e?.response?.status ?? HttpStatus.BAD_REQUEST,
+      const { error, error_description, error_code } = e?.response?.data;
+      throw new BusinessException(
+        ErrorCode.KAKAO_LOGIN_FAILED,
+        `[${error_code}] ${error} -> ${error_description}`,
       );
     }
   }
@@ -70,9 +68,10 @@ export class AuthService {
       );
       return data;
     } catch (e: any) {
-      throw new HttpException(
-        e?.response?.data ?? 'Kakao profile error',
-        e?.response?.status ?? HttpStatus.BAD_REQUEST,
+      const { error, error_description, error_code } = e?.response?.data;
+      throw new BusinessException(
+        ErrorCode.KAKAO_LOGIN_FAILED,
+        `[${error_code}] ${error} -> ${error_description}`,
       );
     }
   }
@@ -151,8 +150,9 @@ export class AuthService {
     const key = this.rtKey(oldJti);
     const ownerId = await this.redis.get<string>(key);
 
-    if (ownerId !== memberId)
-      throw new UnauthorizedException('RefreshToken invalid');
+    if (ownerId !== memberId) {
+      throw new BusinessException(ErrorCode.INVALID_REFRESH_TOKEN);
+    }
 
     await this.redis.del(key);
     await this.revokeAll(memberId);

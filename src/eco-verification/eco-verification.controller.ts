@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Get,
@@ -16,6 +15,8 @@ import {
 import { EcoVerificationService } from './eco-verification.service';
 import { JwtAccessGuard } from '../auth/guards/jwt-access.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { BusinessException } from '../common/exception/business-exception';
+import { ErrorCode } from '../common/exception/error-code.enum';
 
 @Controller('eco-verifications')
 @UseGuards(JwtAccessGuard)
@@ -37,7 +38,7 @@ export class EcoVerificationController {
     @Param('ecoVerificationId') ecoVerificationId: string,
   ) {
     if (!file) {
-      throw new BadRequestException('The file was not transferred.');
+      throw new BusinessException(ErrorCode.INVALID_FILE_FORMAT);
     }
 
     return await this.ecoVerificationService.submitWithPhoto(

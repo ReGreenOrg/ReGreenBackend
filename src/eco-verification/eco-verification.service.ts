@@ -1,13 +1,11 @@
-import {
-  ForbiddenException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EcoVerification } from './entities/eco-verification.entity';
 import { Repository } from 'typeorm';
 import { MemberEcoVerification } from '../member-eco-verification/entities/member-eco-verification.entity';
 import { MemberService } from '../member/member.service';
+import { BusinessException } from '../common/exception/business-exception';
+import { ErrorCode } from '../common/exception/error-code.enum';
 
 @Injectable()
 export class EcoVerificationService {
@@ -50,8 +48,12 @@ export class EcoVerificationService {
     const eco = await this.ecoVerificationRepo.findOne({
       where: { id: ecoVerificationId },
     });
-    if (!member) throw new NotFoundException('Member not found.');
-    if (!eco) throw new NotFoundException('Invalid EcoVerificationId');
+    if (!member) {
+      throw new BusinessException(ErrorCode.MEMBER_NOT_FOUND);
+    }
+    if (!eco) {
+      throw new BusinessException(ErrorCode.ECO_VERIFICATION_NOT_FOUND);
+    }
 
     const link = this.memberEcoVerificationRepo.create({
       member,
@@ -78,12 +80,10 @@ export class EcoVerificationService {
     });
 
     if (!record) {
-      throw new NotFoundException('Not found memberEcoVerificationId.');
+      throw new BusinessException(ErrorCode.MEMBER_ECO_VERIFICATION_NOT_FOUND);
     }
     if (record.member.id !== memberId) {
-      throw new ForbiddenException(
-        'Does not match Member and MemberEcoVerificationId.',
-      );
+      throw new BusinessException(ErrorCode.MEMBER_ECO_VERIFICATION_MISMATCH);
     }
     record.linkUrl = url;
     return this.memberEcoVerificationRepo.save(record);
@@ -130,12 +130,10 @@ export class EcoVerificationService {
       relations: ['member', 'ecoVerification'],
     });
     if (!link) {
-      throw new NotFoundException('Not found memberEcoVerificationId.');
+      throw new BusinessException(ErrorCode.MEMBER_ECO_VERIFICATION_NOT_FOUND);
     }
     if (link.member.id !== memberId) {
-      throw new ForbiddenException(
-        'Does not match Member and MemberEcoVerificationId.',
-      );
+      throw new BusinessException(ErrorCode.MEMBER_ECO_VERIFICATION_MISMATCH);
     }
     return {
       ecoVerificationId: link.ecoVerification.id,

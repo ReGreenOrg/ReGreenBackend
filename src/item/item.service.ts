@@ -1,9 +1,4 @@
-import {
-  BadRequestException,
-  ConflictException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Item } from './entities/item.entity';
 import { DataSource, Repository } from 'typeorm';
@@ -12,6 +7,8 @@ import { MemberService } from '../member/member.service';
 import { ItemDto } from './dto/item.dto';
 import { Couple } from '../couple/entities/couple.entity';
 import { ItemPlacementDto } from './dto/update-item-placement.dto';
+import { BusinessException } from '../common/exception/business-exception';
+import { ErrorCode } from '../common/exception/error-code.enum';
 
 @Injectable()
 export class ItemService {
@@ -24,7 +21,9 @@ export class ItemService {
 
   async getAll(memberId: string): Promise<ItemDto[]> {
     const couple = await this.membersService.findCoupleByMember(memberId);
-    if (!couple) throw new BadRequestException('Couple not found.');
+    if (!couple) {
+      throw new BusinessException(ErrorCode.COUPLE_NOT_FOUND);
+    }
 
     const rows = await this.itemRepo
       .createQueryBuilder('i')
@@ -68,7 +67,9 @@ export class ItemService {
 
   async getOne(memberId: string, itemId: string): Promise<ItemDto> {
     const couple = await this.membersService.findCoupleByMember(memberId);
-    if (!couple) throw new BadRequestException('Couple not found');
+    if (!couple) {
+      throw new BusinessException(ErrorCode.COUPLE_NOT_FOUND);
+    }
 
     const row = await this.itemRepo
       .createQueryBuilder('i')
@@ -94,7 +95,7 @@ export class ItemService {
       .getRawOne();
 
     if (!row) {
-      throw new NotFoundException('Item not found.');
+      throw new BusinessException(ErrorCode.ITEM_NOT_FOUND);
     }
 
     return {
@@ -123,13 +124,13 @@ export class ItemService {
   }> {
     const couple = await this.membersService.findCoupleByMember(memberId);
     if (!couple) {
-      throw new NotFoundException('Couple not found.');
+      throw new BusinessException(ErrorCode.COUPLE_NOT_FOUND);
     }
 
     return this.dataSource.transaction(async (manager) => {
       const item = await manager.getRepository(Item).findOneBy({ id: itemId });
       if (!item) {
-        throw new NotFoundException('Item not found.');
+        throw new BusinessException(ErrorCode.ITEM_NOT_FOUND);
       }
 
       const coupleItemManager = manager.getRepository(CoupleItem);
@@ -137,11 +138,11 @@ export class ItemService {
         where: { couple: { id: couple.id }, item: { id: item.id } },
       });
       if (existing) {
-        throw new ConflictException('Already owned');
+        throw new BusinessException(ErrorCode.ALREADY_OWNED_ITEM);
       }
 
       if (couple.ecoLovePoint < item.price) {
-        throw new BadRequestException('Not enough points');
+        throw new BusinessException(ErrorCode.NOT_ENOUGH_POINTS);
       }
       couple.ecoLovePoint -= item.price;
       await manager.getRepository(Couple).save(couple);
@@ -164,7 +165,7 @@ export class ItemService {
   ) {
     const couple = await this.membersService.findCoupleByMember(memberId);
     if (!couple) {
-      throw new NotFoundException('Couple not found.');
+      throw new BusinessException(ErrorCode.COUPLE_NOT_FOUND);
     }
 
     return this.dataSource.transaction(async (manager) => {
@@ -177,9 +178,7 @@ export class ItemService {
           relations: ['couple'],
         });
         if (!coupleItem) {
-          throw new BadRequestException(
-            `Invalid or unauthorized coupleItemId.: ${dto.coupleItemId}`,
-          );
+          throw new BusinessException(ErrorCode.COUPLE_ITEM_NOT_FOUND);
         }
 
         coupleItem.isPlaced = dto.isPlaced;
