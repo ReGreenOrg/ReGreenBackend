@@ -144,4 +144,9 @@ export const ERROR_META: Record<ErrorCode, ErrorMeta> = {
     message: 'Member and ecoVerification mismatch',
     status: HttpStatus.CONFLICT,
   },
+  [ErrorCode.ALREADY_SUBMITTED_ECO_VERIFICATION]: {
+    code: 47003,
+    message: 'Already submitted ecoVerification',
+    status: HttpStatus.CONFLICT,
+  },
 };

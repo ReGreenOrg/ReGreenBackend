@@ -55,6 +55,18 @@ export class EcoVerificationService {
       throw new BusinessException(ErrorCode.ECO_VERIFICATION_NOT_FOUND);
     }
 
+    const memberEcoVerification = await this.memberEcoVerificationRepo.findOne({
+      where: {
+        member: { id: memberId },
+        ecoVerification: { id: ecoVerificationId },
+      },
+      relations: ['ecoVerification'],
+    });
+
+    if (memberEcoVerification) {
+      throw new BusinessException(ErrorCode.ALREADY_SUBMITTED_ECO_VERIFICATION);
+    }
+
     const link = this.memberEcoVerificationRepo.create({
       member,
       ecoVerification: eco,
