@@ -1,11 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EcoVerification } from './entities/eco-verification.entity';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { MemberEcoVerification } from '../member-eco-verification/entities/member-eco-verification.entity';
 import { MemberService } from '../member/member.service';
 import { BusinessException } from '../common/exception/business-exception';
 import { ErrorCode } from '../common/exception/error-code.enum';
+import { OpenaiService } from '../openai/openai.service';
+import { EcoVerificationStatus } from '../member-eco-verification/constant/eco-verification.status.enum';
+import { Member } from '../member/entities/member.entity';
+import { Couple } from '../couple/entities/couple.entity';
 
 @Injectable()
 export class EcoVerificationService {
@@ -14,7 +18,11 @@ export class EcoVerificationService {
     private readonly ecoVerificationRepo: Repository<EcoVerification>,
     @InjectRepository(MemberEcoVerification)
     private readonly memberEcoVerificationRepo: Repository<MemberEcoVerification>,
+    @InjectRepository(Member)
+    private readonly memberRepo: Repository<Member>,
     private readonly memberService: MemberService,
+    private readonly openaiService: OpenaiService,
+    private readonly dataSource: DataSource,
   ) {}
 
   async getEcoVerifications() {
@@ -39,46 +47,73 @@ export class EcoVerificationService {
     }));
   }
 
-  async submitWithPhoto(
+  async verifyWithImage(
     memberId: string,
     ecoVerificationId: string,
     imageUrl: string,
   ) {
-    const member = await this.memberService.getMemberById(memberId);
-    const eco = await this.ecoVerificationRepo.findOne({
-      where: { id: ecoVerificationId },
-    });
+    const [member, ecoVerification] = await Promise.all([
+      this.memberService.getMemberById(memberId),
+      this.ecoVerificationRepo.findOneBy({ id: ecoVerificationId }),
+    ]);
     if (!member) {
       throw new BusinessException(ErrorCode.MEMBER_NOT_FOUND);
     }
-    if (!eco) {
+    if (!member.couple) {
+      throw new BusinessException(ErrorCode.COUPLE_NOT_FOUND);
+    }
+    if (!ecoVerification) {
       throw new BusinessException(ErrorCode.ECO_VERIFICATION_NOT_FOUND);
     }
 
-    const memberEcoVerification = await this.memberEcoVerificationRepo.findOne({
-      where: {
-        member: { id: memberId },
-        ecoVerification: { id: ecoVerificationId },
-      },
-      relations: ['ecoVerification'],
-    });
+    const existsToday = await this.memberEcoVerificationRepo
+      .createQueryBuilder('me')
+      .where('me.memberId = :memberId', { memberId })
+      .andWhere('me.ecoVerificationId = :ecoVerificationId', {
+        ecoVerificationId: ecoVerificationId,
+      })
+      .andWhere('DATE(me.createdAt) = CURDATE()')
+      .getExists();
 
-    if (memberEcoVerification) {
-      throw new BusinessException(ErrorCode.ALREADY_SUBMITTED_ECO_VERIFICATION);
+    if (existsToday) {
+      throw new BusinessException(
+        ErrorCode.ALREADY_SUBMITTED_ECO_VERIFICATION_TODAY,
+      );
     }
 
-    const link = this.memberEcoVerificationRepo.create({
-      member,
-      ecoVerification: eco,
-      imageUrl: imageUrl,
-    });
-    const saved = await this.memberEcoVerificationRepo.save(link);
+    const { isValid, reason } = await this.openaiService.verifyImageByType(
+      imageUrl,
+      ecoVerification.type,
+    );
 
-    return {
-      memberEcoVerificationId: saved.id,
-      status: saved.status,
-      imageUrl: imageUrl,
-    };
+    return await this.dataSource.transaction(async (manager) => {
+      let record = manager.create(MemberEcoVerification, {
+        member,
+        ecoVerification,
+        imageUrl,
+        status: isValid
+          ? EcoVerificationStatus.APPROVED
+          : EcoVerificationStatus.REJECTED,
+        aiReasonOfStatus: reason,
+      });
+      record = await manager.save(MemberEcoVerification, record);
+
+      if (isValid) {
+        await manager.increment(
+          Couple,
+          { id: member.couple!.id },
+          'ecoLovePoint',
+          ecoVerification.ecoLovePoint,
+        );
+        await manager.increment(
+          Couple,
+          { id: member.couple!.id },
+          'breakupBufferPoint',
+          ecoVerification.breakupBufferPoint,
+        );
+      }
+      return record;
+    });
   }
 
   async submitLink(

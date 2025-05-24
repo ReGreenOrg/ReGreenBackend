@@ -1,6 +1,5 @@
 export enum EcoVerificationStatus {
-  SUBMIT = 'submit',
-  REVIEW = 'review',
-  SUCCESS = 'success',
-  PENDING = 'pending',
+  APPROVED = 'APPROVED',
+  GOING_OVER = 'GOING_OVER',
+  REJECTED = 'REJECTED',
 }

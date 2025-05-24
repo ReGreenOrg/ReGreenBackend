@@ -23,6 +23,7 @@ import { EcoVerificationSeedService } from './eco-verification/constant/eco-veri
 import { PathBlockMiddleware } from './common/middleware/path-block-middleware';
 import { DiscordWebhookService } from './common/discord/discord-webhook.service';
 import { HttpModule } from '@nestjs/axios';
+import { OpenaiModule } from './openai/openai.module';
 
 @Module({
   imports: [
@@ -59,6 +60,9 @@ import { HttpModule } from '@nestjs/axios';
         AWS_S3_SECRET: Joi.string().required(),
         AWS_S3_REGION: Joi.string().required(),
 
+        OPENAI_API_KEY: Joi.string().required(),
+        OPENAI_MODEL: Joi.string().required(),
+
         STATE_SECRET: Joi.string().required(),
       }),
     }),
@@ -73,6 +77,7 @@ import { HttpModule } from '@nestjs/axios';
     MemberEcoVerificationModule,
     S3Module,
     HttpModule,
+    OpenaiModule,
   ],
   controllers: [AppController],
   providers: [AppService, DiscordWebhookService],

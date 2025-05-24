@@ -12,9 +12,11 @@ export class MemberEcoVerification extends BaseEntity {
   @Column({
     type: 'enum',
     enum: EcoVerificationStatus,
-    default: EcoVerificationStatus.SUBMIT,
   })
   status: EcoVerificationStatus;
+
+  @Column({ nullable: true })
+  aiReasonOfStatus: string;
 
   @Column('decimal', { precision: 9, scale: 6, nullable: true })
   geoLat?: number;

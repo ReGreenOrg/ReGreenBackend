@@ -144,9 +144,31 @@ export const ERROR_META: Record<ErrorCode, ErrorMeta> = {
     message: 'Member and ecoVerification mismatch',
     status: HttpStatus.CONFLICT,
   },
-  [ErrorCode.ALREADY_SUBMITTED_ECO_VERIFICATION]: {
+  [ErrorCode.ALREADY_SUBMITTED_ECO_VERIFICATION_TODAY]: {
     code: 47003,
-    message: 'Already submitted ecoVerification',
+    message: 'Already submitted ecoVerification today',
     status: HttpStatus.CONFLICT,
+  },
+  // 네트워크·rate-limit 등 OpenAI SDK 오류
+  [ErrorCode.VISION_SERVICE_UNAVAILABLE]: {
+    code: 57001,
+    message: 'Openai vision service unavailable',
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+  },
+  // content_filter(blocked) 이거나 응답 형식 불일치
+  [ErrorCode.INVALID_VISION_RESPONSE]: {
+    code: 57002,
+    message: 'Invalid openai vision response',
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+  },
+  [ErrorCode.VISION_JSON_PARSE_ERROR]: {
+    code: 57003,
+    message: 'Openai vision json parse error',
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+  },
+  [ErrorCode.VISION_SCHEMA_MISMATCH]: {
+    code: 57004,
+    message: 'Openai vision schema mismatch',
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
   },
 };

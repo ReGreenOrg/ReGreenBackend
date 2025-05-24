@@ -1,6 +1,7 @@
 import { Column, Entity, OneToMany } from 'typeorm';
 import { BaseEntity } from '../../common/entities/base.entity';
 import { MemberEcoVerification } from '../../member-eco-verification/entities/member-eco-verification.entity';
+import { EcoVerificationType } from '../constant/eco-verification-type.enum';
 
 @Entity('eco_verification')
 export class EcoVerification extends BaseEntity {
@@ -18,6 +19,9 @@ export class EcoVerification extends BaseEntity {
 
   @Column()
   iconImageUrl: string;
+
+  @Column({ type: 'enum', enum: EcoVerificationType })
+  type: EcoVerificationType;
 
   @OneToMany(() => MemberEcoVerification, (mev) => mev.ecoVerification)
   memberLinks: MemberEcoVerification[];

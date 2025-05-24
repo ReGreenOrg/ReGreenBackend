@@ -8,14 +8,17 @@ import { MemberModule } from '../member/member.module';
 import { MemberEcoVerification } from '../member-eco-verification/entities/member-eco-verification.entity';
 import { CoupleModule } from '../couple/couple.module';
 import { EcoVerificationSeedService } from './constant/eco-verification-seed-service';
+import { OpenaiModule } from '../openai/openai.module';
+import { Member } from '../member/entities/member.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([EcoVerification, MemberEcoVerification]),
+    TypeOrmModule.forFeature([EcoVerification, MemberEcoVerification, Member]),
     S3Module,
     MemberModule,
     MemberEcoVerification,
     CoupleModule,
+    OpenaiModule,
   ],
   controllers: [EcoVerificationController],
   providers: [EcoVerificationService, EcoVerificationSeedService],
