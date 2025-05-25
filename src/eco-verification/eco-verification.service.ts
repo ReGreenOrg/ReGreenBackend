@@ -66,20 +66,20 @@ export class EcoVerificationService {
       throw new BusinessException(ErrorCode.ECO_VERIFICATION_NOT_FOUND);
     }
 
-    const existsToday = await this.memberEcoVerificationRepo
-      .createQueryBuilder('me')
-      .where('me.memberId = :memberId', { memberId })
-      .andWhere('me.ecoVerificationId = :ecoVerificationId', {
-        ecoVerificationId: ecoVerificationId,
-      })
-      .andWhere('DATE(me.createdAt) = CURDATE()')
-      .getExists();
-
-    if (existsToday) {
-      throw new BusinessException(
-        ErrorCode.ALREADY_SUBMITTED_ECO_VERIFICATION_TODAY,
-      );
-    }
+    // const existsToday = await this.memberEcoVerificationRepo
+    //   .createQueryBuilder('me')
+    //   .where('me.memberId = :memberId', { memberId })
+    //   .andWhere('me.ecoVerificationId = :ecoVerificationId', {
+    //     ecoVerificationId: ecoVerificationId,
+    //   })
+    //   .andWhere('DATE(me.createdAt) = CURDATE()')
+    //   .getExists();
+    //
+    // if (existsToday) {
+    //   throw new BusinessException(
+    //     ErrorCode.ALREADY_SUBMITTED_ECO_VERIFICATION_TODAY,
+    //   );
+    // }
 
     const { isValid, reason } = await this.openaiService.verifyImageByType(
       imageUrl,
