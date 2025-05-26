@@ -1,19 +1,18 @@
-import { NestFactory, Reflector } from '@nestjs/core';
+import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
 import { SuccessInterceptor } from './common/interceptors/success.interceptor';
-import { HttpExceptionFilter } from './common/filter/http-exception.filter';
+import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import * as cookieParser from 'cookie-parser';
 import { RequestLoggerInterceptor } from './common/interceptors/request-logger.interceptor';
 import helmet from 'helmet';
 import { DiscordWebhookService } from './common/discord/discord-webhook.service';
 import { PathBlockMiddleware } from './common/middleware/path-block-middleware';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
-  app.use(cookieParser());
-  app.use(helmet());
 
   app.enableCors({
     origin: [
@@ -27,11 +26,11 @@ async function bootstrap() {
   app.use((req, res, next) => new PathBlockMiddleware().use(req, res, next));
 
   app.setGlobalPrefix('api');
-  const reflector = app.get(Reflector);
+  app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
 
   const discordService = app.get(DiscordWebhookService);
   app.useGlobalFilters(new HttpExceptionFilter(discordService));
-  app.useGlobalInterceptors(new SuccessInterceptor(reflector));
+  app.useGlobalInterceptors(new SuccessInterceptor());
 
   app.useGlobalInterceptors(new RequestLoggerInterceptor());
 

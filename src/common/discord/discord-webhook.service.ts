@@ -5,19 +5,22 @@ import { firstValueFrom } from 'rxjs';
 
 @Injectable()
 export class DiscordWebhookService {
-  private readonly logger = new Logger(DiscordWebhookService.name);
-  private readonly webhookUrl: string;
+  private readonly LOGGER = new Logger(DiscordWebhookService.name);
+  private readonly WEBHOOK_URL: string;
 
   constructor(
-    private readonly http: HttpService,
-    private readonly config: ConfigService,
+    private readonly httpService: HttpService,
+    private readonly configService: ConfigService,
   ) {
-    this.webhookUrl = this.config.get<string>('DISCORD_WEBHOOK_URL', '');
+    this.WEBHOOK_URL = this.configService.get<string>(
+      'DISCORD_WEBHOOK_URL',
+      '',
+    );
   }
 
   async sendError(options: { title: string; message: string; stack?: string }) {
-    if (!this.webhookUrl) {
-      this.logger.warn(
+    if (!this.WEBHOOK_URL) {
+      this.LOGGER.warn(
         'No DISCORD_WEBHOOK_URL configured, skipping Discord alert',
       );
       return;
@@ -38,9 +41,9 @@ export class DiscordWebhookService {
     };
 
     try {
-      await firstValueFrom(this.http.post(this.webhookUrl, payload));
+      await firstValueFrom(this.httpService.post(this.WEBHOOK_URL, payload));
     } catch (err) {
-      this.logger.error('Failed to send error to Discord', err);
+      this.LOGGER.error('Failed to send error to Discord', err);
     }
   }
 }

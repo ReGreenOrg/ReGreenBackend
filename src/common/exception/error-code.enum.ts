@@ -1,4 +1,4 @@
-export enum ErrorCode {
+export enum ErrorType {
   // 공통
   INVALID_REQUEST = 'INVALID_REQUEST',
   UNAUTHORIZED = 'UNAUTHORIZED',

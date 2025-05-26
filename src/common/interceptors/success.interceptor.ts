@@ -5,16 +5,17 @@ import {
   NestInterceptor,
 } from '@nestjs/common';
 import { map, Observable } from 'rxjs';
-import { CommonResponseDto } from '../dto/common.response.dto';
-import { Reflector } from '@nestjs/core';
+
+export interface CommonResponseDto<T = unknown> {
+  code: number;
+  message: string;
+  data: T;
+}
 
 @Injectable()
 export class SuccessInterceptor<T>
   implements NestInterceptor<T, CommonResponseDto<T>>
 {
-  constructor(private readonly reflector: Reflector) {}
-
-  // 파라미터 이름을 ctx 로 그대로 사용
   intercept(
     ctx: ExecutionContext,
     next: CallHandler,

@@ -5,25 +5,22 @@ import {
   OnApplicationBootstrap,
 } from '@nestjs/common';
 import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
-import { DatabaseModule } from './database/database.module';
-import { MemberModule } from './member/member.module';
-import { AuthModule } from './auth/auth.module';
-import { CoupleModule } from './couple/couple.module';
-import { ItemModule } from './item/item.module';
-import { CoupleItemModule } from './couple-item/couple-item.module';
-import { EcoVerificationModule } from './eco-verification/eco-verification.module';
-import { RedisModule } from './redis/redis.module';
+import { DatabaseModule } from './common/database/database.module';
+import { MemberModule } from './domain/member/member.module';
+import { AuthModule } from './domain/auth/auth.module';
+import { CoupleModule } from './domain/couple/couple.module';
+import { ItemModule } from './domain/item/item.module';
+import { EcoVerificationModule } from './domain/eco-verification/eco-verification.module';
+import { RedisModule } from './common/redis/redis.module';
 import * as Joi from '@hapi/joi';
-import { ItemSeedService } from './item/constant/item-seed.service';
-import { MemberEcoVerificationModule } from './member-eco-verification/member-eco-verification.module';
-import { S3Module } from './s3/s3.module';
-import { EcoVerificationSeedService } from './eco-verification/constant/eco-verification-seed-service';
+import { ItemSeedService } from './domain/item/constant/item-seed.service';
+import { S3Module } from './common/s3/s3.module';
+import { EcoVerificationSeedService } from './domain/eco-verification/constant/eco-verification-seed-service';
 import { PathBlockMiddleware } from './common/middleware/path-block-middleware';
 import { DiscordWebhookService } from './common/discord/discord-webhook.service';
 import { HttpModule } from '@nestjs/axios';
-import { OpenaiModule } from './openai/openai.module';
+import { OpenaiModule } from './common/openai/openai.module';
 
 @Module({
   imports: [
@@ -71,16 +68,14 @@ import { OpenaiModule } from './openai/openai.module';
     AuthModule,
     CoupleModule,
     ItemModule,
-    CoupleItemModule,
     EcoVerificationModule,
     RedisModule,
-    MemberEcoVerificationModule,
     S3Module,
     HttpModule,
     OpenaiModule,
   ],
   controllers: [AppController],
-  providers: [AppService, DiscordWebhookService],
+  providers: [DiscordWebhookService],
 })
 export class AppModule implements NestModule, OnApplicationBootstrap {
   constructor(
