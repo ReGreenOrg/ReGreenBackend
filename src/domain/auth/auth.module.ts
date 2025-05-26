@@ -12,13 +12,7 @@ import { JwtRefreshGuard } from './guards/jwt-refresh.guard';
 import { MemberModule } from '../member/member.module';
 
 @Module({
-  imports: [
-    ConfigModule,
-    HttpModule,
-    JwtModule.register({}),
-    RedisModule,
-    MemberModule,
-  ],
+  imports: [HttpModule, JwtModule.register({}), RedisModule, MemberModule],
   controllers: [AuthController],
   providers: [
     AuthService,

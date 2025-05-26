@@ -8,7 +8,6 @@ import { BusinessException } from '../../common/exception/business-exception';
 import { ErrorType } from '../../common/exception/error-code.enum';
 import { OpenaiService } from '../../common/openai/openai.service';
 import { EcoVerificationStatus } from '../member/constants/eco-verification.status.enum';
-import { Member } from '../member/entities/member.entity';
 import { Couple } from '../couple/entities/couple.entity';
 import { EcoVerificationResponseDto } from './dto/eco-verification-response.dto';
 import { PaginatedDto } from '../../common/dto/paginated.dto';
@@ -21,8 +20,6 @@ export class EcoVerificationService {
     private readonly ecoVerificationRepo: Repository<EcoVerification>,
     @InjectRepository(MemberEcoVerification)
     private readonly memberEcoVerificationRepo: Repository<MemberEcoVerification>,
-    @InjectRepository(Member)
-    private readonly memberRepo: Repository<Member>,
     private readonly memberService: MemberService,
     private readonly openaiService: OpenaiService,
     private readonly dataSource: DataSource,

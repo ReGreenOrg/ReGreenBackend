@@ -19,31 +19,31 @@ export class AuthService {
   private readonly profileUrl = 'https://kapi.kakao.com/v2/user/me';
 
   constructor(
-    private readonly http: HttpService,
-    private readonly cs: ConfigService,
-    private readonly jwt: JwtService,
-    private readonly redis: RedisService,
+    private readonly httpService: HttpService,
+    private readonly configService: ConfigService,
+    private readonly jwtService: JwtService,
+    private readonly redisService: RedisService,
     private readonly memberService: MemberService,
   ) {}
 
   async getToken(code: string, local: boolean): Promise<string> {
     const redirectUri = local
       ? 'http://localhost:3000/login'
-      : this.cs.getOrThrow<string>('KAKAO_REDIRECT_URI');
+      : this.configService.getOrThrow<string>('KAKAO_REDIRECT_URI');
 
     const body = new URLSearchParams({
       grant_type: 'authorization_code',
-      client_id: this.cs.getOrThrow<string>('KAKAO_CLIENT_ID'),
+      client_id: this.configService.getOrThrow<string>('KAKAO_CLIENT_ID'),
       redirect_uri: redirectUri,
       code,
     });
 
-    const secret = this.cs.getOrThrow<string>('KAKAO_CLIENT_SECRET');
+    const secret = this.configService.getOrThrow<string>('KAKAO_CLIENT_SECRET');
     if (secret) body.append('client_secret', secret);
 
     try {
       const { data } = await firstValueFrom(
-        this.http.post(this.tokenUrl, body.toString(), {
+        this.httpService.post(this.tokenUrl, body.toString(), {
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         }),
       );
@@ -60,7 +60,7 @@ export class AuthService {
   async getProfile(accessToken: string): Promise<any> {
     try {
       const { data } = await firstValueFrom(
-        this.http.get(this.profileUrl, {
+        this.httpService.get(this.profileUrl, {
           headers: { Authorization: `Bearer ${accessToken}` },
         }),
       );
@@ -105,7 +105,7 @@ export class AuthService {
   }
 
   private async sign(payload, secret, exp) {
-    return this.jwt.signAsync(payload, { secret, expiresIn: exp });
+    return this.jwtService.signAsync(payload, { secret, expiresIn: exp });
   }
 
   private rtKey(jti: string) {
@@ -114,49 +114,49 @@ export class AuthService {
   }
 
   private rtTtlSec() {
-    return <number>this.cs.get('JWT_REFRESH_EXPIRES') / 1000;
+    return <number>this.configService.get('JWT_REFRESH_EXPIRES') / 1000;
   }
 
   async issueTokens(member: Member) {
     const accessToken = await this.sign(
       { sub: member.id },
-      this.cs.get<string>('JWT_ACCESS_SECRET'),
-      this.cs.get<string>('JWT_ACCESS_EXPIRES'),
+      this.configService.get<string>('JWT_ACCESS_SECRET'),
+      this.configService.get<string>('JWT_ACCESS_EXPIRES'),
     );
 
-    const jti = uuid.v1(); // 토큰 ID
+    const jti = uuid.v1();
     const refreshToken = await this.sign(
       { sub: member.id, jti },
-      this.cs.get('JWT_REFRESH_SECRET'),
-      this.cs.get('JWT_REFRESH_EXPIRES'),
+      this.configService.get('JWT_REFRESH_SECRET'),
+      this.configService.get('JWT_REFRESH_EXPIRES'),
     );
 
     // Redis: rt:<hash(jti)> = memberId  (TTL = 14d)
     const key = this.rtKey(jti);
     const ttl = this.rtTtlSec();
 
-    await this.redis.set(key, member.id, { ttl });
-    await this.redis.pushToSet(`memberRTs:${member.id}`, key, ttl);
+    await this.redisService.set(key, member.id, { ttl });
+    await this.redisService.pushToSet(`memberRTs:${member.id}`, key, ttl);
 
     return { accessToken, refreshToken };
   }
 
   async rotate(memberId: string, oldJti: string) {
     const key = this.rtKey(oldJti);
-    const ownerId = await this.redis.get<string>(key);
+    const ownerId = await this.redisService.get<string>(key);
 
     if (ownerId !== memberId) {
       throw new BusinessException(ErrorType.INVALID_REFRESH_TOKEN);
     }
 
-    await this.redis.del(key);
+    await this.redisService.del(key);
     await this.revokeAll(memberId);
     return this.issueTokens({ id: memberId } as Member);
   }
 
   async revokeAll(memberId: string) {
     const listKey = `memberRTs:${memberId}`;
-    const keys = await this.redis.popAll(listKey);
-    if (keys.length) await Promise.all(keys.map((k) => this.redis.del(k)));
+    const keys = await this.redisService.popAll(listKey);
+    if (keys.length) await Promise.all(keys.map((k) => this.redisService.del(k)));
   }
 }
