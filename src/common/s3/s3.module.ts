@@ -51,7 +51,7 @@ import { ErrorType } from '../exception/error-code.enum';
           }
         },
         limits: {
-          fileSize: 15 * 1024 * 1024, // 15MB
+          fileSize: 15 * 1_000_000, // 15 000 000 bytes
         },
       }),
     }),
