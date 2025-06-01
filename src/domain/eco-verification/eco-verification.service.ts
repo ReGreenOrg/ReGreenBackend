@@ -310,8 +310,9 @@ export class EcoVerificationService {
             status: mev.status,
           }));
           return {
+            isMe: m.id === memberId,
             memberId: m.id,
-            nickname: m.nickname,
+            nickname: m.id === memberId ? `${m.nickname}(나)` : m.nickname,
             memberEcoVerifications: items,
           };
         });

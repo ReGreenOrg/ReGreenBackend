@@ -7,6 +7,7 @@ export interface MemberEcoVerificationDto {
 }
 
 export interface MemberEcoVerificationGroupedDto {
+  isMe: boolean;
   memberId: string;
   nickname: string;
   memberEcoVerifications: MemberEcoVerificationDto[];
