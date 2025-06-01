@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EcoVerification } from './entities/eco-verification.entity';
-import { DataSource, Raw, Repository } from 'typeorm';
+import { Between, DataSource, Repository } from 'typeorm';
 import { MemberEcoVerification } from '../member/entities/member-eco-verification.entity';
 import { MemberService } from '../member/member.service';
 import { BusinessException } from '../../common/exception/business-exception';
@@ -243,7 +243,7 @@ export class EcoVerificationService {
 
   async getCoupleVerificationsWithYesterday(
     memberId: string,
-    date: string,
+    date?: string,
   ): Promise<{
     today: { date: string; members: MemberEcoVerificationGroupedDto[] };
     yesterday: { date: string; members: MemberEcoVerificationGroupedDto[] };
@@ -254,23 +254,19 @@ export class EcoVerificationService {
     const members = couple.members;
     const [me, lover] = members;
 
-    const todayDate = dayjs(date).format('YYYY-MM-DD');
+    const todayDate =
+      date && date.trim().length
+        ? dayjs(date).format('YYYY-MM-DD')
+        : dayjs().format('YYYY-MM-DD');
     const yesterdayDate = dayjs(date).subtract(1, 'day').format('YYYY-MM-DD');
+
+    const startOfYesterday = dayjs(yesterdayDate).startOf('day').toDate();
+    const endOfToday = dayjs(todayDate).endOf('day').toDate();
 
     const memberEcoVerifications = await this.memberEcoVerificationRepo.find({
       where: [
-        {
-          member: me,
-          createdAt: Raw((alias) => `DATE(${alias}) IN (:...dates)`, {
-            dates: [yesterdayDate, todayDate],
-          }),
-        },
-        {
-          member: lover,
-          createdAt: Raw((alias) => `DATE(${alias}) IN (:...dates)`, {
-            dates: [yesterdayDate, todayDate],
-          }),
-        },
+        { member: me, createdAt: Between(startOfYesterday, endOfToday) },
+        { member: lover, createdAt: Between(startOfYesterday, endOfToday) },
       ],
       relations: ['ecoVerification', 'member'],
     });
@@ -278,15 +274,13 @@ export class EcoVerificationService {
     type VerMap = Record<string, MemberEcoVerification[]>;
     const groupedByDateAndMember: VerMap = {};
 
-    for (const recordedMemberEcoVerification of memberEcoVerifications) {
-      const recDate = dayjs(recordedMemberEcoVerification.createdAt).format(
-        'YYYY-MM-DD',
-      );
-      const key = `${recDate}|${recordedMemberEcoVerification.member.id}`;
+    for (const recMev of memberEcoVerifications) {
+      const recDate = dayjs(recMev.createdAt).format('YYYY-MM-DD');
+      const key = `${recDate}|${recMev.member.id}`;
       if (!groupedByDateAndMember[key]) {
         groupedByDateAndMember[key] = [];
       }
-      groupedByDateAndMember[key].push(recordedMemberEcoVerification);
+      groupedByDateAndMember[key].push(recMev);
     }
 
     const buildResultForDate = (targetDate: string) => {
