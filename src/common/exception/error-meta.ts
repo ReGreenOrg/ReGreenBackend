@@ -171,4 +171,9 @@ export const ERROR_META: Record<ErrorType, ErrorMeta> = {
     message: 'Openai vision schema mismatch',
     status: HttpStatus.INTERNAL_SERVER_ERROR,
   },
+  [ErrorType.ALREADY_SUBMITTED_ECO_VERIFICATION_LINK]: {
+    code: 57005,
+    message: 'Already submitted eco verification link',
+    status: HttpStatus.BAD_REQUEST,
+  },
 };

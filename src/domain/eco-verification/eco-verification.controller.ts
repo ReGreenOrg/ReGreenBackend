@@ -22,6 +22,7 @@ import { MemberEcoVerificationSummaryResponseDto } from './dto/member-eco-verifi
 import { PaginatedDto } from '../../common/dto/paginated.dto';
 import { MemberEcoVerificationResponseDto } from './dto/member-eco-verification-response.dto';
 import { RequestMember } from '../../common/dto/request-user.dto';
+import { SubmitUrlDto } from './dto/submit-url.dto';
 
 @Controller('eco-verifications')
 @UseGuards(JwtAccessGuard)
@@ -66,12 +67,12 @@ export class EcoVerificationController {
   async uploadLink(
     @Req() req: RequestMember,
     @Param('memberEcoVerificationId') memberEcoVerificationId: string,
-    @Body('url') url: string,
+    @Body() urlDto: SubmitUrlDto,
   ): Promise<void> {
     await this.ecoVerificationService.submitLink(
       req.user.memberId,
       memberEcoVerificationId,
-      url,
+      urlDto.url,
     );
   }
 

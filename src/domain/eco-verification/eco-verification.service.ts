@@ -12,7 +12,6 @@ import { Couple } from '../couple/entities/couple.entity';
 import { EcoVerificationResponseDto } from './dto/eco-verification-response.dto';
 import { PaginatedDto } from '../../common/dto/paginated.dto';
 import { MemberEcoVerificationResponseDto } from './dto/member-eco-verification-response.dto';
-import { Member } from '../member/entities/member.entity';
 
 @Injectable()
 export class EcoVerificationService {
@@ -126,7 +125,7 @@ export class EcoVerificationService {
       const memberEcoVerificationManager = manager.getRepository(
         MemberEcoVerification,
       );
-      const memberManager = manager.getRepository(Member);
+      const coupleManager = manager.getRepository(Couple);
 
       const memberEcoVerification = await memberEcoVerificationManager.findOne({
         where: { id: memberEcoVerificationId },
@@ -142,6 +141,12 @@ export class EcoVerificationService {
         throw new BusinessException(ErrorType.MEMBER_ECO_VERIFICATION_MISMATCH);
       }
 
+      if (memberEcoVerification.linkUrl) {
+        throw new BusinessException(
+          ErrorType.ALREADY_SUBMITTED_ECO_VERIFICATION_LINK,
+        );
+      }
+
       memberEcoVerification.linkUrl = url;
       await memberEcoVerificationManager.save(memberEcoVerification);
 
@@ -151,7 +156,7 @@ export class EcoVerificationService {
       }
 
       couple.ecoLovePoint += 20;
-      await memberManager.save(couple);
+      await coupleManager.save(couple);
     });
   }
 
