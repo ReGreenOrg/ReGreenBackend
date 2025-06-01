@@ -21,6 +21,7 @@ import { EcoVerificationResponseDto } from './dto/eco-verification-response.dto'
 import { MemberEcoVerificationSummaryResponseDto } from './dto/member-eco-verification-summary-response.dto';
 import { PaginatedDto } from '../../common/dto/paginated.dto';
 import { MemberEcoVerificationResponseDto } from './dto/member-eco-verification-response.dto';
+import { RequestMember } from '../../common/dto/request-user.dto';
 
 @Controller('eco-verifications')
 @UseGuards(JwtAccessGuard)
@@ -37,7 +38,7 @@ export class EcoVerificationController {
   @Post(':ecoVerificationId')
   @UseInterceptors(FileInterceptor('file'))
   async uploadFile(
-    @Req() req: any,
+    @Req() req: RequestMember,
     @UploadedFile() file: Express.MulterS3.File,
     @Param('ecoVerificationId') ecoVerificationId: string,
   ): Promise<MemberEcoVerificationSummaryResponseDto> {
@@ -63,7 +64,7 @@ export class EcoVerificationController {
 
   @Patch('my/:memberEcoVerificationId/link')
   async uploadLink(
-    @Req() req: any,
+    @Req() req: RequestMember,
     @Param('memberEcoVerificationId') memberEcoVerificationId: string,
     @Body('url') url: string,
   ): Promise<void> {
@@ -76,7 +77,7 @@ export class EcoVerificationController {
 
   @Get('my')
   async listMyVerifications(
-    @Req() req: any,
+    @Req() req: RequestMember,
     @Query('page', new ParseIntPipe({ optional: true })) page = 1,
     @Query('limit', new ParseIntPipe({ optional: true })) limit = 10,
   ): Promise<PaginatedDto<MemberEcoVerificationResponseDto>> {
@@ -89,7 +90,7 @@ export class EcoVerificationController {
 
   @Get('my/:memberEcoVerificationId')
   async getMyVerification(
-    @Req() req: any,
+    @Req() req: RequestMember,
     @Param('memberEcoVerificationId') memberEcoVerificationId: string,
   ): Promise<MemberEcoVerificationResponseDto> {
     return await this.ecoVerificationService.getMyVerificationDetail(

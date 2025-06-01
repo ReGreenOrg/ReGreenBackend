@@ -11,6 +11,7 @@ import { AuthService } from './auth.service';
 import { JwtResponseDto } from './dto/jwt-response.dto';
 import { JwtRefreshGuard } from './guards/jwt-refresh.guard';
 import { Member } from '../member/entities/member.entity';
+import { RequestMember } from '../../common/dto/request-user.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -30,14 +31,14 @@ export class AuthController {
 
   @Post('refresh')
   @UseGuards(JwtRefreshGuard)
-  async refresh(@Req() req: any): Promise<JwtResponseDto> {
-    const { memberId, jti } = req.user;
+  async refresh(@Req() member: RequestMember): Promise<JwtResponseDto> {
+    const { memberId, jti } = member.user;
     return await this.authService.rotate(memberId, jti);
   }
 
   @Post('logout')
-  async logout(@Req() req: any): Promise<void> {
-    await this.authService.revokeAll(req.user.memberId);
+  async logout(@Req() member: RequestMember): Promise<void> {
+    await this.authService.revokeAll(member.user.memberId);
   }
 
   @Get('/mylogin') async myLogin(): Promise<JwtResponseDto> {

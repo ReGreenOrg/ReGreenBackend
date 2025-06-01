@@ -8,8 +8,6 @@ import * as uuid from 'uuid';
 import { createHash } from 'crypto';
 import { RedisService } from '../../common/redis/redis.service';
 import { MemberService } from '../member/member.service';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { BusinessException } from '../../common/exception/business-exception';
 import { ErrorType } from '../../common/exception/error-code.enum';
 
@@ -141,7 +139,11 @@ export class AuthService {
     return { accessToken, refreshToken };
   }
 
-  async rotate(memberId: string, oldJti: string) {
+  async rotate(memberId: string, oldJti?: string) {
+    if (!oldJti) {
+      throw new BusinessException(ErrorType.INVALID_REFRESH_TOKEN);
+    }
+
     const key = this.rtKey(oldJti);
     const ownerId = await this.redisService.get<string>(key);
 
@@ -157,6 +159,7 @@ export class AuthService {
   async revokeAll(memberId: string) {
     const listKey = `memberRTs:${memberId}`;
     const keys = await this.redisService.popAll(listKey);
-    if (keys.length) await Promise.all(keys.map((k) => this.redisService.del(k)));
+    if (keys.length)
+      await Promise.all(keys.map((k) => this.redisService.del(k)));
   }
 }

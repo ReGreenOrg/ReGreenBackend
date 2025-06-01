@@ -3,6 +3,7 @@ import { MemberService } from './member.service';
 import { MemberResponseDto } from './dto/member-response.dto';
 import { JwtAccessGuard } from '../auth/guards/jwt-access.guard';
 import { UpdateMemberDto } from './dto/update-member.dto';
+import { RequestMember } from '../../common/dto/request-user.dto';
 
 @Controller('members')
 @UseGuards(JwtAccessGuard)
@@ -10,7 +11,7 @@ export class MemberController {
   constructor(private readonly memberService: MemberService) {}
 
   @Get('my')
-  async getMe(@Req() req: any): Promise<MemberResponseDto> {
+  async getMe(@Req() req: RequestMember): Promise<MemberResponseDto> {
     const member = await this.memberService.findByIdOrThrowException(
       req.user.memberId,
     );
@@ -24,7 +25,10 @@ export class MemberController {
   }
 
   @Patch('my')
-  async editMe(@Req() req: any, @Body() dto: UpdateMemberDto): Promise<void> {
+  async editMe(
+    @Req() req: RequestMember,
+    @Body() dto: UpdateMemberDto,
+  ): Promise<void> {
     return await this.memberService.editMe(req.user.memberId, dto);
   }
 }
