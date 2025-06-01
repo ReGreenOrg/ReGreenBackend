@@ -80,10 +80,12 @@ export class EcoVerificationService {
       .andWhere('mev.ecoVerificationId = :ecoVerificationId', {
         ecoVerificationId: ecoVerificationId,
       })
-      .andWhere('mev.status = :status', {
-        status: EcoVerificationStatus.APPROVED,
+      .andWhere('mev.status != :status', {
+        status: EcoVerificationStatus.REJECTED,
       })
-      .andWhere('DATE(mev.createdAt) = CURDATE()')
+      .andWhere('DATE(mev.createdAt) = :today', {
+        today: dayjs().format('YYYY-MM-DD'),
+      })
       .getExists();
 
     if (existsToday) {
