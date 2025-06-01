@@ -149,6 +149,17 @@ export const ERROR_META: Record<ErrorType, ErrorMeta> = {
     message: 'Already submitted ecoVerification today',
     status: HttpStatus.CONFLICT,
   },
+  [ErrorType.ALREADY_SUBMITTED_ECO_VERIFICATION_LINK]: {
+    code: 47004,
+    message: 'Already submitted eco verification link',
+    status: HttpStatus.BAD_REQUEST,
+  },
+  [ErrorType.INVALID_ECO_REVIEW_REQUEST_STATUS]: {
+    code: 47005,
+    message:
+      'Request review is only possible if the current status is REJECTED.',
+    status: HttpStatus.BAD_REQUEST,
+  },
   // 네트워크·rate-limit 등 OpenAI SDK 오류
   [ErrorType.VISION_SERVICE_UNAVAILABLE]: {
     code: 57001,

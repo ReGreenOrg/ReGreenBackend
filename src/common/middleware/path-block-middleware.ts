@@ -33,9 +33,14 @@ export class PathBlockMiddleware implements NestMiddleware {
     },
     {
       method: 'PATCH',
+      path: /^\/api\/eco-verifications\/my\/[^/]+\/request-review$/,
+    },
+    {
+      method: 'PATCH',
       path: /^\/api\/eco-verifications\/my\/[^/]+\/link$/,
     },
     { method: 'GET', path: '/api/eco-verifications/my' },
+    { method: 'GET', path: '/api/eco-verifications/my/couple' },
     { method: 'GET', path: /^\/api\/eco-verifications\/my\/[^/]+$/ },
 
     // Item

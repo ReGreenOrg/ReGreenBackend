@@ -21,6 +21,8 @@ import { EcoVerificationResponseDto } from './dto/eco-verification-response.dto'
 import { MemberEcoVerificationSummaryResponseDto } from './dto/member-eco-verification-summary-response.dto';
 import { PaginatedDto } from '../../common/dto/paginated.dto';
 import { MemberEcoVerificationResponseDto } from './dto/member-eco-verification-response.dto';
+import { RequestMember } from '../../common/dto/request-user.dto';
+import { SubmitUrlDto } from './dto/submit-url.dto';
 
 @Controller('eco-verifications')
 @UseGuards(JwtAccessGuard)
@@ -37,7 +39,7 @@ export class EcoVerificationController {
   @Post(':ecoVerificationId')
   @UseInterceptors(FileInterceptor('file'))
   async uploadFile(
-    @Req() req: any,
+    @Req() req: RequestMember,
     @UploadedFile() file: Express.MulterS3.File,
     @Param('ecoVerificationId') ecoVerificationId: string,
   ): Promise<MemberEcoVerificationSummaryResponseDto> {
@@ -45,38 +47,40 @@ export class EcoVerificationController {
       throw new BusinessException(ErrorType.INVALID_FILE_FORMAT);
     }
 
-    const memberEcoVerification =
-      await this.ecoVerificationService.verifyWithImage(
-        req.user.memberId,
-        ecoVerificationId,
-        file.location,
-      );
-
-    return {
-      memberEcoVerificationId: memberEcoVerification.id,
-      imageUrl: memberEcoVerification.imageUrl,
-      status: memberEcoVerification.status,
-      aiReasonOfStatus: memberEcoVerification.aiReasonOfStatus,
-      createdAt: memberEcoVerification.createdAt,
-    };
+    return await this.ecoVerificationService.verifyWithImage(
+      req.user.memberId,
+      ecoVerificationId,
+      file.location,
+    );
   }
 
   @Patch('my/:memberEcoVerificationId/link')
   async uploadLink(
-    @Req() req: any,
+    @Req() req: RequestMember,
     @Param('memberEcoVerificationId') memberEcoVerificationId: string,
-    @Body('url') url: string,
+    @Body() urlDto: SubmitUrlDto,
   ): Promise<void> {
     await this.ecoVerificationService.submitLink(
       req.user.memberId,
       memberEcoVerificationId,
-      url,
+      urlDto.url,
+    );
+  }
+
+  @Patch('my/:memberEcoVerificationId/request-review')
+  async requestReview(
+    @Req() req: RequestMember,
+    @Param('memberEcoVerificationId') memberEcoVerificationId: string,
+  ): Promise<void> {
+    await this.ecoVerificationService.requestReview(
+      req.user.memberId,
+      memberEcoVerificationId,
     );
   }
 
   @Get('my')
   async listMyVerifications(
-    @Req() req: any,
+    @Req() req: RequestMember,
     @Query('page', new ParseIntPipe({ optional: true })) page = 1,
     @Query('limit', new ParseIntPipe({ optional: true })) limit = 10,
   ): Promise<PaginatedDto<MemberEcoVerificationResponseDto>> {
@@ -87,9 +91,20 @@ export class EcoVerificationController {
     );
   }
 
+  @Get('my/couple')
+  async getVerificationsWithYesterday(
+    @Req() req: RequestMember,
+    @Query('date') date: string,
+  ) {
+    return await this.ecoVerificationService.getCoupleVerificationsWithYesterday(
+      req.user.memberId,
+      date,
+    );
+  }
+
   @Get('my/:memberEcoVerificationId')
   async getMyVerification(
-    @Req() req: any,
+    @Req() req: RequestMember,
     @Param('memberEcoVerificationId') memberEcoVerificationId: string,
   ): Promise<MemberEcoVerificationResponseDto> {
     return await this.ecoVerificationService.getMyVerificationDetail(

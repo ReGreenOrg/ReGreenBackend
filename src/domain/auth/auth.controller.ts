@@ -1,51 +1,49 @@
 import {
-  Controller, Get,
+  Controller,
+  Get,
   ParseBoolPipe,
   Post,
   Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { AuthService } from './auth.service';
 import { JwtResponseDto } from './dto/jwt-response.dto';
 import { JwtRefreshGuard } from './guards/jwt-refresh.guard';
 import { Member } from '../member/entities/member.entity';
+import { RequestMember } from '../../common/dto/request-user.dto';
 
 @Controller('auth')
 export class AuthController {
-  constructor(
-    private readonly cs: ConfigService,
-    private readonly auth: AuthService,
-  ) {}
+  constructor(private readonly authService: AuthService) {}
 
   @Post('kakao/login')
   async kakaoCallback(
     @Query('code') code: string,
     @Query('local', ParseBoolPipe) local = false,
   ): Promise<JwtResponseDto> {
-    const kakaoToken = await this.auth.getToken(code, local);
-    const profile = await this.auth.getProfile(kakaoToken);
-    const member = await this.auth.upsertMember(profile);
+    const kakaoToken = await this.authService.getToken(code, local);
+    const profile = await this.authService.getProfile(kakaoToken);
+    const member = await this.authService.upsertMember(profile);
 
-    return await this.auth.issueTokens(member);
+    return await this.authService.issueTokens(member);
   }
 
   @Post('refresh')
   @UseGuards(JwtRefreshGuard)
-  async refresh(@Req() req: any): Promise<JwtResponseDto> {
-    const { memberId, jti } = req.user;
-    return await this.auth.rotate(memberId, jti);
+  async refresh(@Req() member: RequestMember): Promise<JwtResponseDto> {
+    const { memberId, jti } = member.user;
+    return await this.authService.rotate(memberId, jti);
   }
 
   @Post('logout')
-  async logout(@Req() req: any): Promise<void> {
-    await this.auth.revokeAll(req.user.memberId);
+  async logout(@Req() member: RequestMember): Promise<void> {
+    await this.authService.revokeAll(member.user.memberId);
   }
 
   @Get('/mylogin') async myLogin(): Promise<JwtResponseDto> {
-    return await this.auth.issueTokens({
-      id: '5660f0dc-8853-4465-ac13-9c65f2202b67',
+    return await this.authService.issueTokens({
+      id: '5660f0dc-8853-4465-ac13-9c65f2202b68',
     } as Member);
   }
 }

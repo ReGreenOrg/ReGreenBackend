@@ -12,6 +12,7 @@ import { CoupleService } from './couple.service';
 import { JwtAccessGuard } from '../auth/guards/jwt-access.guard';
 import { CoupleCodeDto } from './dto/couple-code.dto';
 import { CoupleDto } from './dto/couple.dto';
+import { RequestMember } from '../../common/dto/request-user.dto';
 
 @Controller('couples')
 @UseGuards(JwtAccessGuard)
@@ -19,12 +20,15 @@ export class CoupleController {
   constructor(private readonly coupleService: CoupleService) {}
 
   @Get('code')
-  async createCode(@Req() req: any): Promise<CoupleCodeDto> {
+  async createCode(@Req() req: RequestMember): Promise<CoupleCodeDto> {
     return await this.coupleService.generateCode(req.user.memberId);
   }
 
   @Post('join')
-  async joinCouple(@Req() req: any, @Body() coupleCodeDto: CoupleCodeDto): Promise<void> {
+  async joinCouple(
+    @Req() req: RequestMember,
+    @Body() coupleCodeDto: CoupleCodeDto,
+  ): Promise<void> {
     await this.coupleService.joinWithCode(
       req.user.memberId,
       coupleCodeDto.code,
@@ -32,12 +36,12 @@ export class CoupleController {
   }
 
   @Get('my')
-  async getMyCouple(@Req() req: any): Promise<CoupleDto | null> {
-    return await this.coupleService.findCoupleByMember(req.user.memberId);
+  async getMyCouple(@Req() req: RequestMember): Promise<CoupleDto | null> {
+    return await this.coupleService.findByMemberId(req.user.memberId);
   }
 
   @Delete('my')
-  async breakup(@Req() req: any): Promise<void> {
+  async breakup(@Req() req: RequestMember): Promise<void> {
     await this.coupleService.breakup(req.user.memberId);
   }
 
