@@ -160,6 +160,12 @@ export const ERROR_META: Record<ErrorType, ErrorMeta> = {
       'Request review is only possible if the current status is REJECTED.',
     status: HttpStatus.BAD_REQUEST,
   },
+  [ErrorType.INVALID_ECO_ADD_LINK_STATUS]: {
+    code: 47006,
+    message:
+      'Adding link is only possible if the current status is APPROVED.',
+    status: HttpStatus.BAD_REQUEST,
+  },
   // 네트워크·rate-limit 등 OpenAI SDK 오류
   [ErrorType.VISION_SERVICE_UNAVAILABLE]: {
     code: 57001,

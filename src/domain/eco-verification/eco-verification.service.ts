@@ -164,6 +164,10 @@ export class EcoVerificationService {
         throw new BusinessException(ErrorType.MEMBER_ECO_VERIFICATION_MISMATCH);
       }
 
+      if (memberEcoVerification.status !== EcoVerificationStatus.APPROVED) {
+        throw new BusinessException(ErrorType.INVALID_ECO_ADD_LINK_STATUS);
+      }
+
       if (memberEcoVerification.linkUrl) {
         throw new BusinessException(
           ErrorType.ALREADY_SUBMITTED_ECO_VERIFICATION_LINK,
