@@ -47,20 +47,11 @@ export class EcoVerificationController {
       throw new BusinessException(ErrorType.INVALID_FILE_FORMAT);
     }
 
-    const memberEcoVerification =
-      await this.ecoVerificationService.verifyWithImage(
-        req.user.memberId,
-        ecoVerificationId,
-        file.location,
-      );
-
-    return {
-      memberEcoVerificationId: memberEcoVerification.id,
-      imageUrl: memberEcoVerification.imageUrl,
-      status: memberEcoVerification.status,
-      aiReasonOfStatus: memberEcoVerification.aiReasonOfStatus,
-      createdAt: memberEcoVerification.createdAt,
-    };
+    return await this.ecoVerificationService.verifyWithImage(
+      req.user.memberId,
+      ecoVerificationId,
+      file.location,
+    );
   }
 
   @Patch('my/:memberEcoVerificationId/link')

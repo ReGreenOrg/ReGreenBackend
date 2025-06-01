@@ -18,6 +18,7 @@ import {
 } from './dto/member-eco-verification-grouped-response.dto';
 import * as dayjs from 'dayjs';
 import { CoupleService } from '../couple/couple.service';
+import { MemberEcoVerificationSummaryResponseDto } from './dto/member-eco-verification-summary-response.dto';
 
 @Injectable()
 export class EcoVerificationService {
@@ -58,7 +59,7 @@ export class EcoVerificationService {
     memberId: string,
     ecoVerificationId: string,
     imageUrl: string,
-  ) {
+  ): Promise<MemberEcoVerificationSummaryResponseDto> {
     const [member, ecoVerification] = await Promise.all([
       this.memberService.findByIdOrThrowException(memberId),
       this.ecoVerificationRepo.findOneBy({ id: ecoVerificationId }),
@@ -73,54 +74,67 @@ export class EcoVerificationService {
       throw new BusinessException(ErrorType.ECO_VERIFICATION_NOT_FOUND);
     }
 
-    // const existsToday = await this.memberEcoVerificationRepo
-    //   .createQueryBuilder('me')
-    //   .where('me.memberId = :memberId', { memberId })
-    //   .andWhere('me.ecoVerificationId = :ecoVerificationId', {
-    //     ecoVerificationId: ecoVerificationId,
-    //   })
-    //   .andWhere('DATE(me.createdAt) = CURDATE()')
-    //   .getExists();
-    //
-    // if (existsToday) {
-    //   throw new BusinessException(
-    //     ErrorType.ALREADY_SUBMITTED_ECO_VERIFICATION_TODAY,
-    //   );
-    // }
+    const existsToday = await this.memberEcoVerificationRepo
+      .createQueryBuilder('mev')
+      .where('mev.memberId = :memberId', { memberId })
+      .andWhere('mev.ecoVerificationId = :ecoVerificationId', {
+        ecoVerificationId: ecoVerificationId,
+      })
+      .andWhere('mev.status = :status', {
+        status: EcoVerificationStatus.APPROVED,
+      })
+      .andWhere('DATE(mev.createdAt) = CURDATE()')
+      .getExists();
+
+    if (existsToday) {
+      throw new BusinessException(
+        ErrorType.ALREADY_SUBMITTED_ECO_VERIFICATION_TODAY,
+      );
+    }
 
     const { isValid, reason } = await this.openaiService.verifyImageByType(
       imageUrl,
       ecoVerification.type,
     );
 
-    return await this.dataSource.transaction(async (manager) => {
-      let record = manager.create(MemberEcoVerification, {
-        member,
-        ecoVerification,
-        imageUrl,
-        status: isValid
-          ? EcoVerificationStatus.APPROVED
-          : EcoVerificationStatus.REJECTED,
-        aiReasonOfStatus: reason,
-      });
-      record = await manager.save(MemberEcoVerification, record);
+    const memberEcoVerification = await this.dataSource.transaction(
+      async (manager) => {
+        let record = manager.create(MemberEcoVerification, {
+          member,
+          ecoVerification,
+          imageUrl,
+          status: isValid
+            ? EcoVerificationStatus.APPROVED
+            : EcoVerificationStatus.REJECTED,
+          aiReasonOfStatus: reason,
+        });
+        record = await manager.save(MemberEcoVerification, record);
 
-      if (isValid) {
-        await manager.increment(
-          Couple,
-          { id: member.couple!.id },
-          'ecoLovePoint',
-          ecoVerification.ecoLovePoint,
-        );
-        await manager.increment(
-          Couple,
-          { id: member.couple!.id },
-          'breakupBufferPoint',
-          ecoVerification.breakupBufferPoint,
-        );
-      }
-      return record;
-    });
+        if (isValid) {
+          await manager.increment(
+            Couple,
+            { id: member.couple!.id },
+            'ecoLovePoint',
+            ecoVerification.ecoLovePoint,
+          );
+          await manager.increment(
+            Couple,
+            { id: member.couple!.id },
+            'breakupBufferPoint',
+            ecoVerification.breakupBufferPoint,
+          );
+        }
+        return record;
+      },
+    );
+
+    return {
+      memberEcoVerificationId: memberEcoVerification.id,
+      imageUrl: memberEcoVerification.imageUrl,
+      status: memberEcoVerification.status,
+      aiReasonOfStatus: memberEcoVerification.aiReasonOfStatus,
+      createdAt: memberEcoVerification.createdAt,
+    };
   }
 
   async submitLink(
