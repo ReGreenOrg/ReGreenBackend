@@ -12,6 +12,7 @@ import { Couple } from '../couple/entities/couple.entity';
 import { EcoVerificationResponseDto } from './dto/eco-verification-response.dto';
 import { PaginatedDto } from '../../common/dto/paginated.dto';
 import { MemberEcoVerificationResponseDto } from './dto/member-eco-verification-response.dto';
+import { Member } from '../member/entities/member.entity';
 
 @Injectable()
 export class EcoVerificationService {
@@ -121,19 +122,37 @@ export class EcoVerificationService {
     memberEcoVerificationId: string,
     url: string,
   ) {
-    const record = await this.memberEcoVerificationRepo.findOne({
-      where: { id: memberEcoVerificationId },
-      relations: ['member'],
-    });
+    return await this.dataSource.transaction(async (manager) => {
+      const memberEcoVerificationManager = manager.getRepository(
+        MemberEcoVerification,
+      );
+      const memberManager = manager.getRepository(Member);
 
-    if (!record) {
-      throw new BusinessException(ErrorType.MEMBER_ECO_VERIFICATION_NOT_FOUND);
-    }
-    if (record.member.id !== memberId) {
-      throw new BusinessException(ErrorType.MEMBER_ECO_VERIFICATION_MISMATCH);
-    }
-    record.linkUrl = url;
-    return this.memberEcoVerificationRepo.save(record);
+      const memberEcoVerification = await memberEcoVerificationManager.findOne({
+        where: { id: memberEcoVerificationId },
+        relations: ['member', 'member.couple'],
+      });
+
+      if (!memberEcoVerification) {
+        throw new BusinessException(
+          ErrorType.MEMBER_ECO_VERIFICATION_NOT_FOUND,
+        );
+      }
+      if (memberEcoVerification.member.id != memberId) {
+        throw new BusinessException(ErrorType.MEMBER_ECO_VERIFICATION_MISMATCH);
+      }
+
+      memberEcoVerification.linkUrl = url;
+      await memberEcoVerificationManager.save(memberEcoVerification);
+
+      const couple = memberEcoVerification.member.couple;
+      if (!couple) {
+        throw new BusinessException(ErrorType.COUPLE_NOT_FOUND);
+      }
+
+      couple.ecoLovePoint += 20;
+      await memberManager.save(couple);
+    });
   }
 
   async getMyVerifications(
