@@ -266,13 +266,13 @@ export class EcoVerificationService {
     const memberEcoVerifications = await this.memberEcoVerificationRepo.find({
       where: [
         {
-          member: me,
+          member: { id: me.id },
           createdAt: Raw(
             (alias) => `DATE(${alias}) IN ('${yesterdayDate}', '${todayDate}')`,
           ),
         },
         {
-          member: lover,
+          member: { id: lover.id },
           createdAt: Raw(
             (alias) => `DATE(${alias}) IN ('${yesterdayDate}', '${todayDate}')`,
           ),
