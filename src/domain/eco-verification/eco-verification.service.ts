@@ -260,9 +260,6 @@ export class EcoVerificationService {
         : dayjs().format('YYYY-MM-DD');
     const yesterdayDate = dayjs(date).subtract(1, 'day').format('YYYY-MM-DD');
 
-    console.log(`today >>> ${todayDate}`);
-    console.log(`yesterday >>> ${yesterdayDate}`);
-
     const memberEcoVerifications = await this.memberEcoVerificationRepo.find({
       where: [
         {
@@ -281,8 +278,6 @@ export class EcoVerificationService {
       relations: ['ecoVerification', 'member'],
     });
 
-    console.log('memberEco >>', memberEcoVerifications);
-
     type VerMap = Record<string, MemberEcoVerification[]>;
     const groupedByDateAndMember: VerMap = {};
 
@@ -300,10 +295,6 @@ export class EcoVerificationService {
         members.map((m) => {
           const key = `${targetDate}|${m.id}`;
           const recs = groupedByDateAndMember[key] || [];
-          console.log(`======${key}====================`);
-          console.log('recs >>');
-          console.log(recs);
-          console.log('================================');
           const items: MemberEcoVerificationDto[] = recs.map((mev) => ({
             memberEcoVerificationId: mev.id,
             type: mev.ecoVerification.type,
