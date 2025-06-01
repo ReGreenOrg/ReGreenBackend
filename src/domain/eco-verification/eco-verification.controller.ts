@@ -94,7 +94,7 @@ export class EcoVerificationController {
   @Get('my/couple')
   async getVerificationsWithYesterday(
     @Req() req: RequestMember,
-    @Query('date') date: string,
+    @Query('date') date?: string,
   ) {
     return await this.ecoVerificationService.getCoupleVerificationsWithYesterday(
       req.user.memberId,
