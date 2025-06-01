@@ -24,7 +24,7 @@ export class MemberService {
   async findById(memberId: string): Promise<Member | null> {
     return await this.memberRepo.findOne({
       where: { id: memberId },
-      relations: { couple: true },
+      relations: ['couple'],
     });
   }
 

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EcoVerification } from './entities/eco-verification.entity';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, Raw, Repository } from 'typeorm';
 import { MemberEcoVerification } from '../member/entities/member-eco-verification.entity';
 import { MemberService } from '../member/member.service';
 import { BusinessException } from '../../common/exception/business-exception';
@@ -12,6 +12,12 @@ import { Couple } from '../couple/entities/couple.entity';
 import { EcoVerificationResponseDto } from './dto/eco-verification-response.dto';
 import { PaginatedDto } from '../../common/dto/paginated.dto';
 import { MemberEcoVerificationResponseDto } from './dto/member-eco-verification-response.dto';
+import {
+  MemberEcoVerificationDto,
+  MemberEcoVerificationGroupedDto,
+} from './dto/member-eco-verification-grouped-response.dto';
+import * as dayjs from 'dayjs';
+import { CoupleService } from '../couple/couple.service';
 
 @Injectable()
 export class EcoVerificationService {
@@ -21,6 +27,7 @@ export class EcoVerificationService {
     @InjectRepository(MemberEcoVerification)
     private readonly memberEcoVerificationRepo: Repository<MemberEcoVerification>,
     private readonly memberService: MemberService,
+    private readonly coupleService: CoupleService,
     private readonly openaiService: OpenaiService,
     private readonly dataSource: DataSource,
   ) {}
@@ -217,6 +224,82 @@ export class EcoVerificationService {
       imageUrl: link.imageUrl,
       status: link.status,
       aiReasonOfStatus: link.aiReasonOfStatus,
+    };
+  }
+
+  async getCoupleVerificationsWithYesterday(
+    memberId: string,
+    date: string,
+  ): Promise<{
+    today: { date: string; members: MemberEcoVerificationGroupedDto[] };
+    yesterday: { date: string; members: MemberEcoVerificationGroupedDto[] };
+  }> {
+    const couple =
+      await this.coupleService.findByMemberIdOrThrowException(memberId);
+
+    const members = couple.members;
+    const [me, lover] = members;
+
+    const todayDate = dayjs(date).format('YYYY-MM-DD');
+    const yesterdayDate = dayjs(date).subtract(1, 'day').format('YYYY-MM-DD');
+
+    const memberEcoVerifications = await this.memberEcoVerificationRepo.find({
+      where: [
+        {
+          member: me,
+          createdAt: Raw((alias) => `DATE(${alias}) IN (:...dates)`, {
+            dates: [yesterdayDate, todayDate],
+          }),
+        },
+        {
+          member: lover,
+          createdAt: Raw((alias) => `DATE(${alias}) IN (:...dates)`, {
+            dates: [yesterdayDate, todayDate],
+          }),
+        },
+      ],
+      relations: ['ecoVerification', 'member'],
+    });
+
+    type VerMap = Record<string, MemberEcoVerification[]>;
+    const groupedByDateAndMember: VerMap = {};
+
+    for (const recordedMemberEcoVerification of memberEcoVerifications) {
+      const recDate = dayjs(recordedMemberEcoVerification.createdAt).format(
+        'YYYY-MM-DD',
+      );
+      const key = `${recDate}|${recordedMemberEcoVerification.member.id}`;
+      if (!groupedByDateAndMember[key]) {
+        groupedByDateAndMember[key] = [];
+      }
+      groupedByDateAndMember[key].push(recordedMemberEcoVerification);
+    }
+
+    const buildResultForDate = (targetDate: string) => {
+      const memberGroupedResult: MemberEcoVerificationGroupedDto[] =
+        members.map((m) => {
+          const key = `${targetDate}|${m.id}`;
+          const recs = groupedByDateAndMember[key] || [];
+          const items: MemberEcoVerificationDto[] = recs.map((mev) => ({
+            memberEcoVerificationId: mev.id,
+            type: mev.ecoVerification.type,
+            ecoLovePoint: mev.ecoVerification.ecoLovePoint,
+            breakupBufferPoint: mev.ecoVerification.breakupBufferPoint,
+            linkUrl: mev.linkUrl,
+            status: mev.status,
+          }));
+          return {
+            memberId: m.id,
+            nickname: m.nickname,
+            memberEcoVerifications: items,
+          };
+        });
+      return { date: targetDate, members: memberGroupedResult };
+    };
+
+    return {
+      today: buildResultForDate(todayDate),
+      yesterday: buildResultForDate(yesterdayDate),
     };
   }
 }

@@ -15,5 +15,6 @@ import { MemberModule } from '../member/member.module';
   ],
   controllers: [CoupleController],
   providers: [CoupleService],
+  exports: [CoupleService],
 })
 export class CoupleModule {}

@@ -37,7 +37,7 @@ export class CoupleController {
 
   @Get('my')
   async getMyCouple(@Req() req: RequestMember): Promise<CoupleDto | null> {
-    return await this.coupleService.findCoupleByMember(req.user.memberId);
+    return await this.coupleService.findByMemberId(req.user.memberId);
   }
 
   @Delete('my')

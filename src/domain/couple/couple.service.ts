@@ -127,7 +127,7 @@ export class CoupleService {
     });
   }
 
-  async findCoupleByMember(memberId: string): Promise<CoupleDto | null> {
+  async findByMemberId(memberId: string): Promise<CoupleDto | null> {
     const member = await this.memberService.findByIdOrThrowException(memberId);
 
     if (!member?.couple) {
@@ -180,6 +180,26 @@ export class CoupleService {
 
       await manager.delete(Couple, { id: coupleId });
       await manager.delete(Member, { id: In(memberIds) });
+    });
+  }
+
+  async findByMemberIdOrThrowException(memberId: string): Promise<Couple> {
+    const member = await this.memberService.findByIdOrThrowException(memberId);
+    const couple = await this.findByMemberOrThrowException(member);
+    if (!couple) {
+      throw new BusinessException(ErrorType.COUPLE_NOT_FOUND);
+    }
+    return couple;
+  }
+
+  private async findByMemberOrThrowException(member: Member) {
+    if (!member.couple) {
+      throw new BusinessException(ErrorType.COUPLE_NOT_FOUND);
+    }
+
+    return await this.coupleRepo.findOne({
+      where: { id: member.couple.id },
+      relations: ['members'],
     });
   }
 }
