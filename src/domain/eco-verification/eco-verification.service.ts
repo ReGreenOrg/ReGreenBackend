@@ -281,7 +281,14 @@ export class EcoVerificationService {
     console.log(`between >>> [${startOfYesterday}] and [${endOfToday}]\n\n`);
 
     console.log('memberEco >>');
-    console.log(memberEcoVerifications);
+    memberEcoVerifications.forEach(rec => {
+      console.log(
+        'rec.createdAt (JS Date) =',
+        rec.createdAt,
+        ', formatted =',
+        dayjs(rec.createdAt).format('YYYY-MM-DD')
+      );
+    });
 
     type VerMap = Record<string, MemberEcoVerification[]>;
     const groupedByDateAndMember: VerMap = {};

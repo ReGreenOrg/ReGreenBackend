@@ -9,6 +9,7 @@ import { PathBlockMiddleware } from './common/middleware/path-block-middleware';
 import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
+  process.env.TZ = process.env.TZ || 'Asia/Seoul';
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
 

@@ -2,7 +2,10 @@
 FROM node:20-alpine
 
 # tzdata 설치
-RUN apk add tzdata
+RUN apk add --no-cache tzdata \
+    && cp /usr/share/zoneinfo/Asia/Seoul /etc/localtime \
+    && echo "Asia/Seoul" > /etc/timezone \
+    && apk del tzdata
 
 # 작업 디렉터리 생성
 WORKDIR /usr/src/app
@@ -18,6 +21,9 @@ COPY . .
 
 # NestJS 빌드
 RUN npm run build
+
+# Node.js 한국시간 설정
+ENV TZ=Asia/Seoul
 
 # 서버 실행
 EXPOSE 4000
