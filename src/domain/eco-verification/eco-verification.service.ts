@@ -258,7 +258,13 @@ export class EcoVerificationService {
       date && date.trim().length
         ? dayjs(date).format('YYYY-MM-DD')
         : dayjs().format('YYYY-MM-DD');
+
     console.log(`today >>> ${todayDate}`);
+    console.log('me >>');
+    console.log(me);
+    console.log('lover >>');
+    console.log(lover);
+
     const yesterdayDate = dayjs(date).subtract(1, 'day').format('YYYY-MM-DD');
 
     const startOfYesterday = dayjs(yesterdayDate).startOf('day').toDate();
@@ -271,6 +277,8 @@ export class EcoVerificationService {
       ],
       relations: ['ecoVerification', 'member'],
     });
+
+    console.log(`between >>> [${startOfYesterday}] and [${endOfToday}]\n\n`);
 
     console.log('memberEco >>');
     console.log(memberEcoVerifications);

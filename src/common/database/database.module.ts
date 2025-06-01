@@ -14,6 +14,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
         username: cs.get('MYSQL_USER'),
         password: cs.get('MYSQL_PASS'),
         database: cs.get('MYSQL_NAME'),
+        timezone: '+09:00',
         entities: [__dirname + '/**/*.entity.{ts,js}'],
         autoLoadEntities: true,
         synchronize: true,
