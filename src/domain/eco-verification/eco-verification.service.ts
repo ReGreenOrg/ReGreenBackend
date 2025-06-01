@@ -90,7 +90,7 @@ export class EcoVerificationService {
 
     if (existsToday) {
       throw new BusinessException(
-        ErrorType.ALREADY_SUBMITTED_ECO_VERIFICATION_TODAY,
+        ErrorType.ALREADY_APPROVED_ECO_VERIFICATION_TODAY,
       );
     }
 
@@ -330,7 +330,7 @@ export class EcoVerificationService {
   ): Promise<void> {
     const record = await this.memberEcoVerificationRepo.findOne({
       where: { id: memberEcoVerificationId },
-      relations: ['member'],
+      relations: ['member', 'ecoVerification'],
     });
 
     if (!record) {
@@ -339,6 +339,28 @@ export class EcoVerificationService {
     if (record.member.id !== memberId) {
       throw new BusinessException(ErrorType.MEMBER_ECO_VERIFICATION_MISMATCH);
     }
+
+    const existsToday = await this.memberEcoVerificationRepo
+      .createQueryBuilder('mev')
+      .leftJoin('mev.ecoVerification', 'ev')
+      .where('mev.memberId = :memberId', { memberId })
+      .andWhere('mev.status != :status', {
+        status: EcoVerificationStatus.REJECTED,
+      })
+      .andWhere('ev.type = :type', {
+        type: record.ecoVerification.type,
+      })
+      .andWhere('DATE(mev.createdAt) = :today', {
+        today: dayjs().format('YYYY-MM-DD'),
+      })
+      .getExists();
+
+    if (existsToday) {
+      throw new BusinessException(
+        ErrorType.ALREADY_APPROVED_ECO_VERIFICATION_TODAY,
+      );
+    }
+
     if (record.status !== EcoVerificationStatus.REJECTED) {
       throw new BusinessException(ErrorType.INVALID_ECO_REVIEW_REQUEST_STATUS);
     }
