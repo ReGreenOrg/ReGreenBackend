@@ -162,8 +162,7 @@ export const ERROR_META: Record<ErrorType, ErrorMeta> = {
   },
   [ErrorType.INVALID_ECO_ADD_LINK_STATUS]: {
     code: 47006,
-    message:
-      'Adding link is only possible if the current status is APPROVED.',
+    message: 'Adding link is only possible if the current status is APPROVED.',
     status: HttpStatus.BAD_REQUEST,
   },
   // 네트워크·rate-limit 등 OpenAI SDK 오류

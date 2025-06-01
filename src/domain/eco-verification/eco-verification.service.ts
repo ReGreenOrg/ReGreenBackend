@@ -361,10 +361,6 @@ export class EcoVerificationService {
       );
     }
 
-    if (record.status !== EcoVerificationStatus.REJECTED) {
-      throw new BusinessException(ErrorType.INVALID_ECO_REVIEW_REQUEST_STATUS);
-    }
-
     record.status = EcoVerificationStatus.GOING_OVER;
     await this.memberEcoVerificationRepo.save(record);
   }
