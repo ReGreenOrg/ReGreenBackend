@@ -176,4 +176,10 @@ export const ERROR_META: Record<ErrorType, ErrorMeta> = {
     message: 'Already submitted eco verification link',
     status: HttpStatus.BAD_REQUEST,
   },
+  [ErrorType.INVALID_ECO_REVIEW_REQUEST_STATUS]: {
+    code: 57006,
+    message:
+      'Request review is only possible if the current status is REJECTED.',
+    status: HttpStatus.BAD_REQUEST,
+  },
 };

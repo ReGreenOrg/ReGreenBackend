@@ -67,6 +67,17 @@ export class EcoVerificationController {
     );
   }
 
+  @Patch('my/:memberEcoVerificationId/request-review')
+  async requestReview(
+    @Req() req: RequestMember,
+    @Param('memberEcoVerificationId') memberEcoVerificationId: string,
+  ): Promise<void> {
+    await this.ecoVerificationService.requestReview(
+      req.user.memberId,
+      memberEcoVerificationId,
+    );
+  }
+
   @Get('my')
   async listMyVerifications(
     @Req() req: RequestMember,
