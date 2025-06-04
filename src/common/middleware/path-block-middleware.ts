@@ -1,5 +1,6 @@
 import { HttpStatus, Injectable, NestMiddleware } from '@nestjs/common';
 import { NextFunction, Request, Response } from 'express';
+import { tz } from '../utils/date-util';
 
 type RouteDef = {
   method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
@@ -74,7 +75,7 @@ export class PathBlockMiddleware implements NestMiddleware {
     if (!ok) {
       return res.status(HttpStatus.NOT_FOUND).json({
         statusCode: HttpStatus.NOT_FOUND,
-        timestamp: new Date().toISOString(),
+        timestamp: tz().format('YYYY-MM-DD HH:mm:ss'),
         path: `${method} ${url}`,
         message: '존재하지 않는 요청입니다.',
       });

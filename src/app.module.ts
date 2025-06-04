@@ -1,4 +1,5 @@
 import {
+  Logger,
   MiddlewareConsumer,
   Module,
   NestModule,
@@ -21,6 +22,8 @@ import { PathBlockMiddleware } from './common/middleware/path-block-middleware';
 import { DiscordWebhookService } from './common/discord/discord-webhook.service';
 import { HttpModule } from '@nestjs/axios';
 import { OpenaiModule } from './common/openai/openai.module';
+import { tz } from './common/utils/date-util';
+import dayjs from 'dayjs';
 
 @Module({
   imports: [
@@ -84,6 +87,7 @@ export class AppModule implements NestModule, OnApplicationBootstrap {
   ) {}
 
   async onApplicationBootstrap() {
+    Logger.debug(`[CURRENT TIME] ${tz().format()}`);
     await this.furnitureSeedService.sync();
     await this.ecoVerificationSeedService.sync();
   }

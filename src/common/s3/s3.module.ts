@@ -7,6 +7,7 @@ import { S3Client } from '@aws-sdk/client-s3';
 import { basename, extname } from 'path';
 import { BusinessException } from '../exception/business-exception';
 import { ErrorType } from '../exception/error-code.enum';
+import { tz } from '../utils/date-util';
 
 @Module({
   imports: [
@@ -32,7 +33,7 @@ import { ErrorType } from '../exception/error-code.enum';
             const ext = extname(file.originalname); // 확장자
             const baseName = basename(file.originalname, ext); // 확장자 제외
             // 파일이름-날짜.확장자
-            const fileName = `images/${baseName}-${Date.now()}${ext}`;
+            const fileName = `images/${baseName}-${tz().millisecond()}${ext}`;
             callback(null, fileName);
           },
         }),

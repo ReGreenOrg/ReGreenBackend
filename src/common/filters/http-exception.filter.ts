@@ -9,6 +9,7 @@ import { Request, Response } from 'express';
 import { BusinessException } from '../exception/business-exception';
 import { ERROR_META } from '../exception/error-meta';
 import { DiscordWebhookService } from '../discord/discord-webhook.service';
+import { tz } from '../utils/date-util';
 
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
@@ -56,7 +57,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const payload = {
       method: request.method,
       path: request.url,
-      timestamp: new Date().toISOString(),
+      timestamp: tz().format('YYYY-MM-DD HH:mm:ss'),
     };
     response.status(status).json({ code, message, ...payload });
   }

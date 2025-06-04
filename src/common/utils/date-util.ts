@@ -5,7 +5,8 @@ const utc = require('dayjs/plugin/utc');
 const timezone = require('dayjs/plugin/timezone');
 dayjs.extend(utc);
 dayjs.extend(timezone);
+dayjs.tz.setDefault('Asia/Seoul');
 
-export function tz(d?: string | number | Date | null | undefined): Dayjs {
-  return dayjs.tz(d);
+export function tz(): Dayjs {
+  return dayjs.tz();
 }

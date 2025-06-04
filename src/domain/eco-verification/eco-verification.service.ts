@@ -19,6 +19,7 @@ import {
 import * as dayjs from 'dayjs';
 import { CoupleService } from '../couple/couple.service';
 import { MemberEcoVerificationSummaryResponseDto } from './dto/member-eco-verification-summary-response.dto';
+import { tz } from '../../common/utils/date-util';
 
 @Injectable()
 export class EcoVerificationService {
@@ -84,7 +85,7 @@ export class EcoVerificationService {
         status: EcoVerificationStatus.REJECTED,
       })
       .andWhere('DATE(mev.createdAt) = :today', {
-        today: dayjs().format('YYYY-MM-DD'),
+        today: tz().format('YYYY-MM-DD'),
       })
       .getExists();
 
@@ -263,7 +264,7 @@ export class EcoVerificationService {
     const todayDate =
       date && date.trim().length
         ? dayjs(date).format('YYYY-MM-DD')
-        : dayjs().format('YYYY-MM-DD');
+        : tz().format('YYYY-MM-DD');
     const yesterdayDate = dayjs(date).subtract(1, 'day').format('YYYY-MM-DD');
 
     const memberEcoVerifications = await this.memberEcoVerificationRepo.find({
@@ -352,7 +353,7 @@ export class EcoVerificationService {
         type: record.ecoVerification.type,
       })
       .andWhere('DATE(mev.createdAt) = :today', {
-        today: dayjs().format('YYYY-MM-DD'),
+        today: tz().format('YYYY-MM-DD'),
       })
       .getExists();
 

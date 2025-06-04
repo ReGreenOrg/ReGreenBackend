@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { firstValueFrom } from 'rxjs';
+import { tz } from '../utils/date-util';
 
 @Injectable()
 export class DiscordWebhookService {
@@ -32,7 +33,7 @@ export class DiscordWebhookService {
           title: options.title,
           description: options.message,
           color: 0xff0000,
-          timestamp: new Date().toISOString(),
+          timestamp: tz().format('YYYY-MM-DD HH:mm:ss'),
           fields: options.stack
             ? [{ name: 'Stack Trace', value: '```' + options.stack + '```' }]
             : [],
