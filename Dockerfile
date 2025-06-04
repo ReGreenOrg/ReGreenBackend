@@ -7,6 +7,9 @@ RUN apk add --no-cache tzdata \
     && echo "Asia/Seoul" > /etc/timezone \
     && apk del tzdata
 
+# Node.js 한국시간 설정
+ENV TZ=Asia/Seoul
+
 # 작업 디렉터리 생성
 WORKDIR /usr/src/app
 
@@ -21,9 +24,6 @@ COPY . .
 
 # NestJS 빌드
 RUN npm run build
-
-# Node.js 한국시간 설정
-ENV TZ=Asia/Seoul
 
 # 서버 실행
 EXPOSE 4000
