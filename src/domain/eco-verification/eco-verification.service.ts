@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EcoVerification } from './entities/eco-verification.entity';
 import { DataSource, Raw, Repository } from 'typeorm';
@@ -265,6 +265,7 @@ export class EcoVerificationService {
       date && date.trim().length
         ? dayjs(date).format('YYYY-MM-DD')
         : tz().format('YYYY-MM-DD');
+    Logger.debug(`Today >>> ${tz().format()} >>> ${todayDate}`);
     const yesterdayDate = dayjs(date).subtract(1, 'day').format('YYYY-MM-DD');
 
     const memberEcoVerifications = await this.memberEcoVerificationRepo.find({
