@@ -75,25 +75,25 @@ export class EcoVerificationService {
       throw new BusinessException(ErrorType.ECO_VERIFICATION_NOT_FOUND);
     }
 
-    const existsToday = await this.memberEcoVerificationRepo
-      .createQueryBuilder('mev')
-      .where('mev.memberId = :memberId', { memberId })
-      .andWhere('mev.ecoVerificationId = :ecoVerificationId', {
-        ecoVerificationId: ecoVerificationId,
-      })
-      .andWhere('mev.status != :status', {
-        status: EcoVerificationStatus.REJECTED,
-      })
-      .andWhere('DATE(mev.createdAt) = :today', {
-        today: tz().format('YYYY-MM-DD'),
-      })
-      .getExists();
-
-    if (existsToday) {
-      throw new BusinessException(
-        ErrorType.ALREADY_APPROVED_ECO_VERIFICATION_TODAY,
-      );
-    }
+    // const existsToday = await this.memberEcoVerificationRepo
+    //   .createQueryBuilder('mev')
+    //   .where('mev.memberId = :memberId', { memberId })
+    //   .andWhere('mev.ecoVerificationId = :ecoVerificationId', {
+    //     ecoVerificationId: ecoVerificationId,
+    //   })
+    //   .andWhere('mev.status != :status', {
+    //     status: EcoVerificationStatus.REJECTED,
+    //   })
+    //   .andWhere('DATE(mev.createdAt) = :today', {
+    //     today: tz().format('YYYY-MM-DD'),
+    //   })
+    //   .getExists();
+    //
+    // if (existsToday) {
+    //   throw new BusinessException(
+    //     ErrorType.ALREADY_APPROVED_ECO_VERIFICATION_TODAY,
+    //   );
+    // }
 
     const { isValid, reason } = await this.openaiService.verifyImageByType(
       imageUrl,
