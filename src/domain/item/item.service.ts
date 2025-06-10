@@ -41,10 +41,12 @@ export class ItemService {
         'i.previewImageUrl   AS "previewImageUrl"',
         'i.category          AS "category"',
         'i.zIndex            AS "zIndex"',
+        'i.code                AS "code"',
         'ci.id               AS "coupleItemId"',
         'ci.isPlaced         AS "isPlaced"',
       ])
-      .orderBy('i.zIndex', 'ASC')
+      .orderBy('i.category', 'ASC')
+      .addOrderBy('i.price', 'ASC')
       .getRawMany();
 
     return rows.map((row) => ({
