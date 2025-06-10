@@ -61,8 +61,8 @@ export class EcoVerificationController {
   async share(
     @Req() req: RequestMember,
     @Param('memberEcoVerificationId') memberEcoVerificationId: string,
-  ): Promise<{ isAffected: boolean }> {
-    return await this.ecoVerificationService.giveExtraPoints(
+  ): Promise<void> {
+    await this.ecoVerificationService.giveExtraPoints(
       req.user.memberId,
       memberEcoVerificationId,
     );

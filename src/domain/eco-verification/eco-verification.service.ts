@@ -150,10 +150,8 @@ export class EcoVerificationService {
   async giveExtraPoints(
     memberId: string,
     memberEcoVerificationId: string,
-  ): Promise<{
-    isAffected: boolean;
-  }> {
-    return await this.dataSource.transaction(async (manager) => {
+  ): Promise<void> {
+    await this.dataSource.transaction(async (manager) => {
       const memberEcoVerificationManager = manager.getRepository(
         MemberEcoVerification,
       );
@@ -181,7 +179,7 @@ export class EcoVerificationService {
       }
 
       if (memberEcoVerification.isShared) {
-        return { isAffected: false };
+        throw new BusinessException(ErrorType.ALREADY_GIVEN_SHARE_POINT);
       }
 
       memberEcoVerification.isShared = true;
@@ -189,7 +187,6 @@ export class EcoVerificationService {
 
       const couple = memberEcoVerification.member.couple;
       await manager.increment(Couple, { id: couple.id }, 'ecoLovePoint', 20);
-      return { isAffected: true };
     });
   }
 

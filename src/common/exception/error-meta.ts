@@ -149,6 +149,11 @@ export const ERROR_META: Record<ErrorType, ErrorMeta> = {
     message: 'Already approved ecoVerification type today',
     status: HttpStatus.CONFLICT,
   },
+  [ErrorType.ALREADY_GIVEN_SHARE_POINT]: {
+    code: 47004,
+    message: 'The sharing points has already been given',
+    status: HttpStatus.BAD_REQUEST,
+  },
   [ErrorType.INVALID_ECO_REVIEW_REQUEST_STATUS]: {
     code: 47005,
     message:
