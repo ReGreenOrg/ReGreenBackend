@@ -11,6 +11,9 @@ export class Couple extends BaseEntity {
   @Column({ type: 'int', default: 14 })
   breakupBufferPoint: number;
 
+  @Column({ length: 12, nullable: true })
+  name: string;
+
   @OneToMany(() => Member, (member) => member.couple, { eager: false })
   members: Member[];
 

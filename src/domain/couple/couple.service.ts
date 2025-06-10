@@ -202,4 +202,14 @@ export class CoupleService {
       relations: ['members'],
     });
   }
+
+  async updateName(memberId: string, name: string) {
+    const member = await this.memberService.findByIdOrThrowException(memberId);
+    if (!member.couple) {
+      throw new BusinessException(ErrorType.COUPLE_NOT_FOUND);
+    }
+
+    member.couple.name = name;
+    await this.coupleRepo.save(member.couple);
+  }
 }
