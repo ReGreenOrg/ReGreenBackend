@@ -17,7 +17,7 @@ export class EcoVerification extends BaseEntity {
   @Column()
   breakupBufferPoint: number;
 
-  @Column()
+  @Column({ nullable: true })
   iconImageUrl: string;
 
   @Column({ type: 'enum', enum: EcoVerificationType })

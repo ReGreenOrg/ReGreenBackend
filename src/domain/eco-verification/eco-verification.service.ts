@@ -20,6 +20,7 @@ import * as dayjs from 'dayjs';
 import { CoupleService } from '../couple/couple.service';
 import { MemberEcoVerificationSummaryResponseDto } from './dto/member-eco-verification-summary-response.dto';
 import { tz } from '../../common/utils/date-util';
+import { Member } from '../member/entities/member.entity';
 
 @Injectable()
 export class EcoVerificationService {
@@ -367,5 +368,53 @@ export class EcoVerificationService {
 
     record.status = EcoVerificationStatus.GOING_OVER;
     await this.memberEcoVerificationRepo.save(record);
+  }
+
+  async easterEgg(memberId: string): Promise<void> {
+    await this.dataSource.transaction(async (manager) => {
+      const member = await manager.findOne(Member, {
+        where: { id: memberId },
+        relations: ['couple'],
+      });
+      if (!member) {
+        throw new BusinessException(ErrorType.MEMBER_NOT_FOUND);
+      }
+      if (!member.couple) {
+        throw new BusinessException(ErrorType.COUPLE_NOT_FOUND);
+      }
+
+      const ev = await manager.findOne(EcoVerification, {
+        where: { code: 'easter-egg-00' },
+      });
+      if (!ev) {
+        throw new BusinessException(ErrorType.ECO_VERIFICATION_NOT_FOUND);
+      }
+
+      const isDuplicatedEaster = await this.memberEcoVerificationRepo
+        .createQueryBuilder('mev')
+        .where('mev.memberId = :memberId', { memberId })
+        .andWhere('mev.ecoVerificationId = :ecoVerificationId', {
+          ecoVerificationId: ev.id,
+        })
+        .getExists();
+      if (isDuplicatedEaster) {
+        throw new BusinessException(ErrorType.ALREADY_APPROVED_EASTER_EGG);
+      }
+
+      const mev = manager.create(MemberEcoVerification, {
+        member,
+        ecoVerification: ev,
+        status: EcoVerificationStatus.APPROVED,
+        imageUrl: '',
+      });
+      await manager.save(MemberEcoVerification, mev);
+
+      await manager.increment(
+        Couple,
+        { id: member.couple.id },
+        'ecoLovePoint',
+        ev.ecoLovePoint,
+      );
+    });
   }
 }

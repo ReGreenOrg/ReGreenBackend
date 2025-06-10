@@ -28,6 +28,7 @@ export class PathBlockMiddleware implements NestMiddleware {
 
     // Eco Verification
     { method: 'GET', path: '/api/eco-verifications' },
+    { method: 'POST', path: '/api/eco-verifications/easter-egg' },
     {
       method: 'POST',
       path: /^\/api\/eco-verifications\/[^/]+$/,
