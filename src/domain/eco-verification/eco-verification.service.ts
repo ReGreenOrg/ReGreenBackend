@@ -310,6 +310,7 @@ export class EcoVerificationService {
             breakupBufferPoint: mev.ecoVerification.breakupBufferPoint,
             linkUrl: mev.linkUrl,
             status: mev.status,
+            imageUrl: mev.imageUrl,
           }));
           return {
             isMe: m.id === memberId,
