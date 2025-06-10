@@ -6,7 +6,7 @@ export const ITEM_SEEDS: DeepPartial<Item>[] = [
   /*-- 바닥 --*/
   {
     code: '20250524-00',
-    name: '기본 바닥재',
+    name: '기본 바닥',
     price: 0,
     category: ItemCategory.FLOOR,
     zIndex: 0,
@@ -17,7 +17,7 @@ export const ITEM_SEEDS: DeepPartial<Item>[] = [
   },
   {
     code: '20250531-04',
-    name: '스폰지밥 바닥재',
+    name: '스폰지밥 바닥',
     price: 15,
     category: ItemCategory.FLOOR,
     zIndex: 0,
@@ -28,7 +28,7 @@ export const ITEM_SEEDS: DeepPartial<Item>[] = [
   },
   {
     code: '20250531-05',
-    name: '우드 바닥재',
+    name: '우드 바닥',
     price: 10,
     category: ItemCategory.FLOOR,
     zIndex: 0,
@@ -39,7 +39,7 @@ export const ITEM_SEEDS: DeepPartial<Item>[] = [
   },
   {
     code: '20250531-06',
-    name: '버건디 바닥재',
+    name: '버건디 바닥',
     price: 10,
     category: ItemCategory.FLOOR,
     zIndex: 0,
@@ -50,7 +50,7 @@ export const ITEM_SEEDS: DeepPartial<Item>[] = [
   },
   {
     code: '20250531-07',
-    name: '시크블랙 바닥재',
+    name: '시크블랙 바닥',
     price: 10,
     category: ItemCategory.FLOOR,
     zIndex: 0,

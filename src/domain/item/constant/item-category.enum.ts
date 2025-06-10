@@ -1,7 +1,7 @@
 export enum ItemCategory {
-  FLOOR = 'floor',
-  WALL_PAPER = 'wallPaper',
-  FURNITURE = 'furniture',
-  WINDOW = 'window',
-  PROP = 'prop',
+  FLOOR = 'FLOOR',
+  WALL_PAPER = 'WALL_PAPER',
+  FURNITURE = 'FURNITURE',
+  WINDOW = 'WINDOW',
+  PROP = 'PROP',
 }
