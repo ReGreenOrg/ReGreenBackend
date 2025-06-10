@@ -149,9 +149,9 @@ export const ERROR_META: Record<ErrorType, ErrorMeta> = {
     message: 'Already approved ecoVerification type today',
     status: HttpStatus.CONFLICT,
   },
-  [ErrorType.ALREADY_SUBMITTED_ECO_VERIFICATION_LINK]: {
+  [ErrorType.ALREADY_GIVEN_SHARE_POINT]: {
     code: 47004,
-    message: 'Already submitted eco verification link',
+    message: 'The sharing points has already been given',
     status: HttpStatus.BAD_REQUEST,
   },
   [ErrorType.INVALID_ECO_REVIEW_REQUEST_STATUS]: {
@@ -160,14 +160,14 @@ export const ERROR_META: Record<ErrorType, ErrorMeta> = {
       'Request review is only possible if the current status is REJECTED',
     status: HttpStatus.BAD_REQUEST,
   },
-  [ErrorType.INVALID_ECO_ADD_LINK_STATUS]: {
+  [ErrorType.INVALID_ECO_SHARE_STATUS]: {
     code: 47006,
-    message: 'Adding link is only possible if the current status is APPROVED',
+    message: 'Sharing is only possible if the current status is APPROVED',
     status: HttpStatus.BAD_REQUEST,
   },
-  [ErrorType.ALREADY_APPROVED_EASTER_EGG]: {
+  [ErrorType.ALREADY_APPROVED_EVENT]: {
     code: 47007,
-    message: 'Already approved easter egg',
+    message: 'Already approved event',
     status: HttpStatus.BAD_REQUEST,
   },
   // 네트워크·rate-limit 등 OpenAI SDK 오류

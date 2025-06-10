@@ -28,8 +28,8 @@ export class MemberEcoVerification extends BaseEntity {
   @Column({ length: 100, nullable: true })
   location?: string;
 
-  @Column({ nullable: true })
-  linkUrl?: string;
+  @Column({ default: false })
+  isShared: boolean;
 
   @ManyToOne(() => Member, (member) => member.ecoVerificationLinks, {
     onDelete: 'CASCADE',

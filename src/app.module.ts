@@ -23,7 +23,6 @@ import { DiscordWebhookService } from './common/discord/discord-webhook.service'
 import { HttpModule } from '@nestjs/axios';
 import { OpenaiModule } from './common/openai/openai.module';
 import { tz } from './common/utils/date-util';
-import dayjs from 'dayjs';
 
 @Module({
   imports: [

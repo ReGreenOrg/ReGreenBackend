@@ -1,5 +1,5 @@
 export enum EcoVerificationType {
   REUSABLE_CUP = 'REUSABLE_CUP',
   PLOGGING_PROOF = 'PLOGGING_PROOF',
-  EASTER_EGG = 'EASTER_EGG',
+  EVENT = 'EVENT',
 }
