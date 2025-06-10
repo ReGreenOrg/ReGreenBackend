@@ -1,5 +1,4 @@
 import {
-  Body,
   Controller,
   Get,
   Param,
@@ -22,7 +21,6 @@ import { MemberEcoVerificationSummaryResponseDto } from './dto/member-eco-verifi
 import { PaginatedDto } from '../../common/dto/paginated.dto';
 import { MemberEcoVerificationResponseDto } from './dto/member-eco-verification-response.dto';
 import { RequestMember } from '../../common/dto/request-user.dto';
-import { SubmitUrlDto } from './dto/submit-url.dto';
 
 @Controller('eco-verifications')
 @UseGuards(JwtAccessGuard)

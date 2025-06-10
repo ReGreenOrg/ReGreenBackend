@@ -4,11 +4,11 @@ import { EcoVerificationType } from './eco-verification-type.enum';
 
 export const ECO_VERIFICATION_SEEDS: DeepPartial<EcoVerification>[] = [
   {
-    code: 'easter-egg-00',
+    code: 'event-00',
     title: '사전예약 히든미션',
     ecoLovePoint: 100,
     breakupBufferPoint: 0,
-    type: EcoVerificationType.EASTER_EGG,
+    type: EcoVerificationType.EVENT,
   },
   {
     code: '20250524-00',

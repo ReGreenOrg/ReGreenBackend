@@ -160,9 +160,9 @@ export const ERROR_META: Record<ErrorType, ErrorMeta> = {
     message: 'Sharing is only possible if the current status is APPROVED',
     status: HttpStatus.BAD_REQUEST,
   },
-  [ErrorType.ALREADY_APPROVED_EASTER_EGG]: {
+  [ErrorType.ALREADY_APPROVED_EVENT]: {
     code: 47007,
-    message: 'Already approved easter egg',
+    message: 'Already approved event',
     status: HttpStatus.BAD_REQUEST,
   },
   // 네트워크·rate-limit 등 OpenAI SDK 오류

@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EcoVerification } from './entities/eco-verification.entity';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, Not, Repository } from 'typeorm';
 import { MemberEcoVerification } from '../member/entities/member-eco-verification.entity';
 import { MemberService } from '../member/member.service';
 import { BusinessException } from '../../common/exception/business-exception';
@@ -43,8 +43,8 @@ export class EcoVerificationService {
         'e.breakupBufferPoint  AS "breakupBufferPoint"',
         'e.iconImageUrl        AS "iconImageUrl"',
       ])
-      .where('e.type != :eggType', {
-        eggType: EcoVerificationType.EASTER_EGG,
+      .where('e.type != :eventType', {
+        eventType: EcoVerificationType.EVENT,
       })
       .orderBy('e.code', 'ASC')
       .getRawMany();
@@ -65,7 +65,12 @@ export class EcoVerificationService {
   ): Promise<MemberEcoVerificationSummaryResponseDto> {
     const [member, ecoVerification] = await Promise.all([
       this.memberService.findByIdOrThrowException(memberId),
-      this.ecoVerificationRepo.findOneBy({ id: ecoVerificationId }),
+      this.ecoVerificationRepo.findOne({
+        where: {
+          id: ecoVerificationId,
+          type: Not(EcoVerificationType.EVENT),
+        },
+      }),
     ]);
     if (!member) {
       throw new BusinessException(ErrorType.MEMBER_NOT_FOUND);
@@ -153,8 +158,11 @@ export class EcoVerificationService {
         MemberEcoVerification,
       );
       const memberEcoVerification = await memberEcoVerificationManager.findOne({
-        where: { id: memberEcoVerificationId },
-        relations: ['member', 'member.couple'],
+        where: {
+          id: memberEcoVerificationId,
+          ecoVerification: { type: Not(EcoVerificationType.EVENT) },
+        },
+        relations: ['member', 'member.couple', 'ecoVerification'],
       });
 
       if (!memberEcoVerification) {
@@ -191,7 +199,10 @@ export class EcoVerificationService {
     limit: number,
   ): Promise<PaginatedDto<MemberEcoVerificationResponseDto>> {
     const [items, total] = await this.memberEcoVerificationRepo.findAndCount({
-      where: { member: { id: memberId } },
+      where: {
+        member: { id: memberId },
+        ecoVerification: { type: Not(EcoVerificationType.EVENT) },
+      },
       relations: ['ecoVerification'],
       order: { createdAt: 'DESC' },
       skip: (page - 1) * limit,
@@ -222,7 +233,10 @@ export class EcoVerificationService {
     memberEcoVerificationId: string,
   ): Promise<MemberEcoVerificationResponseDto> {
     const link = await this.memberEcoVerificationRepo.findOne({
-      where: { id: memberEcoVerificationId },
+      where: {
+        id: memberEcoVerificationId,
+        ecoVerification: { type: Not(EcoVerificationType.EVENT) },
+      },
       relations: ['member', 'ecoVerification'],
     });
     if (!link) {
@@ -273,8 +287,8 @@ export class EcoVerificationService {
       .andWhere('DATE(mev.createdAt) IN (:...dates)', {
         dates: [yesterdayDate, todayDate],
       })
-      .andWhere('ev.type != :eggType', {
-        eggType: EcoVerificationType.EASTER_EGG,
+      .andWhere('ev.type != :eventType', {
+        eventType: EcoVerificationType.EVENT,
       })
       .getMany();
 
@@ -320,41 +334,45 @@ export class EcoVerificationService {
     memberId: string,
     memberEcoVerificationId: string,
   ): Promise<void> {
-    const record = await this.memberEcoVerificationRepo.findOne({
-      where: { id: memberEcoVerificationId },
-      relations: ['member', 'ecoVerification'],
+    await this.dataSource.transaction(async (manager) => {
+      const record = await manager.findOne(MemberEcoVerification, {
+        where: {
+          id: memberEcoVerificationId,
+          ecoVerification: { type: Not(EcoVerificationType.EVENT) },
+        },
+        relations: ['member', 'ecoVerification'],
+        lock: { mode: 'pessimistic_write' },
+      });
+      if (!record) {
+        throw new BusinessException(
+          ErrorType.MEMBER_ECO_VERIFICATION_NOT_FOUND,
+        );
+      }
+      if (record.member.id !== memberId) {
+        throw new BusinessException(ErrorType.MEMBER_ECO_VERIFICATION_MISMATCH);
+      }
+
+      const existsToday = await manager
+        .createQueryBuilder(MemberEcoVerification, 'mev')
+        .innerJoin('mev.ecoVerification', 'ev')
+        .where('mev.memberId = :memberId', { memberId })
+        .andWhere('mev.status != :status', {
+          status: EcoVerificationStatus.REJECTED,
+        })
+        .andWhere('ev.type = :type', { type: record.ecoVerification.type })
+        .andWhere('DATE(mev.createdAt) = :today', {
+          today: tz().format('YYYY-MM-DD'),
+        })
+        .getExists();
+      if (existsToday) {
+        throw new BusinessException(
+          ErrorType.ALREADY_APPROVED_ECO_VERIFICATION_TODAY,
+        );
+      }
+
+      record.status = EcoVerificationStatus.GOING_OVER;
+      await manager.save(record);
     });
-
-    if (!record) {
-      throw new BusinessException(ErrorType.MEMBER_ECO_VERIFICATION_NOT_FOUND);
-    }
-    if (record.member.id !== memberId) {
-      throw new BusinessException(ErrorType.MEMBER_ECO_VERIFICATION_MISMATCH);
-    }
-
-    const existsToday = await this.memberEcoVerificationRepo
-      .createQueryBuilder('mev')
-      .leftJoin('mev.ecoVerification', 'ev')
-      .where('mev.memberId = :memberId', { memberId })
-      .andWhere('mev.status != :status', {
-        status: EcoVerificationStatus.REJECTED,
-      })
-      .andWhere('ev.type = :type', {
-        type: record.ecoVerification.type,
-      })
-      .andWhere('DATE(mev.createdAt) = :today', {
-        today: tz().format('YYYY-MM-DD'),
-      })
-      .getExists();
-
-    if (existsToday) {
-      throw new BusinessException(
-        ErrorType.ALREADY_APPROVED_ECO_VERIFICATION_TODAY,
-      );
-    }
-
-    record.status = EcoVerificationStatus.GOING_OVER;
-    await this.memberEcoVerificationRepo.save(record);
   }
 
   async easterEgg(memberId: string): Promise<void> {
@@ -371,21 +389,21 @@ export class EcoVerificationService {
       }
 
       const ev = await manager.findOne(EcoVerification, {
-        where: { code: 'easter-egg-00' },
+        where: { code: 'event-00' },
       });
       if (!ev) {
         throw new BusinessException(ErrorType.ECO_VERIFICATION_NOT_FOUND);
       }
 
-      const isDuplicatedEaster = await this.memberEcoVerificationRepo
+      const isDuplicatedEvent = await this.memberEcoVerificationRepo
         .createQueryBuilder('mev')
         .where('mev.memberId = :memberId', { memberId })
         .andWhere('mev.ecoVerificationId = :ecoVerificationId', {
           ecoVerificationId: ev.id,
         })
         .getExists();
-      if (isDuplicatedEaster) {
-        throw new BusinessException(ErrorType.ALREADY_APPROVED_EASTER_EGG);
+      if (isDuplicatedEvent) {
+        throw new BusinessException(ErrorType.ALREADY_APPROVED_EVENT);
       }
 
       const mev = manager.create(MemberEcoVerification, {
