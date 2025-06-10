@@ -59,16 +59,14 @@ export class EcoVerificationController {
     );
   }
 
-  @Patch('my/:memberEcoVerificationId/link')
-  async uploadLink(
+  @Post('my/:memberEcoVerificationId/share')
+  async share(
     @Req() req: RequestMember,
     @Param('memberEcoVerificationId') memberEcoVerificationId: string,
-    @Body() urlDto: SubmitUrlDto,
-  ): Promise<void> {
-    await this.ecoVerificationService.submitLink(
+  ): Promise<{ isAffected: boolean }> {
+    return await this.ecoVerificationService.giveExtraPoints(
       req.user.memberId,
       memberEcoVerificationId,
-      urlDto.url,
     );
   }
 

@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EcoVerification } from './entities/eco-verification.entity';
-import { DataSource, Raw, Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { MemberEcoVerification } from '../member/entities/member-eco-verification.entity';
 import { MemberService } from '../member/member.service';
 import { BusinessException } from '../../common/exception/business-exception';
@@ -12,10 +12,7 @@ import { Couple } from '../couple/entities/couple.entity';
 import { EcoVerificationResponseDto } from './dto/eco-verification-response.dto';
 import { PaginatedDto } from '../../common/dto/paginated.dto';
 import { MemberEcoVerificationResponseDto } from './dto/member-eco-verification-response.dto';
-import {
-  MemberEcoVerificationDto,
-  MemberEcoVerificationGroupedDto,
-} from './dto/member-eco-verification-grouped-response.dto';
+import { MemberEcoVerificationGroupedDto } from './dto/member-eco-verification-grouped-response.dto';
 import * as dayjs from 'dayjs';
 import { CoupleService } from '../couple/couple.service';
 import { MemberEcoVerificationSummaryResponseDto } from './dto/member-eco-verification-summary-response.dto';
@@ -145,17 +142,16 @@ export class EcoVerificationService {
     };
   }
 
-  async submitLink(
+  async giveExtraPoints(
     memberId: string,
     memberEcoVerificationId: string,
-    url: string,
-  ) {
+  ): Promise<{
+    isAffected: boolean;
+  }> {
     return await this.dataSource.transaction(async (manager) => {
       const memberEcoVerificationManager = manager.getRepository(
         MemberEcoVerification,
       );
-      const coupleManager = manager.getRepository(Couple);
-
       const memberEcoVerification = await memberEcoVerificationManager.findOne({
         where: { id: memberEcoVerificationId },
         relations: ['member', 'member.couple'],
@@ -166,30 +162,26 @@ export class EcoVerificationService {
           ErrorType.MEMBER_ECO_VERIFICATION_NOT_FOUND,
         );
       }
+      if (!memberEcoVerification.member.couple) {
+        throw new BusinessException(ErrorType.COUPLE_NOT_FOUND);
+      }
       if (memberEcoVerification.member.id != memberId) {
         throw new BusinessException(ErrorType.MEMBER_ECO_VERIFICATION_MISMATCH);
       }
-
       if (memberEcoVerification.status !== EcoVerificationStatus.APPROVED) {
-        throw new BusinessException(ErrorType.INVALID_ECO_ADD_LINK_STATUS);
+        throw new BusinessException(ErrorType.INVALID_ECO_SHARE_STATUS);
       }
 
-      if (memberEcoVerification.linkUrl) {
-        throw new BusinessException(
-          ErrorType.ALREADY_SUBMITTED_ECO_VERIFICATION_LINK,
-        );
+      if (memberEcoVerification.isShared) {
+        return { isAffected: false };
       }
 
-      memberEcoVerification.linkUrl = url;
+      memberEcoVerification.isShared = true;
       await memberEcoVerificationManager.save(memberEcoVerification);
 
       const couple = memberEcoVerification.member.couple;
-      if (!couple) {
-        throw new BusinessException(ErrorType.COUPLE_NOT_FOUND);
-      }
-
-      couple.ecoLovePoint += 20;
-      await coupleManager.save(couple);
+      await manager.increment(Couple, { id: couple.id }, 'ecoLovePoint', 20);
+      return { isAffected: true };
     });
   }
 
@@ -306,7 +298,6 @@ export class EcoVerificationService {
             type: mev.ecoVerification.type,
             ecoLovePoint: mev.ecoVerification.ecoLovePoint,
             breakupBufferPoint: mev.ecoVerification.breakupBufferPoint,
-            linkUrl: mev.linkUrl,
             status: mev.status,
             imageUrl: mev.imageUrl,
           })) || [];
