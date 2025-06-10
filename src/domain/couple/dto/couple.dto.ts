@@ -4,5 +4,6 @@ export class CoupleDto {
   coupleId: string;
   ecoLovePoint: number;
   breakupBufferPoint: number;
+  name: string;
   members: MemberSummaryDto[];
 }

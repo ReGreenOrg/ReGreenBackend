@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
   Req,
   UseGuards,
@@ -13,6 +14,7 @@ import { JwtAccessGuard } from '../auth/guards/jwt-access.guard';
 import { CoupleCodeDto } from './dto/couple-code.dto';
 import { CoupleDto } from './dto/couple.dto';
 import { RequestMember } from '../../common/dto/request-user.dto';
+import { UpdateCoupleNameDto } from './dto/update-couple-name.dto';
 
 @Controller('couples')
 @UseGuards(JwtAccessGuard)
@@ -43,6 +45,14 @@ export class CoupleController {
   @Delete('my')
   async breakup(@Req() req: RequestMember): Promise<void> {
     await this.coupleService.breakup(req.user.memberId);
+  }
+
+  @Patch('my/name')
+  async updateName(
+    @Req() req: RequestMember,
+    @Body() dto: UpdateCoupleNameDto,
+  ): Promise<void> {
+    await this.coupleService.updateName(req.user.memberId, dto.name);
   }
 
   @Get('code/:code/nickname')

@@ -129,7 +129,6 @@ export class CoupleService {
 
   async findByMemberId(memberId: string): Promise<CoupleDto | null> {
     const member = await this.memberService.findByIdOrThrowException(memberId);
-
     if (!member?.couple) {
       return null;
     }
@@ -138,7 +137,6 @@ export class CoupleService {
       where: { id: member.couple.id },
       relations: ['members'],
     });
-
     if (!couple) {
       return null;
     }
@@ -147,6 +145,7 @@ export class CoupleService {
       coupleId: couple.id,
       ecoLovePoint: couple.ecoLovePoint,
       breakupBufferPoint: couple.breakupBufferPoint,
+      name: couple.name,
       members: couple.members.map((m) => ({
         memberId: m.id,
         nickname: m.nickname,
@@ -201,5 +200,15 @@ export class CoupleService {
       where: { id: member.couple.id },
       relations: ['members'],
     });
+  }
+
+  async updateName(memberId: string, name: string) {
+    const member = await this.memberService.findByIdOrThrowException(memberId);
+    if (!member.couple) {
+      throw new BusinessException(ErrorType.COUPLE_NOT_FOUND);
+    }
+
+    member.couple.name = name;
+    await this.coupleRepo.save(member.couple);
   }
 }

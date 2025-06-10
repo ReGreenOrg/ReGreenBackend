@@ -14,4 +14,6 @@ export const ECO_PROMPTS: Record<EcoVerificationType, string> = {
     `1) collected litter or a filled trash bag, or ` +
     `2) a plogging tool or context (litter picker, glove, or a person holding litter outdoors). ` +
     `If neither element is visible, return false and state in Korean what is missing.`,
+
+  EASTER_EGG: '',
 };

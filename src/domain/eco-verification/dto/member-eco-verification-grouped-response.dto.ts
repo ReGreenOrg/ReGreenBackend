@@ -4,6 +4,7 @@ export interface MemberEcoVerificationDto {
   ecoLovePoint: number;
   breakupBufferPoint: number;
   status: string;
+  imageUrl: string;
 }
 
 export interface MemberEcoVerificationGroupedDto {

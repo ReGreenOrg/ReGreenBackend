@@ -36,6 +36,11 @@ export class EcoVerificationController {
     return this.ecoVerificationService.getEcoVerifications();
   }
 
+  @Post('easter-egg')
+  async easterEgg(@Req() req: RequestMember): Promise<void> {
+    await this.ecoVerificationService.easterEgg(req.user.memberId);
+  }
+
   @Post(':ecoVerificationId')
   @UseInterceptors(FileInterceptor('file'))
   async uploadFile(

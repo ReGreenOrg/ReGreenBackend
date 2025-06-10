@@ -99,7 +99,7 @@ export const ERROR_META: Record<ErrorType, ErrorMeta> = {
   },
   [ErrorType.INVALID_FILE_FORMAT]: {
     code: 54001,
-    message: 'The file was not transferred.',
+    message: 'The file was not transferred',
     status: HttpStatus.UNPROCESSABLE_ENTITY,
   },
 
@@ -157,12 +157,17 @@ export const ERROR_META: Record<ErrorType, ErrorMeta> = {
   [ErrorType.INVALID_ECO_REVIEW_REQUEST_STATUS]: {
     code: 47005,
     message:
-      'Request review is only possible if the current status is REJECTED.',
+      'Request review is only possible if the current status is REJECTED',
     status: HttpStatus.BAD_REQUEST,
   },
   [ErrorType.INVALID_ECO_ADD_LINK_STATUS]: {
     code: 47006,
-    message: 'Adding link is only possible if the current status is APPROVED.',
+    message: 'Adding link is only possible if the current status is APPROVED',
+    status: HttpStatus.BAD_REQUEST,
+  },
+  [ErrorType.ALREADY_APPROVED_EASTER_EGG]: {
+    code: 47007,
+    message: 'Already approved easter egg',
     status: HttpStatus.BAD_REQUEST,
   },
   // 네트워크·rate-limit 등 OpenAI SDK 오류
