@@ -21,6 +21,7 @@ import { CoupleService } from '../couple/couple.service';
 import { MemberEcoVerificationSummaryResponseDto } from './dto/member-eco-verification-summary-response.dto';
 import { tz } from '../../common/utils/date-util';
 import { Member } from '../member/entities/member.entity';
+import { EcoVerificationType } from './constant/eco-verification-type.enum';
 
 @Injectable()
 export class EcoVerificationService {
@@ -269,42 +270,35 @@ export class EcoVerificationService {
     Logger.debug(`Today >>> ${tz().format()} >>> ${todayDate}`);
     const yesterdayDate = dayjs(date).subtract(1, 'day').format('YYYY-MM-DD');
 
-    const memberEcoVerifications = await this.memberEcoVerificationRepo.find({
-      where: [
-        {
-          member: { id: me.id },
-          createdAt: Raw(
-            (alias) => `DATE(${alias}) IN ('${yesterdayDate}', '${todayDate}')`,
-          ),
-        },
-        {
-          member: { id: lover.id },
-          createdAt: Raw(
-            (alias) => `DATE(${alias}) IN ('${yesterdayDate}', '${todayDate}')`,
-          ),
-        },
-      ],
-      relations: ['ecoVerification', 'member'],
-    });
+    const rawRecs = await this.memberEcoVerificationRepo
+      .createQueryBuilder('mev')
+      .innerJoinAndSelect('mev.ecoVerification', 'ev')
+      .innerJoinAndSelect('mev.member', 'm')
+      .where('m.id IN (:...ids)', { ids: [me.id, lover.id] })
+      .andWhere('DATE(mev.createdAt) IN (:...dates)', {
+        dates: [yesterdayDate, todayDate],
+      })
+      .andWhere('ev.type != :eggType', {
+        eggType: EcoVerificationType.EASTER_EGG,
+      })
+      .getMany();
 
-    type VerMap = Record<string, MemberEcoVerification[]>;
-    const groupedByDateAndMember: VerMap = {};
+    const grouped = rawRecs.reduce<Record<string, MemberEcoVerification[]>>(
+      (acc, rec) => {
+        const d = dayjs(rec.createdAt).format('YYYY-MM-DD');
+        const key = `${d}|${rec.member.id}`;
+        (acc[key] = acc[key] || []).push(rec);
+        return acc;
+      },
+      {},
+    );
 
-    for (const recMev of memberEcoVerifications) {
-      const recDate = dayjs(recMev.createdAt).format('YYYY-MM-DD');
-      const key = `${recDate}|${recMev.member.id}`;
-      if (!groupedByDateAndMember[key]) {
-        groupedByDateAndMember[key] = [];
-      }
-      groupedByDateAndMember[key].push(recMev);
-    }
-
-    const buildResultForDate = (targetDate: string) => {
-      const memberGroupedResult: MemberEcoVerificationGroupedDto[] =
-        members.map((m) => {
-          const key = `${targetDate}|${m.id}`;
-          const recs = groupedByDateAndMember[key] || [];
-          const items: MemberEcoVerificationDto[] = recs.map((mev) => ({
+    const build = (targetDate: string) => ({
+      date: targetDate,
+      members: members.map((m) => {
+        const key = `${targetDate}|${m.id}`;
+        const items =
+          (grouped[key] || []).map((mev) => ({
             memberEcoVerificationId: mev.id,
             type: mev.ecoVerification.type,
             ecoLovePoint: mev.ecoVerification.ecoLovePoint,
@@ -312,20 +306,19 @@ export class EcoVerificationService {
             linkUrl: mev.linkUrl,
             status: mev.status,
             imageUrl: mev.imageUrl,
-          }));
-          return {
-            isMe: m.id === memberId,
-            memberId: m.id,
-            nickname: m.id === memberId ? `${m.nickname}(나)` : m.nickname,
-            memberEcoVerifications: items,
-          };
-        });
-      return { date: targetDate, members: memberGroupedResult };
-    };
+          })) || [];
+        return {
+          isMe: m.id === memberId,
+          memberId: m.id,
+          nickname: m.id === memberId ? `${m.nickname}(나)` : m.nickname,
+          memberEcoVerifications: items,
+        };
+      }),
+    });
 
     return {
-      today: buildResultForDate(todayDate),
-      yesterday: buildResultForDate(yesterdayDate),
+      today: build(todayDate),
+      yesterday: build(yesterdayDate),
     };
   }
 
