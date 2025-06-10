@@ -3,6 +3,7 @@ import { DeepPartial } from 'typeorm';
 import { Item } from '../entities/item.entity';
 
 export const ITEM_SEEDS: DeepPartial<Item>[] = [
+  /*-- 바닥 --*/
   {
     code: '20250524-00',
     name: '기본 바닥재',
@@ -14,6 +15,52 @@ export const ITEM_SEEDS: DeepPartial<Item>[] = [
     previewImageUrl:
       'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/preview/20250524-00.png',
   },
+  {
+    code: '20250531-04',
+    name: '스폰지밥 바닥재',
+    price: 15,
+    category: ItemCategory.FLOOR,
+    zIndex: 0,
+    imageUrl:
+      'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/20250531-04.png',
+    previewImageUrl:
+      'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/preview/20250531-04.png',
+  },
+  {
+    code: '20250531-05',
+    name: '우드 바닥재',
+    price: 10,
+    category: ItemCategory.FLOOR,
+    zIndex: 0,
+    imageUrl:
+      'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/20250531-05.png',
+    previewImageUrl:
+      'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/preview/20250531-05.png',
+  },
+  {
+    code: '20250531-06',
+    name: '버건디 바닥재',
+    price: 10,
+    category: ItemCategory.FLOOR,
+    zIndex: 0,
+    imageUrl:
+      'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/20250531-06.png',
+    previewImageUrl:
+      'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/preview/20250531-06.png',
+  },
+  {
+    code: '20250531-07',
+    name: '시크블랙 바닥재',
+    price: 10,
+    category: ItemCategory.FLOOR,
+    zIndex: 0,
+    imageUrl:
+      'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/20250531-07.png',
+    previewImageUrl:
+      'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/preview/20250531-07.png',
+  },
+
+  /*-- 벽지 --*/
   {
     code: '20250524-01',
     name: '기본 벽지',
@@ -30,12 +77,58 @@ export const ITEM_SEEDS: DeepPartial<Item>[] = [
     name: '에코 벽지',
     price: 5,
     category: ItemCategory.WALL_PAPER,
-    zIndex: 10,
+    zIndex: 5,
     imageUrl:
       'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/20250524-02.png',
     previewImageUrl:
       'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/preview/20250524-02.png',
   },
+  {
+    code: '20250531-00',
+    name: '초콜릿 벽지',
+    price: 10,
+    category: ItemCategory.WALL_PAPER,
+    zIndex: 5,
+    imageUrl:
+      'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/20250531-00.png',
+    previewImageUrl:
+      'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/preview/20250531-00.png',
+  },
+  {
+    code: '20250531-01',
+    name: '오션 벽지',
+    price: 10,
+    category: ItemCategory.WALL_PAPER,
+    zIndex: 5,
+    imageUrl:
+      'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/20250531-01.png',
+    previewImageUrl:
+      'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/preview/20250531-01.png',
+  },
+  {
+    code: '20250531-02',
+    name: '공주 벽지',
+    price: 30,
+    category: ItemCategory.WALL_PAPER,
+    zIndex: 5,
+    imageUrl:
+      'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/20250531-02.png',
+    previewImageUrl:
+      'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/preview/20250531-02.png',
+  },
+  {
+    code: '20250531-03',
+    name: '병아리 벽지',
+    price: 10,
+    category: ItemCategory.WALL_PAPER,
+    zIndex: 5,
+    imageUrl:
+      'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/20250531-03.png',
+    previewImageUrl:
+      'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/preview/20250531-03.png',
+  },
+
+  /*-- 가구 --*/
   {
     code: '20250524-03',
     name: '에코 선반 세트',
@@ -48,6 +141,41 @@ export const ITEM_SEEDS: DeepPartial<Item>[] = [
       'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/preview/20250524-03.png',
   },
   {
+    code: '20250524-09',
+    name: '에코 침대',
+    price: 50,
+    category: ItemCategory.FURNITURE,
+    zIndex: 45,
+    imageUrl:
+      'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/20250524-09.png',
+    previewImageUrl:
+      'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/preview/20250524-09.png',
+  },
+  {
+    code: '20250524-12',
+    name: '에코 책상 세트',
+    price: 300,
+    category: ItemCategory.FURNITURE,
+    zIndex: 60,
+    imageUrl:
+      'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/20250524-12.png',
+    previewImageUrl:
+      'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/preview/20250524-12.png',
+  },
+  {
+    code: '20250524-13',
+    name: '에코 의자',
+    price: 100,
+    category: ItemCategory.FURNITURE,
+    zIndex: 65,
+    imageUrl:
+      'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/20250524-13.png',
+    previewImageUrl:
+      'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/preview/20250524-13.png',
+  },
+
+  /*-- 소품 --*/
+  {
     code: '20250524-04',
     name: '에코 캘린더',
     price: 80,
@@ -57,17 +185,6 @@ export const ITEM_SEEDS: DeepPartial<Item>[] = [
       'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/20250524-04.png',
     previewImageUrl:
       'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/preview/20250524-04.png',
-  },
-  {
-    code: '20250524-05',
-    name: '에코 창문',
-    price: 60,
-    category: ItemCategory.WINDOW,
-    zIndex: 25,
-    imageUrl:
-      'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/20250524-05.png',
-    previewImageUrl:
-      'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/preview/20250524-05.png',
   },
   {
     code: '20250524-06',
@@ -103,17 +220,6 @@ export const ITEM_SEEDS: DeepPartial<Item>[] = [
       'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/preview/20250524-08.png',
   },
   {
-    code: '20250524-09',
-    name: '에코 침대',
-    price: 50,
-    category: ItemCategory.FURNITURE,
-    zIndex: 45,
-    imageUrl:
-      'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/20250524-09.png',
-    previewImageUrl:
-      'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/preview/20250524-09.png',
-  },
-  {
     code: '20250524-10',
     name: '에코 스탠드',
     price: 500,
@@ -135,26 +241,17 @@ export const ITEM_SEEDS: DeepPartial<Item>[] = [
     previewImageUrl:
       'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/preview/20250524-11.png',
   },
+
+  /*-- 창문 --*/
   {
-    code: '20250524-12',
-    name: '에코 책상 세트',
-    price: 300,
-    category: ItemCategory.FURNITURE,
-    zIndex: 60,
+    code: '20250524-05',
+    name: '에코 창문',
+    price: 60,
+    category: ItemCategory.WINDOW,
+    zIndex: 25,
     imageUrl:
-      'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/20250524-12.png',
+      'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/20250524-05.png',
     previewImageUrl:
-      'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/preview/20250524-12.png',
-  },
-  {
-    code: '20250524-13',
-    name: '에코 의자',
-    price: 100,
-    category: ItemCategory.FURNITURE,
-    zIndex: 65,
-    imageUrl:
-      'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/20250524-13.png',
-    previewImageUrl:
-      'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/preview/20250524-13.png',
+      'https://regreen-bucket.s3.ap-northeast-2.amazonaws.com/images/constant/furniture/preview/20250524-05.png',
   },
 ];
