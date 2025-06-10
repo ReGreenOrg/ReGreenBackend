@@ -46,6 +46,9 @@ export class EcoVerificationService {
         'e.breakupBufferPoint  AS "breakupBufferPoint"',
         'e.iconImageUrl        AS "iconImageUrl"',
       ])
+      .where('e.type != :eggType', {
+        eggType: EcoVerificationType.EASTER_EGG,
+      })
       .orderBy('e.code', 'ASC')
       .getRawMany();
 
