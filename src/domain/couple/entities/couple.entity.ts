@@ -8,11 +8,11 @@ export class Couple extends BaseEntity {
   @Column({ type: 'int', unsigned: true, default: 50 })
   ecoLovePoint: number;
 
-  @Column({ type: 'int', default: 14 })
-  breakupBufferPoint: number;
-
   @Column({ length: 12, nullable: true })
   name: string;
+
+  @Column({ type: 'date', nullable: false })
+  breakupAt: Date;
 
   @OneToMany(() => Member, (member) => member.couple, { eager: false })
   members: Member[];
