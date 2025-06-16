@@ -12,6 +12,8 @@ import { ErrorType } from '../../common/exception/error-code.enum';
 import { BusinessException } from '../../common/exception/business-exception';
 import { CoupleCodeDto } from './dto/couple-code.dto';
 import { MemberService } from '../member/member.service';
+import { tz } from '../../common/utils/date-util';
+import * as dayjs from 'dayjs';
 
 @Injectable()
 export class CoupleService {
@@ -136,15 +138,24 @@ export class CoupleService {
     const couple = await this.coupleRepo.findOne({
       where: { id: member.couple.id },
       relations: ['members'],
+      select: ['id', 'ecoLovePoint', 'name', 'breakupAt'],
     });
     if (!couple) {
       return null;
     }
 
+    const today = tz().format('YYYY-MM-DD');
+    const breakupDateStr = dayjs(couple.breakupAt).format('YYYY-MM-DD');
+    let remainingDays = dayjs(breakupDateStr, 'YYYY-MM-DD').diff(
+      dayjs(today, 'YYYY-MM-DD'),
+      'day',
+    );
+    if (remainingDays < 0) remainingDays = 0;
+
     return {
       coupleId: couple.id,
       ecoLovePoint: couple.ecoLovePoint,
-      breakupBufferPoint: couple.breakupBufferPoint,
+      breakupBufferPoint: remainingDays,
       name: couple.name,
       members: couple.members.map((m) => ({
         memberId: m.id,

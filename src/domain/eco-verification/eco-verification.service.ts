@@ -19,6 +19,7 @@ import { MemberEcoVerificationSummaryResponseDto } from './dto/member-eco-verifi
 import { tz } from '../../common/utils/date-util';
 import { Member } from '../member/entities/member.entity';
 import { EcoVerificationType } from './constant/eco-verification-type.enum';
+import { addDays } from 'date-fns';
 
 @Injectable()
 export class EcoVerificationService {
@@ -121,18 +122,27 @@ export class EcoVerificationService {
         record = await manager.save(MemberEcoVerification, record);
 
         if (isValid) {
-          await manager.increment(
-            Couple,
-            { id: member.couple!.id },
-            'ecoLovePoint',
-            ecoVerification.ecoLovePoint,
-          );
-          await manager.increment(
-            Couple,
-            { id: member.couple!.id },
-            'breakupBufferPoint',
+          const coupleRepo = manager.getRepository(Couple);
+          const couple = await coupleRepo.findOneOrFail({
+            where: { id: member.couple!.id },
+            select: ['breakupAt'],
+          });
+
+          const newBreakupAt = addDays(
+            couple.breakupAt,
             ecoVerification.breakupBufferPoint,
           );
+
+          await manager
+            .createQueryBuilder()
+            .update(Couple)
+            .set({
+              ecoLovePoint: () =>
+                `ecoLovePoint + ${ecoVerification.ecoLovePoint}`,
+              breakupAt: newBreakupAt,
+            })
+            .where('id = :id', { id: member.couple!.id })
+            .execute();
         }
         return record;
       },
@@ -273,7 +283,9 @@ export class EcoVerificationService {
       date && date.trim().length
         ? dayjs(date).format('YYYY-MM-DD')
         : tz().format('YYYY-MM-DD');
-    Logger.debug(`Today >>> ${tz().format()} >>> ${todayDate}`);
+    Logger.debug(
+      `[getCoupleVerifications] Today >>> ${tz().format()} >>> ${todayDate}`,
+    );
     const yesterdayDate = dayjs(date).subtract(1, 'day').format('YYYY-MM-DD');
 
     const rawRecs = await this.memberEcoVerificationRepo
