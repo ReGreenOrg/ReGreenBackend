@@ -17,6 +17,7 @@ import * as dayjs from 'dayjs';
 import { CouplePhoto } from './entities/couple-photo.entity';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getS3FileInfo } from '../../common/s3/s3.func';
+import { EcoVerificationStatus } from '../member/constants/eco-verification.status.enum';
 
 @Injectable()
 export class CoupleService {
@@ -140,15 +141,76 @@ export class CoupleService {
     if (!member?.couple) {
       return null;
     }
-
+    const cid = member.couple.id;
     const couple = await this.coupleRepo.findOne({
-      where: { id: member.couple.id },
+      where: { id: cid },
       relations: ['members'],
-      select: ['id', 'ecoLovePoint', 'name', 'breakupAt', 'profileImageUrl'],
+      select: [
+        'id',
+        'name',
+        'profileImageUrl',
+        'ecoLovePoint',
+        'cumulativeEcoLovePoints',
+        'breakupAt',
+      ],
     });
     if (!couple) {
       return null;
     }
+
+    const raw = await this.coupleRepo
+      .createQueryBuilder('c')
+      .select([
+        'c.cumulativeEcoLovePoints AS cumulativeEcoLovePoints',
+        'COALESCE(a.ecoVerificationCount,0) AS ecoVerificationCount',
+      ])
+      .innerJoin(
+        (qb) =>
+          qb
+            .from('member_eco_verification', 'mev')
+            .select('m.coupleId', 'coupleId')
+            .addSelect('COUNT(*)', 'ecoVerificationCount')
+            .innerJoin('member', 'm', 'mev.memberId = m.id')
+            .where('mev.status = :approved', {
+              approved: EcoVerificationStatus.APPROVED,
+            })
+            .andWhere('m.coupleId = :cid', { cid })
+            .groupBy('m.coupleId'),
+        'a',
+        'a.coupleId = c.id',
+      )
+      .where('c.id = :cid', { cid })
+      .getRawOne<{
+        cumulativeEcoLovePoints: number;
+        ecoVerificationCount: number;
+      }>();
+
+    const cumulativeEcoLovePoints = raw?.cumulativeEcoLovePoints ?? 0;
+    const ecoVerificationCount = raw?.ecoVerificationCount ?? 0;
+    const ecoScore = cumulativeEcoLovePoints + ecoVerificationCount * 10;
+
+    const higherCount = await this.coupleRepo
+      .createQueryBuilder('c2')
+      .leftJoin(
+        (qb) =>
+          qb
+            .from('member_eco_verification', 'mev')
+            .select('m.coupleId', 'coupleId')
+            .addSelect('COUNT(*)', 'approvedCount')
+            .innerJoin('member', 'm', 'mev.memberId = m.id')
+            .where('mev.status = :approved', {
+              approved: EcoVerificationStatus.APPROVED,
+            })
+            .groupBy('m.coupleId'),
+        'a2',
+        'a2.coupleId = c2.id',
+      )
+      .where(
+        `c2.cumulativeEcoLovePoints + COALESCE(a2.approvedCount,0)*10 > :myScore`,
+        { myScore: ecoScore },
+      )
+      .getCount();
+    const rank = higherCount + 1;
 
     const today = tz().format('YYYY-MM-DD');
     const breakupDateStr = dayjs(couple.breakupAt).format('YYYY-MM-DD');
@@ -160,10 +222,13 @@ export class CoupleService {
 
     return {
       coupleId: couple.id,
-      ecoLovePoint: couple.ecoLovePoint,
-      breakupBufferPoint: remainingDays,
       name: couple.name,
       profileImageUrl: couple.profileImageUrl,
+      ecoLovePoint: couple.ecoLovePoint,
+      breakupBufferPoint: remainingDays,
+      cumulativeEcoLovePoints: couple.cumulativeEcoLovePoints,
+      ecoScore,
+      rank,
       members: couple.members.map((m) => ({
         memberId: m.id,
         nickname: m.nickname,
