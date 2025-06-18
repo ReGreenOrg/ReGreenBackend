@@ -8,35 +8,15 @@ import { basename, extname } from 'path';
 import { BusinessException } from '../exception/business-exception';
 import { ErrorType } from '../exception/error-code.enum';
 import { tz } from '../utils/date-util';
+import { memoryStorage } from 'multer';
 
 @Module({
   imports: [
     MulterModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (cs: ConfigService): MulterOptions => ({
-        storage: multerS3({
-          s3: new S3Client({
-            region: cs.get<string>('AWS_S3_REGION')!,
-            credentials: {
-              accessKeyId: cs.get<string>('AWS_S3_ACCESS')!,
-              secretAccessKey: cs.get<string>('AWS_S3_SECRET')!,
-            },
-          }),
-          bucket: cs.get<string>('AWS_S3_BUCKET_NAME')!,
-          //acl: 'public-read',
-          contentType: multerS3.AUTO_CONTENT_TYPE,
-          metadata(req, file, callback) {
-            callback(null, { owner: 'it' });
-          },
-          key(req, file, callback) {
-            const ext = extname(file.originalname); // 확장자
-            const baseName = basename(file.originalname, ext); // 확장자 제외
-            // 파일이름-날짜.확장자
-            const fileName = `images/${baseName}-${tz().millisecond()}${ext}`;
-            callback(null, fileName);
-          },
-        }),
+      useFactory: (): MulterOptions => ({
+        storage: memoryStorage(),
         fileFilter: (req, file, cb) => {
           const allowed = ['image/png', 'image/jpeg', 'image/webp'];
           if (allowed.includes(file.mimetype)) {
@@ -57,6 +37,20 @@ import { tz } from '../utils/date-util';
       }),
     }),
   ],
-  exports: [MulterModule],
+  providers: [
+    {
+      provide: 'S3_CLIENT',
+      useFactory: (cs: ConfigService) =>
+        new S3Client({
+          region: cs.get<string>('AWS_S3_REGION')!,
+          credentials: {
+            accessKeyId: cs.get<string>('AWS_S3_ACCESS')!,
+            secretAccessKey: cs.get<string>('AWS_S3_SECRET')!,
+          },
+        }),
+      inject: [ConfigService],
+    },
+  ],
+  exports: ['S3_CLIENT'],
 })
 export class S3Module {}

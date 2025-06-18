@@ -192,4 +192,11 @@ export const ERROR_META: Record<ErrorType, ErrorMeta> = {
     message: 'Openai vision schema mismatch',
     status: HttpStatus.INTERNAL_SERVER_ERROR,
   },
+
+  /* s3 */
+  [ErrorType.FILE_UPLOAD_FAIL]: {
+    code: 54001,
+    message: 'S3 file upload fail',
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+  },
 };

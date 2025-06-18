@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EcoVerification } from './entities/eco-verification.entity';
 import { DataSource, Not, Repository } from 'typeorm';
@@ -20,6 +20,8 @@ import { tz } from '../../common/utils/date-util';
 import { Member } from '../member/entities/member.entity';
 import { EcoVerificationType } from './constant/eco-verification-type.enum';
 import { addDays } from 'date-fns';
+import { getS3FileInfo } from '../../common/s3/s3.func';
+import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 
 @Injectable()
 export class EcoVerificationService {
@@ -28,6 +30,7 @@ export class EcoVerificationService {
     private readonly ecoVerificationRepo: Repository<EcoVerification>,
     @InjectRepository(MemberEcoVerification)
     private readonly memberEcoVerificationRepo: Repository<MemberEcoVerification>,
+    @Inject('S3_CLIENT') private readonly s3: S3Client,
     private readonly memberService: MemberService,
     private readonly coupleService: CoupleService,
     private readonly openaiService: OpenaiService,
@@ -62,7 +65,7 @@ export class EcoVerificationService {
   async verifyWithImage(
     memberId: string,
     ecoVerificationId: string,
-    imageUrl: string,
+    file: Express.Multer.File,
   ): Promise<MemberEcoVerificationSummaryResponseDto> {
     const [member, ecoVerification] = await Promise.all([
       this.memberService.findByIdOrThrowException(memberId),
@@ -103,6 +106,25 @@ export class EcoVerificationService {
       );
     }
 
+    const fileInfo = getS3FileInfo('images/eco-verifications', file);
+    try {
+      await this.s3.send(
+        new PutObjectCommand({
+          Bucket: fileInfo.bucket,
+          Key: fileInfo.key,
+          Body: fileInfo.body,
+          ContentType: fileInfo.contentType,
+          Metadata: { owner: 'it' },
+        }),
+      );
+    } catch (error) {
+      throw new BusinessException(
+        ErrorType.FILE_UPLOAD_FAIL,
+        `S3 file upload fail: ${error.message}`,
+      );
+    }
+
+    const imageUrl = fileInfo.s3Url;
     const { isValid, reason } = await this.openaiService.verifyImageByType(
       imageUrl,
       ecoVerification.type,

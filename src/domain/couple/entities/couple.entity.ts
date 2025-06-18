@@ -8,6 +8,12 @@ export class Couple extends BaseEntity {
   @Column({ type: 'int', unsigned: true, default: 50 })
   ecoLovePoint: number;
 
+  @Column({ type: 'int', unsigned: true, default: 0 })
+  cumulativeEcoLovePoints: number;
+
+  @Column()
+  profileImageUrl: string;
+
   @Column({ length: 12, nullable: true })
   name: string;
 

@@ -16,6 +16,6 @@ export function getDataSourceConfig(cs: ConfigService): DataSourceOptions {
     migrations: isProd
       ? ['dist/common/database/migration/*.js']
       : [__dirname + '/migration/*.ts'],
-    synchronize: false,
+    synchronize: true,
   };
 }
