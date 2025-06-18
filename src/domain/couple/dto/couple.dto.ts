@@ -5,5 +5,6 @@ export class CoupleDto {
   ecoLovePoint: number;
   breakupBufferPoint: number;
   name: string;
+  profileImageUrl: string;
   members: MemberSummaryDto[];
 }
