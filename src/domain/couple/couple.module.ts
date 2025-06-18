@@ -8,6 +8,7 @@ import { CoupleItem } from './entities/couple-item.entity';
 import { MemberModule } from '../member/member.module';
 import { S3Module } from '../../common/s3/s3.module';
 import { CouplePhoto } from './entities/couple-photo.entity';
+import { CoupleRankingService } from './couple-ranking.service';
 
 @Module({
   imports: [
@@ -17,7 +18,7 @@ import { CouplePhoto } from './entities/couple-photo.entity';
     S3Module,
   ],
   controllers: [CoupleController],
-  providers: [CoupleService],
+  providers: [CoupleService, CoupleRankingService],
   exports: [CoupleService],
 })
 export class CoupleModule {}

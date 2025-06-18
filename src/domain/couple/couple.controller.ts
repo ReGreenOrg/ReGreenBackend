@@ -1,11 +1,14 @@
 import {
   Body,
   Controller,
+  DefaultValuePipe,
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   Patch,
   Post,
+  Query,
   Req,
   UploadedFile,
   UseGuards,
@@ -22,11 +25,17 @@ import { BusinessException } from '../../common/exception/business-exception';
 import { ErrorType } from '../../common/exception/error-code.enum';
 import { Public } from '../auth/decorator/public.dacorator';
 import { CouplePhoto } from './entities/couple-photo.entity';
+import { CoupleRankingService } from './couple-ranking.service';
+import { PaginatedDto } from '../../common/dto/paginated.dto';
+import { RankingDto } from './dto/ranking.dto';
 
 @Controller('couples')
 @UseGuards(JwtAccessGuard)
 export class CoupleController {
-  constructor(private readonly coupleService: CoupleService) {}
+  constructor(
+    private readonly coupleService: CoupleService,
+    private readonly coupleRankingService: CoupleRankingService,
+  ) {}
 
   @Get('code')
   async createCode(@Req() req: RequestMember): Promise<CoupleCodeDto> {
@@ -91,5 +100,13 @@ export class CoupleController {
     @Param('code') code: string,
   ): Promise<{ nickname: string }> {
     return await this.coupleService.getIssuerNickname(code);
+  }
+
+  @Get('rankings')
+  async getRankings(
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('limit', new DefaultValuePipe(30), ParseIntPipe) limit: number,
+  ): Promise<PaginatedDto<RankingDto>> {
+    return this.coupleRankingService.getRankings(page, limit);
   }
 }

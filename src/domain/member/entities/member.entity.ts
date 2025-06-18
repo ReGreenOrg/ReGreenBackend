@@ -27,7 +27,7 @@ export class Member extends BaseEntity {
     cascade: false,
     nullable: true,
   })
-  @JoinColumn({ name: 'couple_id' })
+  @JoinColumn({ name: 'coupleId' })
   couple?: Couple | null;
 
   @OneToMany(() => MemberEcoVerification, (mev) => mev.member)
