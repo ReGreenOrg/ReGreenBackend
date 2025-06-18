@@ -11,7 +11,7 @@ export class Couple extends BaseEntity {
   @Column({ type: 'int', unsigned: true, default: 0 })
   cumulativeEcoLovePoints: number;
 
-  @Column()
+  @Column({ nullable: true })
   profileImageUrl: string;
 
   @Column({ length: 12, nullable: true })
