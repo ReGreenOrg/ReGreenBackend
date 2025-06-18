@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, In, Repository } from 'typeorm';
 import { Couple } from './entities/couple.entity';
@@ -14,6 +14,9 @@ import { CoupleCodeDto } from './dto/couple-code.dto';
 import { MemberService } from '../member/member.service';
 import { tz } from '../../common/utils/date-util';
 import * as dayjs from 'dayjs';
+import { CouplePhoto } from './entities/couple-photo.entity';
+import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import { getS3FileInfo } from '../../common/s3/s3.func';
 
 @Injectable()
 export class CoupleService {
@@ -21,6 +24,9 @@ export class CoupleService {
 
   constructor(
     @InjectRepository(Couple) private coupleRepo: Repository<Couple>,
+    @InjectRepository(CouplePhoto)
+    private couplePhotoRepo: Repository<CouplePhoto>,
+    @Inject('S3_CLIENT') private readonly s3: S3Client,
     private dataSource: DataSource,
     private readonly redisService: RedisService,
     private readonly memberService: MemberService,
@@ -224,13 +230,61 @@ export class CoupleService {
     await this.coupleRepo.save(member.couple);
   }
 
-  async updateImage(memberId: string, imageUrl: string): Promise<void> {
+  async updateImage(
+    memberId: string,
+    file: Express.Multer.File,
+  ): Promise<void> {
     const member = await this.memberService.findByIdOrThrowException(memberId);
     if (!member.couple) {
       throw new BusinessException(ErrorType.COUPLE_NOT_FOUND);
     }
 
-    member.couple.profileImageUrl = imageUrl;
+    const fileInfo = getS3FileInfo('images/couple-images', file);
+    try {
+      await this.s3.send(
+        new PutObjectCommand({
+          Bucket: fileInfo.bucket,
+          Key: fileInfo.key,
+          Body: fileInfo.body,
+          ContentType: fileInfo.contentType,
+          Metadata: { owner: 'it' },
+        }),
+      );
+    } catch (error) {
+      throw new BusinessException(
+        ErrorType.FILE_UPLOAD_FAIL,
+        `S3 file upload fail: ${error.message}`,
+      );
+    }
+
+    member.couple.profileImageUrl = fileInfo.s3Url;
     await this.coupleRepo.save(member.couple);
+  }
+
+  async uploadPhoto(file: Express.Multer.File): Promise<CouplePhoto> {
+    const fileInfo = getS3FileInfo('images/couple-photos', file);
+    try {
+      await this.s3.send(
+        new PutObjectCommand({
+          Bucket: fileInfo.bucket,
+          Key: fileInfo.key,
+          Body: fileInfo.body,
+          ContentType: fileInfo.contentType,
+          Metadata: { owner: 'it' },
+        }),
+      );
+    } catch (error) {
+      throw new BusinessException(
+        ErrorType.FILE_UPLOAD_FAIL,
+        `S3 file upload fail: ${error.message}`,
+      );
+    }
+
+    const couplePhoto = this.couplePhotoRepo.create({
+      imageUrl: fileInfo.s3Url,
+    });
+    await this.couplePhotoRepo.save(couplePhoto);
+
+    return couplePhoto;
   }
 }

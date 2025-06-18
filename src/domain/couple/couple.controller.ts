@@ -18,9 +18,10 @@ import { CoupleDto } from './dto/couple.dto';
 import { RequestMember } from '../../common/dto/request-user.dto';
 import { UpdateCoupleNameDto } from './dto/update-couple-name.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { MemberEcoVerificationSummaryResponseDto } from '../eco-verification/dto/member-eco-verification-summary-response.dto';
 import { BusinessException } from '../../common/exception/business-exception';
 import { ErrorType } from '../../common/exception/error-code.enum';
+import { Public } from '../auth/decorator/public.dacorator';
+import { CouplePhoto } from './entities/couple-photo.entity';
 
 @Controller('couples')
 @UseGuards(JwtAccessGuard)
@@ -65,12 +66,24 @@ export class CoupleController {
   @UseInterceptors(FileInterceptor('file'))
   async updateImage(
     @Req() req: RequestMember,
-    @UploadedFile() file: Express.MulterS3.File,
+    @UploadedFile() file: Express.Multer.File,
   ): Promise<void> {
     if (!file) {
       throw new BusinessException(ErrorType.INVALID_FILE_FORMAT);
     }
-    await this.coupleService.updateImage(req.user.memberId, file.location);
+    await this.coupleService.updateImage(req.user.memberId, file);
+  }
+
+  @Public()
+  @Post('my/photos')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadPhoto(
+    @UploadedFile() file: Express.Multer.File,
+  ): Promise<CouplePhoto> {
+    if (!file) {
+      throw new BusinessException(ErrorType.INVALID_FILE_FORMAT);
+    }
+    return await this.coupleService.uploadPhoto(file);
   }
 
   @Get('code/:code/nickname')
