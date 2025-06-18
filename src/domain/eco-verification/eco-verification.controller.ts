@@ -43,7 +43,7 @@ export class EcoVerificationController {
   @UseInterceptors(FileInterceptor('file'))
   async uploadFile(
     @Req() req: RequestMember,
-    @UploadedFile() file: Express.MulterS3.File,
+    @UploadedFile() file: Express.Multer.File,
     @Param('ecoVerificationId') ecoVerificationId: string,
   ): Promise<MemberEcoVerificationSummaryResponseDto> {
     if (!file) {
@@ -53,7 +53,7 @@ export class EcoVerificationController {
     return await this.ecoVerificationService.verifyWithImage(
       req.user.memberId,
       ecoVerificationId,
-      file.location,
+      file,
     );
   }
 
