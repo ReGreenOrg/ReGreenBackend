@@ -18,6 +18,7 @@ import { CouplePhoto } from './entities/couple-photo.entity';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getS3FileInfo } from '../../common/s3/s3.func';
 import { EcoVerificationStatus } from '../member/constants/eco-verification.status.enum';
+import { IGNORE_COUPLE_IDS } from '../eco-verification/constant/ignore-couple-ids';
 
 @Injectable()
 export class CoupleService {
@@ -209,6 +210,9 @@ export class CoupleService {
         `c2.cumulativeEcoLovePoints + COALESCE(a2.approvedCount,0)*10 > :myScore`,
         { myScore: ecoScore },
       )
+      .andWhere('c2.id NOT IN (:...excludeIds)', {
+        excludeIds: IGNORE_COUPLE_IDS,
+      })
       .getCount();
     const rank = higherCount + 1;
 
@@ -220,6 +224,7 @@ export class CoupleService {
     );
     if (remainingDays < 0) remainingDays = 0;
 
+    const isIgnore = IGNORE_COUPLE_IDS.includes(cid);
     return {
       coupleId: couple.id,
       name: couple.name,
@@ -228,7 +233,7 @@ export class CoupleService {
       breakupBufferPoint: remainingDays,
       cumulativeEcoLovePoints: couple.cumulativeEcoLovePoints,
       ecoScore,
-      rank,
+      rank: isIgnore ? null : rank,
       members: couple.members.map((m) => ({
         memberId: m.id,
         nickname: m.nickname,

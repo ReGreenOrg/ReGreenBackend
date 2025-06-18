@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { Couple } from './entities/couple.entity';
 import { PaginatedDto } from '../../common/dto/paginated.dto';
 import { RankingDto } from './dto/ranking.dto';
+import { IGNORE_COUPLE_IDS } from '../eco-verification/constant/ignore-couple-ids';
 
 @Injectable()
 export class CoupleRankingService {
@@ -11,14 +12,7 @@ export class CoupleRankingService {
     @InjectRepository(Couple) private coupleRepo: Repository<Couple>,
   ) {}
 
-  async getRankings(
-    page = 1,
-    limit = 30,
-    excludeIds: string[] = [
-      '91183a8e-2edf-472d-a41e-aee9f559f0fa',
-      '87e5f18c-d50c-4681-8579-ebde339ddb24',
-    ],
-  ): Promise<PaginatedDto<RankingDto>> {
+  async getRankings(page = 1, limit = 30): Promise<PaginatedDto<RankingDto>> {
     const offset = (page - 1) * limit;
 
     const qb = this.coupleRepo
@@ -47,8 +41,10 @@ export class CoupleRankingService {
         'ecoScore',
       );
 
-    if (excludeIds.length > 0) {
-      qb.andWhere('c.id NOT IN (:...excludeIds)', { excludeIds });
+    if (IGNORE_COUPLE_IDS.length > 0) {
+      qb.andWhere('c.id NOT IN (:...excludeIds)', {
+        excludeIds: IGNORE_COUPLE_IDS,
+      });
     }
     qb.orderBy('ecoScore', 'DESC')
       .addOrderBy('c.id', 'ASC')
@@ -59,8 +55,10 @@ export class CoupleRankingService {
       qb.getRawMany<RankingDto>(),
       (() => {
         const countQb = this.coupleRepo.createQueryBuilder('c');
-        if (excludeIds.length > 0) {
-          countQb.where('c.id NOT IN (:...excludeIds)', { excludeIds });
+        if (IGNORE_COUPLE_IDS.length > 0) {
+          countQb.where('c.id NOT IN (:...excludeIds)', {
+            excludeIds: IGNORE_COUPLE_IDS,
+          });
         }
         return countQb.getCount();
       })(),

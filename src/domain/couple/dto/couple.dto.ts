@@ -8,6 +8,6 @@ export class CoupleDto {
   breakupBufferPoint: number;
   cumulativeEcoLovePoints: number;
   ecoScore: number;
-  rank: number;
+  rank?: number | null;
   members: MemberSummaryDto[];
 }
