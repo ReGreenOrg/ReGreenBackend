@@ -144,7 +144,7 @@ export class CoupleService {
     const couple = await this.coupleRepo.findOne({
       where: { id: member.couple.id },
       relations: ['members'],
-      select: ['id', 'ecoLovePoint', 'name', 'breakupAt'],
+      select: ['id', 'ecoLovePoint', 'name', 'breakupAt', 'profileImageUrl'],
     });
     if (!couple) {
       return null;
