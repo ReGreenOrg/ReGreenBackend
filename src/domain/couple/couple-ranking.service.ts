@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { Couple } from './entities/couple.entity';
 import { PaginatedDto } from '../../common/dto/paginated.dto';
 import { RankingDto } from './dto/ranking.dto';
@@ -10,21 +10,21 @@ import { IGNORE_COUPLE_IDS } from '../eco-verification/constant/ignore-couple-id
 export class CoupleRankingService {
   constructor(
     @InjectRepository(Couple) private coupleRepo: Repository<Couple>,
+    private readonly dataSource: DataSource,
   ) {}
 
-  /**
-   * ecoScore(0–1000) = 누적♥ 70 % + 평균♥ 30 %
-   * 정렬 우선순위
-   *   ① ecoScore
-   *   ② 인증 횟수
-   *   ③ 결성일
-   */
   async getRankings(page = 1, limit = 30): Promise<PaginatedDto<RankingDto>> {
     const offset = (page - 1) * limit;
 
-    /* ───────── 커플별 누적♥·인증횟수·평균♥ ───────── */
-    const base = this.coupleRepo
+    const sub = this.coupleRepo
       .createQueryBuilder('c')
+      .select([
+        'c.id                     AS coupleId',
+        'c.createdAt              AS createdAt',
+        'c.cumulativeEcoLovePoints AS cumulativeEcoLovePoints',
+        'c.profileImageUrl        AS profileImageUrl',
+        'c.name                   AS name',
+      ])
       .leftJoin(
         (qb) =>
           qb
@@ -38,10 +38,6 @@ export class CoupleRankingService {
         'a',
         'a.cid = c.id',
       )
-      .addSelect('c.id', 'coupleId')
-      .addSelect('c.name', 'name')
-      .addSelect('c.profileImageUrl', 'profileImageUrl')
-      .addSelect('c.cumulativeEcoLovePoints', 'cumulativeEcoLovePoints')
       .addSelect('COALESCE(a.ecoVerificationCount,0)', 'ecoVerificationCount')
       .addSelect(
         `CASE
@@ -51,10 +47,16 @@ export class CoupleRankingService {
         'avgHeart',
       );
 
-    /* ───────── ecoScore(0 ~ 1000, 정수) ───────── */
-    const qb = this.coupleRepo
+    const qb = this.dataSource // entity 없어도 되므로 dataSource 사용
       .createQueryBuilder()
-      .select('*')
+      .from('(' + sub.getQuery() + ')', 'b') // alias b 먼저 선언
+      .select([
+        'b.coupleId              AS coupleId',
+        'b.name                  AS name',
+        'b.profileImageUrl       AS profileImageUrl',
+        'b.cumulativeEcoLovePoints AS cumulativeEcoLovePoints',
+        'b.ecoVerificationCount  AS ecoVerificationCount',
+      ])
       .addSelect(
         `FLOOR(
          (b.cumulativeEcoLovePoints
@@ -66,8 +68,7 @@ export class CoupleRankingService {
        )`,
         'ecoScore',
       )
-      .from(`(${base.getQuery()})`, 'b')
-      .setParameters(base.getParameters());
+      .setParameters(sub.getParameters());
 
     if (IGNORE_COUPLE_IDS.length) {
       qb.where('b.coupleId NOT IN (:...excludeIds)', {
@@ -75,14 +76,12 @@ export class CoupleRankingService {
       });
     }
 
-    /* ───────── 정렬 ───────── */
-    qb.orderBy('ecoScore', 'DESC') // ① ecoScore
-      .addOrderBy('b.ecoVerificationCount', 'DESC') // ② 인증 횟수
-      .addOrderBy('b.createdAt', 'ASC') // ③ 가입일
+    qb.orderBy('ecoScore', 'DESC')
+      .addOrderBy('b.ecoVerificationCount', 'DESC')
+      .addOrderBy('b.createdAt', 'ASC')
       .offset(offset)
       .limit(limit);
 
-    /* ───────── 조회 & 매핑 ───────── */
     const [rows, total] = await Promise.all([
       qb.getRawMany<RankingDto>(),
       (() => {
@@ -100,7 +99,7 @@ export class CoupleRankingService {
       coupleId: r.coupleId,
       name: r.name,
       profileImageUrl: r.profileImageUrl,
-      ecoScore: Number(r.ecoScore), // 정수 형태
+      ecoScore: Number(r.ecoScore),
       cumulativeEcoLovePoints: Number(r.cumulativeEcoLovePoints),
       ecoVerificationCount: Number(r.ecoVerificationCount),
     }));
