@@ -1,18 +1,21 @@
 import { DataSource } from 'typeorm';
 import { EcoVerificationStatus } from '../../member/constants/eco-verification.status.enum';
 
+/* 가중치 기본값 : 누적♥ 1  |  평균♥ 0.3  */
 export interface EcoScoreWeights {
-  cum: number; // 누적♥ 가중치 (기본 1)
-  avg: number; // 평균♥ 가중치 (기본 0.3)
+  cum: number;
+  avg: number;
 }
 
-/** 커플별 누적♥·인증횟수·평균♥ 집계 */
+/* ───────────────────────────────────────────────
+   1) 커플별 누적♥·인증횟수·평균♥ 집계 서브쿼리
+   ─────────────────────────────────────────────── */
 export function coupleStatsSubQuery(ds: DataSource) {
   return ds
     .createQueryBuilder()
     .select([
-      'c.id   AS coupleId',
-      'c.createdAt AS createdAt',
+      'c.id                     AS coupleId',
+      'c.createdAt              AS createdAt',
       'c.cumulativeEcoLovePoints AS cumHeart',
     ])
     .from('couple', 'c')
@@ -32,12 +35,17 @@ export function coupleStatsSubQuery(ds: DataSource) {
     )
     .addSelect('COALESCE(a.ecoCnt,0)', 'ecoCnt')
     .addSelect(
-      `CASE WHEN COALESCE(a.ecoCnt,0)=0 THEN 0
-            ELSE c.cumulativeEcoLovePoints / a.ecoCnt END`,
+      `CASE
+         WHEN COALESCE(a.ecoCnt,0)=0 THEN 0
+         ELSE c.cumulativeEcoLovePoints / a.ecoCnt
+       END`,
       'avgHeart',
     );
 }
 
+/* ───────────────────────────────────────────────
+   2) ecoScore(절대값) + ranking 을 추가한 공통 QB
+   ─────────────────────────────────────────────── */
 export function coupleScoreQB(
   ds: DataSource,
   weights: EcoScoreWeights = { cum: 1, avg: 0.3 },
@@ -55,8 +63,9 @@ export function coupleScoreQB(
       'b.cumHeart                AS cumulativeEcoLovePoints',
       'b.ecoCnt                  AS ecoVerificationCount',
     ])
+    /* ecoScore = 누적♥ * 1 + 평균♥ * 0.3 (소수점 버림) */
     .addSelect(`FLOOR(b.cumHeart * :cumW + b.avgHeart * :avgW)`, 'ecoScore')
-    /* 랭킹: ecoScore ↓ → 인증횟수 ↓ → 결성일 ↑ */
+    /* ranking : ecoScore ↓ → 인증횟수 ↓ → 결성일 ↑ */
     .addSelect(
       `RANK() OVER (
          ORDER BY

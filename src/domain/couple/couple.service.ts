@@ -152,8 +152,8 @@ export class CoupleService {
     if (!couple) return null;
 
     const row = await coupleScoreQB(
-      this.dataSource,
-      { cum: 700, avg: 300 },
+      this.coupleRepo.manager.connection,
+      { cum: 1, avg: 0.3 },
       IGNORE_COUPLE_IDS,
     )
       .andWhere('b.coupleId = :cid', { cid })
@@ -164,7 +164,7 @@ export class CoupleService {
         ecoVerificationCount: number;
       }>();
 
-    if (!row) return null;
+    if (!row) return null; // ignore 리스트에 속할 때
 
     const remainingDays = Math.max(
       dayjs(couple.breakupAt).diff(dayjs(tz().format('YYYY-MM-DD')), 'day'),
