@@ -46,7 +46,8 @@ export class CoupleRankingService {
         excludeIds: IGNORE_COUPLE_IDS,
       });
     }
-    qb.orderBy('ecoScore', 'DESC')
+    qb.orderBy('cumulativeEcoLovePoints', 'DESC')
+      .addOrderBy('ecoVerificationCount', 'DESC')
       .addOrderBy('c.id', 'ASC')
       .offset(offset)
       .limit(limit);

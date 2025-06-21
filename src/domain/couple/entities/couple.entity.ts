@@ -8,7 +8,7 @@ export class Couple extends BaseEntity {
   @Column({ type: 'int', unsigned: true, default: 50 })
   ecoLovePoint: number;
 
-  @Column({ type: 'int', unsigned: true, default: 0 })
+  @Column({ type: 'int', unsigned: true, default: 50 })
   cumulativeEcoLovePoints: number;
 
   @Column({ nullable: true })

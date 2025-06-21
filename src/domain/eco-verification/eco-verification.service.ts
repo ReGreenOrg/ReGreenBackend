@@ -161,6 +161,8 @@ export class EcoVerificationService {
             .set({
               ecoLovePoint: () =>
                 `ecoLovePoint + ${ecoVerification.ecoLovePoint}`,
+              cumulativeEcoLovePoints: () =>
+                `cumulativeEcoLovePoints + ${ecoVerification.ecoLovePoint}`,
               breakupAt: newBreakupAt,
             })
             .where('id = :id', { id: member.couple!.id })
@@ -218,7 +220,15 @@ export class EcoVerificationService {
       await memberEcoVerificationManager.save(memberEcoVerification);
 
       const couple = memberEcoVerification.member.couple;
-      await manager.increment(Couple, { id: couple.id }, 'ecoLovePoint', 20);
+      await manager
+        .createQueryBuilder()
+        .update(Couple)
+        .set({
+          ecoLovePoint: () => 'ecoLovePoint + 20',
+          cumulativeEcoLovePoints: () => 'cumulativeEcoLovePoints + 20',
+        })
+        .where('id = :id', { id: couple.id })
+        .execute();
     });
   }
 
@@ -445,12 +455,16 @@ export class EcoVerificationService {
       });
       await manager.save(MemberEcoVerification, mev);
 
-      await manager.increment(
-        Couple,
-        { id: member.couple.id },
-        'ecoLovePoint',
-        ev.ecoLovePoint,
-      );
+      await manager
+        .createQueryBuilder()
+        .update(Couple)
+        .set({
+          ecoLovePoint: () => `ecoLovePoint + ${ev.ecoLovePoint}`,
+          cumulativeEcoLovePoints: () =>
+            `cumulativeEcoLovePoints + ${ev.ecoLovePoint}`,
+        })
+        .where('id = :id', { id: member.couple.id })
+        .execute();
     });
   }
 }
