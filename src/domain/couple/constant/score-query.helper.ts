@@ -15,6 +15,8 @@ export function coupleStatsSubQuery(ds: DataSource) {
     .createQueryBuilder()
     .select([
       'c.id                     AS coupleId',
+      'c.name                   AS name',
+      'c.profileImageUrl        AS profileImageUrl',
       'c.createdAt              AS createdAt',
       'c.cumulativeEcoLovePoints AS cumHeart',
     ])
@@ -59,6 +61,8 @@ export function coupleScoreQB(
     .setParameters(sub.getParameters())
     .select([
       'b.coupleId                AS coupleId',
+      'b.name                    AS name',
+      'b.profileImageUrl         AS profileImageUrl',
       'b.createdAt               AS createdAt',
       'b.cumHeart                AS cumulativeEcoLovePoints',
       'b.ecoCnt                  AS ecoVerificationCount',
