@@ -12,10 +12,18 @@ export class CoupleRankingService {
     @InjectRepository(Couple) private coupleRepo: Repository<Couple>,
   ) {}
 
+  /**
+   * ecoScore(0–1000) = 누적♥ 70 % + 평균♥ 30 %
+   * 정렬 우선순위
+   *   ① ecoScore
+   *   ② 인증 횟수
+   *   ③ 결성일
+   */
   async getRankings(page = 1, limit = 30): Promise<PaginatedDto<RankingDto>> {
     const offset = (page - 1) * limit;
 
-    const qb = this.coupleRepo
+    /* ───────── 커플별 누적♥·인증횟수·평균♥ ───────── */
+    const base = this.coupleRepo
       .createQueryBuilder('c')
       .leftJoin(
         (qb) =>
@@ -30,54 +38,61 @@ export class CoupleRankingService {
         'a',
         'a.cid = c.id',
       )
-      /* ───────────── 기본 컬럼들 ───────────── */
       .addSelect('c.id', 'coupleId')
       .addSelect('c.name', 'name')
       .addSelect('c.profileImageUrl', 'profileImageUrl')
       .addSelect('c.cumulativeEcoLovePoints', 'cumulativeEcoLovePoints')
       .addSelect('COALESCE(a.ecoVerificationCount,0)', 'ecoVerificationCount')
-      /* ───────────── 평균 점수 ───────────── */
       .addSelect(
         `CASE
-        WHEN COALESCE(a.ecoVerificationCount,0) = 0
-             THEN 0
-        ELSE c.cumulativeEcoLovePoints / a.ecoVerificationCount
-     END`,
-        'avgPoint',
-      )
-      /* ───────────── ecoScore = 누적♥ + 평균♥ ───────────── */
-      .addSelect(
-        `c.cumulativeEcoLovePoints
-     + CASE
-         WHEN COALESCE(a.ecoVerificationCount,0) = 0
-              THEN 0
+         WHEN COALESCE(a.ecoVerificationCount,0)=0 THEN 0
          ELSE c.cumulativeEcoLovePoints / a.ecoVerificationCount
        END`,
-        'ecoScore',
+        'avgHeart',
       );
 
+    /* ───────── ecoScore(0 ~ 1000, 정수) ───────── */
+    const qb = this.coupleRepo
+      .createQueryBuilder()
+      .select('*')
+      .addSelect(
+        `FLOOR(
+         (b.cumulativeEcoLovePoints
+            / NULLIF(MAX(b.cumulativeEcoLovePoints) OVER (),0)
+          ) * 700
+       + (b.avgHeart
+            / NULLIF(MAX(b.avgHeart) OVER (),0)
+         ) * 300
+       )`,
+        'ecoScore',
+      )
+      .from(`(${base.getQuery()})`, 'b')
+      .setParameters(base.getParameters());
+
     if (IGNORE_COUPLE_IDS.length) {
-      qb.andWhere('c.id NOT IN (:...excludeIds)', {
+      qb.where('b.coupleId NOT IN (:...excludeIds)', {
         excludeIds: IGNORE_COUPLE_IDS,
       });
     }
 
-    qb.orderBy('c.cumulativeEcoLovePoints', 'DESC')
-      .addOrderBy('avgPoint', 'DESC')
-      .addOrderBy('c.createdAt', 'ASC')
+    /* ───────── 정렬 ───────── */
+    qb.orderBy('ecoScore', 'DESC') // ① ecoScore
+      .addOrderBy('b.ecoVerificationCount', 'DESC') // ② 인증 횟수
+      .addOrderBy('b.createdAt', 'ASC') // ③ 가입일
       .offset(offset)
       .limit(limit);
 
+    /* ───────── 조회 & 매핑 ───────── */
     const [rows, total] = await Promise.all([
       qb.getRawMany<RankingDto>(),
       (() => {
-        const countQb = this.coupleRepo.createQueryBuilder('c');
-        if (IGNORE_COUPLE_IDS.length > 0) {
-          countQb.where('c.id NOT IN (:...excludeIds)', {
+        const cntQb = this.coupleRepo.createQueryBuilder('c');
+        if (IGNORE_COUPLE_IDS.length) {
+          cntQb.where('c.id NOT IN (:...excludeIds)', {
             excludeIds: IGNORE_COUPLE_IDS,
           });
         }
-        return countQb.getCount();
+        return cntQb.getCount();
       })(),
     ]);
 
@@ -85,16 +100,11 @@ export class CoupleRankingService {
       coupleId: r.coupleId,
       name: r.name,
       profileImageUrl: r.profileImageUrl,
-      ecoScore: +r.ecoScore,
-      cumulativeEcoLovePoints: +r.cumulativeEcoLovePoints,
-      ecoVerificationCount: +r.ecoVerificationCount,
+      ecoScore: Number(r.ecoScore), // 정수 형태
+      cumulativeEcoLovePoints: Number(r.cumulativeEcoLovePoints),
+      ecoVerificationCount: Number(r.ecoVerificationCount),
     }));
 
-    return {
-      results,
-      total,
-      limit,
-      page,
-    };
+    return { results, total, limit, page };
   }
 }
