@@ -19,6 +19,7 @@ import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getS3FileInfo } from '../../common/s3/s3.func';
 import { EcoVerificationStatus } from '../member/constants/eco-verification.status.enum';
 import { IGNORE_COUPLE_IDS } from '../eco-verification/constant/ignore-couple-ids';
+import { addDays } from 'date-fns';
 
 @Injectable()
 export class CoupleService {
@@ -105,7 +106,9 @@ export class CoupleService {
 
       let couple = issuer.couple;
       if (!couple) {
-        couple = coupleManager.create();
+        const breakupAt = addDays(tz().format(), 14);
+
+        couple = coupleManager.create({ breakupAt });
         await coupleManager.save(couple);
         issuer.couple = couple;
         await memberManager.save(issuer);
