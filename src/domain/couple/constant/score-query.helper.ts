@@ -73,7 +73,7 @@ export function coupleScoreQB(
            b.ecoCnt DESC,
            b.createdAt ASC
        )`,
-      'ranking',
+      'rank',
     )
     .setParameters({ cumW: weights.cum, avgW: weights.avg });
 

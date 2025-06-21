@@ -43,7 +43,7 @@ export class AuthController {
 
   @Get('/mylogin') async myLogin(): Promise<JwtResponseDto> {
     return await this.authService.issueTokens({
-      id: '5c922309-4d07-4b4f-9267-1a7931242f30',
+      id: 'm3',
     } as Member);
   }
 }

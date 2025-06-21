@@ -151,20 +151,26 @@ export class CoupleService {
     });
     if (!couple) return null;
 
-    const row = await coupleScoreQB(
+    const rankingSub = coupleScoreQB(
       this.coupleRepo.manager.connection,
       { cum: 1, avg: 0.3 },
       IGNORE_COUPLE_IDS,
-    )
-      .andWhere('b.coupleId = :cid', { cid })
+    );
+
+    const row = await this.coupleRepo.manager
+      .createQueryBuilder()
+      .select('*')
+      .from('(' + rankingSub.getQuery() + ')', 'r')
+      .setParameters(rankingSub.getParameters())
+      .where('r.coupleId = :cid', { cid })
       .getRawOne<{
         ecoScore: number;
-        ranking: number;
+        rank: number;
         cumulativeEcoLovePoints: number;
         ecoVerificationCount: number;
       }>();
 
-    if (!row) return null; // ignore 리스트에 속할 때
+    if (!row) return null;
 
     const remainingDays = Math.max(
       dayjs(couple.breakupAt).diff(dayjs(tz().format('YYYY-MM-DD')), 'day'),
@@ -179,7 +185,7 @@ export class CoupleService {
       breakupBufferPoint: remainingDays,
       cumulativeEcoLovePoints: row.cumulativeEcoLovePoints,
       ecoScore: row.ecoScore,
-      rank: row.ranking,
+      rank: row.rank,
       members: couple.members.map((m) => ({
         memberId: m.id,
         nickname: m.nickname,
