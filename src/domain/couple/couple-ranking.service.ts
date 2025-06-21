@@ -30,25 +30,41 @@ export class CoupleRankingService {
         'a',
         'a.cid = c.id',
       )
+      /* ───────────── 기본 컬럼들 ───────────── */
       .addSelect('c.id', 'coupleId')
       .addSelect('c.name', 'name')
       .addSelect('c.profileImageUrl', 'profileImageUrl')
       .addSelect('c.cumulativeEcoLovePoints', 'cumulativeEcoLovePoints')
-      .addSelect('COALESCE(a.ecoVerificationCount, 0)', 'ecoVerificationCount')
-      // ecoScore = hearts + ecoVerificationCount * 10
+      .addSelect('COALESCE(a.ecoVerificationCount,0)', 'ecoVerificationCount')
+      /* ───────────── 평균 점수 ───────────── */
       .addSelect(
-        'c.cumulativeEcoLovePoints + COALESCE(a.ecoVerificationCount, 0) * 10',
+        `CASE
+        WHEN COALESCE(a.ecoVerificationCount,0) = 0
+             THEN 0
+        ELSE c.cumulativeEcoLovePoints / a.ecoVerificationCount
+     END`,
+        'avgPoint',
+      )
+      /* ───────────── ecoScore = 누적♥ + 평균♥ ───────────── */
+      .addSelect(
+        `c.cumulativeEcoLovePoints
+     + CASE
+         WHEN COALESCE(a.ecoVerificationCount,0) = 0
+              THEN 0
+         ELSE c.cumulativeEcoLovePoints / a.ecoVerificationCount
+       END`,
         'ecoScore',
       );
 
-    if (IGNORE_COUPLE_IDS.length > 0) {
+    if (IGNORE_COUPLE_IDS.length) {
       qb.andWhere('c.id NOT IN (:...excludeIds)', {
         excludeIds: IGNORE_COUPLE_IDS,
       });
     }
-    qb.orderBy('cumulativeEcoLovePoints', 'DESC')
-      .addOrderBy('ecoVerificationCount', 'DESC')
-      .addOrderBy('c.id', 'ASC')
+
+    qb.orderBy('c.cumulativeEcoLovePoints', 'DESC')
+      .addOrderBy('avgPoint', 'DESC')
+      .addOrderBy('c.createdAt', 'ASC')
       .offset(offset)
       .limit(limit);
 
