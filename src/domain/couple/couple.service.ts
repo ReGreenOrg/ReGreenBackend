@@ -20,6 +20,7 @@ import { IGNORE_COUPLE_IDS } from '../eco-verification/constant/ignore-couple-id
 import { addDays } from 'date-fns';
 import { coupleScoreQB } from './constant/score-query.helper';
 import { MemberEcoVerification } from '../member/entities/member-eco-verification.entity';
+import * as uuid from 'uuid';
 
 @Injectable()
 export class CoupleService {
@@ -135,6 +136,61 @@ export class CoupleService {
       await memberManager.save(joiner);
 
       await this.redisService.del(this.REDIS_KEY_PREFIX + code);
+
+      return couple;
+    });
+  }
+
+  async joinSoloCouple(realUserId: string): Promise<Couple> {
+    return this.dataSource.transaction(async (manager) => {
+      const memberManager = manager.getRepository(Member);
+      const coupleManager = manager.getRepository(Couple);
+      const itemManager = manager.getRepository(Item);
+      const coupleItemManager = manager.getRepository(CoupleItem);
+
+      const realMember = await memberManager.findOne({
+        where: { id: realUserId },
+        relations: { couple: true },
+        lock: { mode: 'pessimistic_write' },
+      });
+      if (!realMember) {
+        throw new BusinessException(ErrorType.MEMBER_NOT_FOUND);
+      }
+      if (realMember.couple) {
+        throw new BusinessException(ErrorType.ALREADY_IN_COUPLE);
+      }
+
+      const breakupAt = addDays(tz().format(), 14);
+      const couple = coupleManager.create({ breakupAt, isSolo: true });
+      await coupleManager.save(couple);
+
+      const fakeMember = memberManager.create({
+        nickname: '우이미',
+        email: `fake-${uuid.v4()}@fake.com`,
+        isFake: true,
+        couple: couple,
+      });
+      await memberManager.save(fakeMember);
+
+      realMember.couple = couple;
+      await memberManager.save(realMember);
+
+      const defaultItemCodes = ['20250524-00', '20250524-01'];
+      const defaultItems = await itemManager.find({
+        where: { code: In(defaultItemCodes) },
+      });
+      if (!defaultItems.length) {
+        throw new BusinessException(ErrorType.NOT_FOUND_DEFAULT_ITEM);
+      }
+
+      const defaultCoupleItems = defaultItems.map((item) =>
+        coupleItemManager.create({
+          couple,
+          item,
+          isPlaced: true,
+        }),
+      );
+      await coupleItemManager.save(defaultCoupleItems);
 
       return couple;
     });

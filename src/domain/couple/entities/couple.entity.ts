@@ -5,6 +5,9 @@ import { CoupleItem } from './couple-item.entity';
 
 @Entity('couple')
 export class Couple extends BaseEntity {
+  @Column({ default: false })
+  isSolo: boolean;
+
   @Column({ type: 'int', unsigned: true, default: 50 })
   ecoLovePoint: number;
 

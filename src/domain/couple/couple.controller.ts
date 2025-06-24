@@ -53,6 +53,11 @@ export class CoupleController {
     );
   }
 
+  @Post('solo')
+  async joinSoloCouple(@Req() req: RequestMember): Promise<void> {
+    await this.coupleService.joinSoloCouple(req.user.memberId);
+  }
+
   @Get('my')
   async getMyCouple(@Req() req: RequestMember): Promise<CoupleDto | null> {
     return await this.coupleService.findByMemberId(req.user.memberId);
