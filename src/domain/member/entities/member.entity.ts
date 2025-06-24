@@ -12,6 +12,9 @@ import { MemberEcoVerification } from './member-eco-verification.entity';
 
 @Entity('member')
 export class Member extends BaseEntity {
+  @Column({ default: false })
+  isFake: boolean;
+
   @Column()
   nickname: string;
 
@@ -19,7 +22,7 @@ export class Member extends BaseEntity {
   @Column({ length: 255 })
   email: string;
 
-  @Column()
+  @Column({ nullable: true })
   profileImageUrl: string;
 
   @ManyToOne(() => Couple, (couple) => couple.members, {

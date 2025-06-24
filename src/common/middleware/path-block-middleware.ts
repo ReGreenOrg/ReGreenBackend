@@ -22,6 +22,7 @@ export class PathBlockMiddleware implements NestMiddleware {
     // Couple
     { method: 'GET', path: '/api/couples/code' },
     { method: 'POST', path: '/api/couples/join' },
+    { method: 'POST', path: '/api/couples/solo' },
     { method: 'GET', path: '/api/couples/my' },
     { method: 'DELETE', path: '/api/couples/my' },
     { method: 'GET', path: /^\/api\/couples\/code\/[^/]+\/nickname$/ },
